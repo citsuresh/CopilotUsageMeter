@@ -1,6 +1,6 @@
 # Code summary
 
-Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. Phase 2 implements an invented-data engine, same-user pipes, real tray lifetime/status/settings and an explicit temporary experimental VSIX test window. Account/local sources remain separate; no real authentication, GitHub/history reads or chat embedding. Eight shared libraries target netstandard2.0, Tray net10.0-windows, VSIX net48 and tests net10.0.
+Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. Phase 2 implements an invented-data engine, same-user pipes, real tray lifetime/status/settings and an explicit temporary experimental VSIX test window. Account/local sources remain separate; no real authentication, GitHub/history reads or chat embedding. Phase 3 added the `external/VsChatHistoryToolkit` submodule (CLI source, not referenced by the solution) and three Exp-only experimental probe commands in `Panel.Vsix` (`ChatPlacementProbe`, `ActiveChatProbe`); they are not production code. Eight shared libraries target netstandard2.0, Tray net10.0-windows, VSIX net48 and tests net10.0.
 
 all 58 tests
 

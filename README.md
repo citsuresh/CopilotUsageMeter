@@ -31,8 +31,8 @@ In an explicitly deployed **experimental** VS instance, choose **Tools > Copilot
 | Phase | Status |
 | --- | --- |
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
-independent review fixes and 58-test final verification passed
-| 3 - Feasibility proofs and resource baseline | Not started |
+| 2 - End-to-end skeleton | Complete: demo tray/engine, protected pipes and experimental VSIX verified live; independent review fixes and 58-test final verification passed |
+| 3 - Feasibility proofs and resource baseline | Complete with limits (user sign-off 2026-11-10): toolkit submodule pinned at `12bbfeb` (adds `usage-breakdown`); local-accounting completeness, active-chat matching and per-turn accounting verified with limits; GitHub account usage only through an unsupported endpoint, accepted for now (supported billing API returns 404 for the tested enterprise-managed seat; a GitHub App is a noted future option); chat placement partly proven and fragile (layered design agreed); resource baseline partial (demo engine only, no battery claim). See the checklist |
 | 4 - Tracking and compact UI | Not started |
 | 5 - Details, packaging and final measurements | Not started |
 

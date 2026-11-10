@@ -16,6 +16,27 @@
           <CommandName>CopilotUsageMeter.ShowDemo</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidUsageCommands" id="PlacementProbe" priority="0x0101" type="Button">
+        <Parent guid="guidUsageCommands" id="DemoGroup" />
+        <Strings>
+          <ButtonText>Copilot Usage Meter - Phase 3 Placement Probe</ButtonText>
+          <CommandName>CopilotUsageMeter.PlacementProbe</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidUsageCommands" id="TopPaneProbe" priority="0x0102" type="Button">
+        <Parent guid="guidUsageCommands" id="DemoGroup" />
+        <Strings>
+          <ButtonText>Copilot Usage Meter - Phase 3 Top-of-Pane Probe</ButtonText>
+          <CommandName>CopilotUsageMeter.TopPaneProbe</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidUsageCommands" id="ActiveChatProbe" priority="0x0103" type="Button">
+        <Parent guid="guidUsageCommands" id="DemoGroup" />
+        <Strings>
+          <ButtonText>Copilot Usage Meter - Phase 3 Active Chat Probe</ButtonText>
+          <CommandName>CopilotUsageMeter.ActiveChatProbe</CommandName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
   <Symbols>
@@ -23,6 +44,9 @@
     <GuidSymbol name="guidUsageCommands" value="{f975a94c-b23c-4239-a413-e3dc7275b87e}">
       <IDSymbol name="DemoGroup" value="0x1020" />
       <IDSymbol name="ShowDemo" value="0x0100" />
+      <IDSymbol name="PlacementProbe" value="0x0101" />
+      <IDSymbol name="TopPaneProbe" value="0x0102" />
+      <IDSymbol name="ActiveChatProbe" value="0x0103" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

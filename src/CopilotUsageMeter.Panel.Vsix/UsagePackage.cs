@@ -37,6 +37,50 @@ namespace CopilotUsageMeter.Panel.Vsix
                         "Copilot Usage Meter - demo", OLEMSGICON.OLEMSGICON_WARNING, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                 }
             }), new CommandID(CommandSet, 0x0100)));
+            // Phase 3 probes touch Copilot's live visual tree and write to %TEMP%: register them only in the experimental instance.
+            if (!IsExperimentalInstance()) return;
+            service.AddCommand(new MenuCommand((_, _) =>
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                try { ChatPlacementProbe.Run(); }
+                catch (Exception exception)
+                {
+                    ActivityLog.LogError(nameof(UsagePackage), $"Placement probe failed: {exception.GetType().Name}.");
+                }
+            }, new CommandID(CommandSet, 0x0101)));
+            service.AddCommand(new MenuCommand((_, _) =>
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                try { ChatPlacementProbe.RunTopOfPane(); }
+                catch (Exception exception)
+                {
+                    ActivityLog.LogError(nameof(UsagePackage), $"Top-of-pane probe failed: {exception.GetType().Name}.");
+                }
+            }, new CommandID(CommandSet, 0x0102)));
+            service.AddCommand(new MenuCommand((_, _) =>
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                try { ActiveChatProbe.Run(); }
+                catch (Exception exception)
+                {
+                    ActivityLog.LogError(nameof(UsagePackage), $"Active chat probe failed: {exception.GetType().Name}.");
+                }
+            }, new CommandID(CommandSet, 0x0103)));
+        }
+
+        private static bool IsExperimentalInstance()
+        {
+            var arguments = Environment.GetCommandLineArgs();
+            for (var i = 0; i < arguments.Length - 1; i++)
+            {
+                if ((arguments[i].Equals("/rootsuffix", StringComparison.OrdinalIgnoreCase) || arguments[i].Equals("-rootsuffix", StringComparison.OrdinalIgnoreCase))
+                    && arguments[i + 1].Equals("Exp", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
