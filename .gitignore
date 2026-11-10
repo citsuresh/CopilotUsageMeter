@@ -1,0 +1,13 @@
+# Visual Studio local state
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# .NET build outputs
+[Bb]in/
+[Oo]bj/
+
+# Test results
+[Tt]est[Rr]esults/

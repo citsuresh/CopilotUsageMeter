@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Product>Copilot Usage Meter</Product>
+    <Version>0.1.0</Version>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>

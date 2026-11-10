@@ -1,0 +1,15 @@
+﻿<Window x:Class="CopilotUsageMeter.Tray.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CopilotUsageMeter.Tray"
+        mc:Ignorable="d"
+        Title="Copilot Usage Meter - Scaffold" Height="240" Width="540">
+    <StackPanel Margin="24">
+        <TextBlock Text="Copilot Usage Meter" FontSize="22" Margin="0,0,0,16" />
+        <TextBlock Text="Phase 1: solution and project scaffolding only." TextWrapping="Wrap" />
+        <TextBlock Text="Tray hosting, account sign-in, local tracking and the usage panel are not implemented yet."
+                   TextWrapping="Wrap" Margin="0,8,0,0" />
+    </StackPanel>
+</Window>

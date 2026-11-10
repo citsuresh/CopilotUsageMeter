@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CopilotUsageMeter.Core\CopilotUsageMeter.Core.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Contracts\CopilotUsageMeter.Contracts.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Transport.Pipes\CopilotUsageMeter.Transport.Pipes.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>

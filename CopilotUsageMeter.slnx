@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/CopilotUsageMeter.Client/CopilotUsageMeter.Client.csproj" />
+    <Project Path="src/CopilotUsageMeter.Contracts/CopilotUsageMeter.Contracts.csproj" />
+    <Project Path="src/CopilotUsageMeter.Core/CopilotUsageMeter.Core.csproj" />
+    <Project Path="src/CopilotUsageMeter.Panel.Core/CopilotUsageMeter.Panel.Core.csproj" />
+    <Project Path="src/CopilotUsageMeter.Panel.Vsix/CopilotUsageMeter.Panel.Vsix.csproj" />
+    <Project Path="src/CopilotUsageMeter.Readers.ChatHistoryCli/CopilotUsageMeter.Readers.ChatHistoryCli.csproj" />
+    <Project Path="src/CopilotUsageMeter.Readers.GitHub/CopilotUsageMeter.Readers.GitHub.csproj" />
+    <Project Path="src/CopilotUsageMeter.Signals.FileWatcher/CopilotUsageMeter.Signals.FileWatcher.csproj" />
+    <Project Path="src/CopilotUsageMeter.Transport.Pipes/CopilotUsageMeter.Transport.Pipes.csproj" />
+    <Project Path="src/CopilotUsageMeter.Tray/CopilotUsageMeter.Tray.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CopilotUsageMeter.Architecture.Tests/CopilotUsageMeter.Architecture.Tests.csproj" />
+  </Folder>
+</Solution>

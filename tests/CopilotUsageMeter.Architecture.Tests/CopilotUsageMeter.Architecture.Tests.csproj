@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Client\CopilotUsageMeter.Client.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Contracts\CopilotUsageMeter.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Core\CopilotUsageMeter.Core.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Panel.Core\CopilotUsageMeter.Panel.Core.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Readers.ChatHistoryCli\CopilotUsageMeter.Readers.ChatHistoryCli.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Readers.GitHub\CopilotUsageMeter.Readers.GitHub.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Signals.FileWatcher\CopilotUsageMeter.Signals.FileWatcher.csproj" />
+    <ProjectReference Include="..\..\src\CopilotUsageMeter.Transport.Pipes\CopilotUsageMeter.Transport.Pipes.csproj" />
+  </ItemGroup>
+
+</Project>

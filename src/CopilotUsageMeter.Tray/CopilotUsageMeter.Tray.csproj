@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CopilotUsageMeter.Core\CopilotUsageMeter.Core.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Contracts\CopilotUsageMeter.Contracts.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Readers.ChatHistoryCli\CopilotUsageMeter.Readers.ChatHistoryCli.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Readers.GitHub\CopilotUsageMeter.Readers.GitHub.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Signals.FileWatcher\CopilotUsageMeter.Signals.FileWatcher.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Transport.Pipes\CopilotUsageMeter.Transport.Pipes.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Client\CopilotUsageMeter.Client.csproj" />
+    <ProjectReference Include="..\CopilotUsageMeter.Panel.Core\CopilotUsageMeter.Panel.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>
