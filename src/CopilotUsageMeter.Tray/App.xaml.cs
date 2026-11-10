@@ -60,8 +60,8 @@ public partial class App : Application
 
     private async Task ExitAsync()
     {
-        if (host != null) await host.StopAsync();
-        Shutdown();
+        try { if (host != null) await host.StopAsync(); }
+        finally { Shutdown(); }
     }
 
     protected override void OnExit(ExitEventArgs e)

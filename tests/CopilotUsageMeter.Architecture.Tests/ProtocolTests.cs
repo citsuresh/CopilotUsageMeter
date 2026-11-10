@@ -165,6 +165,37 @@ public sealed class ProtocolTests
     }
 
     [Fact]
+    public async Task OwnerCancelledCommandDuringShutdownDoesNotFaultServerStop()
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        using var ownerCancel = new CancellationTokenSource();
+        var started = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var name = "CopilotUsageMeter.Test." + Guid.NewGuid().ToString("N");
+        using var server = new UsagePipeServer(
+            () => new NamedPipeServerStream(name, PipeDirection.InOut, 16, PipeTransmissionMode.Byte, PipeOptions.Asynchronous),
+            () => new UsageSnapshot { HostInstanceId = "host-007", Revision = 1 },
+            async (_, _) =>
+            {
+                started.TrySetResult(true);
+                await Task.Delay(Timeout.Infinite, ownerCancel.Token);
+                return new ProtocolMessage { Type = "Ack" };
+            });
+        using var client = new PipeUsageClient(name);
+        var connected = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.StatusChanged += status => { if (status == "Connected - demo") connected.TrySetResult(true); };
+        server.Start();
+        client.Start();
+        await connected.Task.WaitAsync(timeout.Token);
+        var pending = client.SendAsync(new ProtocolMessage { Type = "Refresh" }, timeout.Token);
+        await started.Task.WaitAsync(timeout.Token);
+        // The owner's token is cancelled before the server's own lifetime, as the tray does on Exit.
+        ownerCancel.Cancel();
+        await server.StopAsync();
+        await client.StopAsync();
+        try { await pending; } catch (Exception) { /* The command legitimately fails during shutdown. */ }
+    }
+
+    [Fact]
     public async Task IncompatibleHandshakeReturnsReadableError()
     {
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));

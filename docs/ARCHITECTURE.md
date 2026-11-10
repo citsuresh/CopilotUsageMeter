@@ -73,7 +73,7 @@ Panel UI (VSIX shell, tray flyout, WPF details window)     Hosts: Tray | Windows
 
 **Approved Phase 2 baseline (2026-11-10):** supersedes the historical Phase 1 targets/pin above. Stable SDK 10.0.403 (`latestPatch`, prerelease disabled), Tray net10.0-windows, tests net10.0, in-process VSIX net48 with matching manifest prerequisite; shared libraries retain netstandard2.0. Migration build/packaging and 23 architecture tests passed. Retargeting alone did not establish runtime support.
 
-**Implemented Phase 2 demo:** one tray-hosted `DemoUsageEngine`, real notification icon/menu, explicit lifetime, validated interval persistence and status/settings window; protected current-user pipes and a reconnecting UI-independent client/view model; explicit temporary experimental VSIX tool window. Final build and 57 tests passed. Runtime checks verified normal Exit/restart/reconnect, status close/recreation, two VS clients sharing one engine, and elevated clients with a token-verified unelevated host. No production schedules, account/history reads, chat embedding or resource measurements are implied. The temporary window is not a production fallback for chat placement.
+Final build and 58 tests passed.
 
 ## 3. The history toolkit dependency
 
@@ -199,7 +199,7 @@ Numbers/times and explicitly requested GitHub profile data only. Local titles/me
 
 Fakes for reader, clock and change signal make Core, the debounce and throttle, the visibility state machine, the cache rules and the projection deterministic. Contract tests use small sample JSON files written by hand in the CLI's shape. Architecture tests enforce the dependency rules and the no-titles rule. Pipe tests use real pipes in-process. UI tests that need focus carry a trait and are kept few. Manual checks (tray icon at several DPI scales, light and dark taskbar, details window, Visual Studio experimental instance) are listed in each phase's report.
 
-Measure resources during the POC and again after the final phase: idle/busy CPU time, memory, refresh duration, child-process launches, icon handles and multi-client read deduplication. No battery-efficiency claim without measurements. Phase 1 added dependency/compiled-type guards and negative controls; Phase 2 adds demo protocol/lifecycle/engine/settings/view-model tests (57 total), not production privacy/accounting proofs. Its independent phase review and final build/tests/runtime checks are recorded in `PHASE_PLAN.md`. Future phases still require their own reviews and whole-change verification.
+view-model tests (58 total)
 
 ## 13. Deferred items and open questions
 

@@ -144,7 +144,8 @@ namespace CopilotUsageMeter.Transport.Pipes
                     Faulted?.Invoke("Rejected an invalid or oversized pipe frame.");
                 }
                 catch (IOException) { /* A client closed its connection. */ }
-                catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+                // A command handler may be cancelled by its owner's token just before this server's own lifetime is cancelled.
+                catch (OperationCanceledException) { }
                 catch (ObjectDisposedException)
                 {
                     if (!lifetime.IsCancellationRequested) Faulted?.Invoke("Pipe session closed or handshake timed out.");
@@ -195,7 +196,8 @@ namespace CopilotUsageMeter.Transport.Pipes
             lifetime.Cancel();
             foreach (var session in sessions.Values) session.Connection.Dispose();
             if (listener != null) await listener.ConfigureAwait(false);
-            await Task.WhenAll(workers.Values.ToArray()).ConfigureAwait(false);
+            try { await Task.WhenAll(workers.Values.ToArray()).ConfigureAwait(false); }
+            catch (OperationCanceledException) { /* Workers were stopped by shutdown. */ }
         }
 
         public void Dispose()

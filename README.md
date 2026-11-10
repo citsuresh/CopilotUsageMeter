@@ -4,7 +4,7 @@ Planned Windows tray app and compact Visual Studio usage expander. GitHub-report
 
 ## Current state - Phase 2 demo
 
-Open `CopilotUsageMeter.slnx`, the sole solution. **Phase 2 is complete**, with invented data only. The full SLNX Debug build succeeds and all **57 tests pass**, zero failed/skipped: 23 architecture, 17 protocol/lifecycle, 7 demo engine, 7 settings and 3 panel view-model cases. There are ten production projects and one test project:
+all **58 tests pass**, zero failed/skipped: 23 architecture, 18 protocol/lifecycle,
 
 | Project | Target | Boundary |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ In an explicitly deployed **experimental** VS instance, choose **Tools > Copilot
 | Phase | Status |
 | --- | --- |
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
-| 2 - End-to-end skeleton | Complete: demo tray/engine, protected pipes and experimental VSIX verified live; independent review fixes and 57-test final verification passed |
+independent review fixes and 58-test final verification passed
 | 3 - Feasibility proofs and resource baseline | Not started |
 | 4 - Tracking and compact UI | Not started |
 | 5 - Details, packaging and final measurements | Not started |
@@ -40,7 +40,7 @@ The [phase checklist](docs/PHASE_PLAN.md#progress-checklist---source-of-truth) i
 
 Phase 2 live checks (2026-11-10): real icon/menu and paused state; automatic/manual refresh and resume; settings persistence; status close/recreation and single-instance activation; normal tray Exit; cached-value retention and reconnect to a new host; two actual experimental VS instances sharing identical host/revision/count. One remote refresh advanced the shared count exactly once. Process-token inspection confirmed both VS clients elevated and the tray non-elevated; bidirectional pause/refresh commands succeeded. A fresh final VSIX/unelevated-tray pass also verified remote settings saved as 10 seconds, persistence across restart, default windowless startup, remote status creation, retained stale values and disabled disconnected commands. All task-owned tray/experimental VS processes were closed normally; originally absent test settings and named activity logs were removed. The demo extension remains deployed only to Exp.
 
-Independent review fixes include protocol recovery/request correlation/sequence handling, shutdown cancellation, invalid-settings startup handling, and a final disposed-connection command race. The last defect was reproduced by a deterministic real-pipe regression (red before the client fix, green afterward). Full solution/VSIX verification and all 57 tests passed after the fixes. No unresolved audit findings remain. Reusable cross-integrity verification helpers are indexed in [SCRIPTS.md](docs/SCRIPTS.md).
+Full solution/VSIX verification and all 58 tests passed after the fixes. A later post-commit review also hardened Exit against an owner-cancelled in-flight pipe command (code-trace finding; not reproduced at runtime, so the added test is a shutdown smoke test, not a proven red/green regression). No unresolved audit findings remain.
 
 Historical Phase 1 scaffold smoke test (2026-11-10): launched, attached debugger by PID, paused/resumed, confirmed responsiveness/title and closed normally. Exception inspection was unavailable (`no-stack-frame`). This was before the tray lifetime and VSIX integration existed.
 
@@ -58,7 +58,7 @@ The approved baseline replaces the original draft targets and temporary preview 
 | Shared libraries | netstandard2.0 | Remain consumable by both the modern tray and .NET Framework VSIX |
 | Build SDK | 10.0.403, stable .NET 10 SDK | Pin the installed stable SDK; allow only stable patches within its feature band |
 
-SDK 10.0.403 was installed with explicit approval after verifying Microsoft's published SHA512 and installer signature. `global.json` selects it with `latestPatch` and prerelease disabled. Migration build/23-test verification passed; initial Test Explorer discovery failed, so that check used the CLI. Test Explorer now discovers/runs the complete 57-case suite. See [Microsoft's .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and [modern VSIX targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
+complete 58-case suite
 
 ## Build and tests
 

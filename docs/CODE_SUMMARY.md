@@ -2,7 +2,7 @@
 
 Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. Phase 2 implements an invented-data engine, same-user pipes, real tray lifetime/status/settings and an explicit temporary experimental VSIX test window. Account/local sources remain separate; no real authentication, GitHub/history reads or chat embedding. Eight shared libraries target netstandard2.0, Tray net10.0-windows, VSIX net48 and tests net10.0.
 
-`PHASE_PLAN.md` is authoritative. Phase 2 is complete; Phase 3 needs user direction. Stable SDK 10.0.403 is pinned with prerelease disabled. Full build, all 57 tests and live experimental-instance checks passed; independent phase-review findings were fixed and verified. Open `CopilotUsageMeter.slnx`, the sole solution.
+all 58 tests
 
 ## Project dependencies
 
