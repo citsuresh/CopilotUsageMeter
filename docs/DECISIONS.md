@@ -110,3 +110,42 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - GitHub account usage: use the unsupported copilot_internal/user endpoint for now. It must be labelled unsupported, may change or be blocked, and show an explicit unavailable state on failure; never substitute local figures. A GitHub App user token is a noted future alternative (needs admin approval; untested). Production sign-in and secure token storage are still to be designed in Phase 4.
 - Placement: layered design agreed (above Total changes, then top of pane, then a status-bar item). Neither embedded position is a supported extension point, so it must tolerate failure and re-inject whenever the chat session view is recreated.
 - Probe commands: kept for now because they are Exp-only (registered only with /RootSuffix Exp) and the placement probes still need re-running; remove or replace them with the real injector in Phase 4 so reflection-based probing does not ship.
+
+## 2026-11-10 - Phase 4 authorization and ephemeral active-chat context
+
+- Decision: Phase 4 is authorized in six parts: contracts/accounting core, local tracking, GitHub tracking, tray/protocol orchestration, compact UI/integration, and verified closeout. Phases 1-3 are complete; no automatic commit or push is authorized.
+- Decision: send only the opaque active session id from the VSIX to the tray over the same-user local pipe. Hold it in memory per connection, deduplicate active reads across IDE instances, and project each connection's chart separately. Never log, persist, export, upload or include the identifier in snapshots. A numeric context version prevents late updates for a previously selected chat from being displayed.
+- Why: different IDE instances can show different chats; one global current-chat snapshot would misattribute usage. Disconnect removes that connection's context; the client may retain it only in memory to reconnect.
+- Given up: the earlier no-chat-identifiers-on-the-pipe restriction. Source-separated account/local figures, privacy restrictions and no-text/title rules are unchanged.
+- Revisit: if a supported Copilot active-session API replaces the approved fragile internal view-model properties.
+
+## 2026-11-10 - Canonical current-chat deserialization
+
+- Decision: legacy/null current-chat objects are unavailable. Available data requires freshness and nonempty valid turn rows; null rows, duplicate/negative indices and negative credits invalidate the chart as a whole. Preserve nullable credit/time fields as unknown. Other explicit statuses retain their reason but clear rows/freshness.
+- Why: DataContractJsonSerializer bypasses property initializers; independently patched defaults repeatedly left inconsistent available states. A single fail-closed contract avoids presenting incomplete accounting as valid.
+- Verification: Part 1 Debug solution build and all 79 tests passed; the independent review reported no actionable issues. Later Phase 4 integration is verified separately in the checklist.
+
+## 2026-11-10 - Phase 4 source composition and secure optional account import
+
+- Implementation: keep one UTC-month aggregate per local refresh, deduplicate active-chat reads, and project charts/repository groups per connection. Match only exact recorded GitHub origin keys; do not pretend stored repository labels prove a canonical local filesystem root. Unknown/ambiguous/capped-missing groups stay unavailable. No paths or identifiers are sent to GitHub.
+- Account choice: an explicit gh browser/device-flow launch followed by named Windows Credential Manager import into an app-owned entry. No token extraction command, environment token, plaintext hosts.yml fallback or new OAuth app registration. Logout removes only app authorization. Legacy/refreshable gh keyring formats remain unsupported and explicit; live import/account switching is unverified.
+- Toolkit prerequisite: additive usage-turns selects greatest turn indices then returns ascending snapshots with usage-event timestamps. The verified source was transferred into the pinned submodule working tree and published portably; neither toolkit nor Meter was committed/pushed. A reproducible release pin requires later explicit commit approval.
+- Review: the independent whole-phase review found context-promotion loss, non-atomic pause transitions and stale countdown deadlines. All three were fixed and independently rechecked. Live UIA testing additionally found that Click-only expansion ignored TogglePattern; expansion now follows Checked/Unchecked and bounds expanded details with scrolling.
+
+## 2026-11-10 - Bounded active-chat identity bridges verified in Exp
+
+- Confirmed runtime shape: the current HarnessSessionViewModel exposes Session, and HarnessChatViewModel exposes Router; the approved identity members are on these nested owners, not directly on the wrappers. Read only Session.SessionId or Router.DisplayedSessionId (or the approved direct member on earlier shapes), using properties/fields and GUID validation. Do not enumerate unrelated values or use currentSessionId. Temporary type/member metadata diagnostics were removed.
+- Verification: real charts followed recorded-chat selection, replaced streaming turn usage and cleared on an unrecorded new chat; per-context reconnect and exact collapsed/expanded keyboard tooltip checks passed. Added synthetic opaque-ID/null/malformed/throwing-unrelated-getter fixtures; focused independent review found no significant issues. Internal shape support is still fragile, not a supported VS extension API.
+
+## 2026-11-11 - Blank-login discovery and direct panel sign-in
+
+- Problem: browser sign-in through the tray left the account signed-out because connecting needed a separately typed login. Decision: a blank login in Connect account (and the Exp panel's Sign in action) discovers the login by enumerating only `gh:github.com:*` credential target names; exactly one is imported, none gives `cli-login-not-found`, several give `multiple-cli-logins` and ask for a typed login. Secrets are read only for the chosen login.
+- The tray now starts browser sign-in via `gh auth login --web` and connects automatically when `gh` exits 0. Panel `SignIn` connects directly when possible, starts browser sign-in when no CLI login exists, and otherwise opens Status. `OpenStatus` still only shows the window.
+- Verification: 282 tests; live Exp tests passed tray-first and Exp-first on one enterprise seat. The interactive browser step, auto-connect after a real flow and two-account switching are unverified.
+- Tooling note: partial-line replacements with the editor tool truncated following lines in three files during this work (fixed); use whole-line replacements and review the diff.
+
+## 2026-11-11 - Token-billed premium credits are accepted when finite
+
+- Problem (found by the user in the live UI): after sign-in the account showed `unavailable` although the endpoint returned a full `premium_interactions` snapshot. Cause: the parser rejected any root `token_based_billing: true` as `unsupported-billing`, a Phase 4 guard added before the real seat shape was checked. The tested enterprise-managed Business seat reports `true` together with finite `entitlement`, `credits_used` and `remaining`.
+- Decision: `token_based_billing: true` is accepted only when the premium snapshot reports both finite `entitlement` and `credits_used` (or is unlimited). Structured/non-boolean billing shapes and partial token-billed snapshots (for example remaining only) remain `unsupported-billing`. `remaining` is still never derived; the reported value is shown.
+- Verification: 286 tests; live tray Status showed Consumed 6339 / 100000, reported remaining 93444, reset 2026-12-01. My earlier note calling this seat's quota a known limit was incorrect and is superseded.

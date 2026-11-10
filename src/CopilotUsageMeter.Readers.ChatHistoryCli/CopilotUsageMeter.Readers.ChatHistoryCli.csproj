@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CopilotUsageMeter.Core\CopilotUsageMeter.Core.csproj" />
     <ProjectReference Include="..\CopilotUsageMeter.Contracts\CopilotUsageMeter.Contracts.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <PropertyGroup>

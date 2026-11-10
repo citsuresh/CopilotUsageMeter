@@ -5,24 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CopilotUsageMeter.Tray"
         mc:Ignorable="d"
-        Title="Copilot Usage Meter - Phase 2 Demo" Height="460" Width="600" MinHeight="440" MinWidth="560">
+        Title="Copilot Usage Meter - Status / Settings" Height="700" Width="700" MinHeight="650" MinWidth="620">
     <StackPanel Margin="24">
-        <TextBlock Text="PHASE 2 DEMO - invented data only" FontSize="20" FontWeight="Bold" Margin="0,0,0,12" />
+        <TextBlock Text="Copilot Usage Meter" FontSize="20" FontWeight="Bold" Margin="0,0,0,12" />
         <TextBlock x:Name="StatusText" Margin="0,0,0,12" />
-        <TextBlock Text="Demo account (not GitHub-reported usage)" FontWeight="Bold" />
+        <TextBlock Text="GitHub-reported account (unsupported endpoint; may change)" FontWeight="Bold" />
         <TextBlock x:Name="AccountText" TextWrapping="Wrap" Margin="0,4,0,12" />
-        <TextBlock Text="Demo local analytics (this-machine scope; not billing)" FontWeight="Bold" />
+        <TextBlock x:Name="AccountRefreshText" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="Local analytics (this machine only; not account billing)" FontWeight="Bold" />
         <TextBlock x:Name="LocalText" TextWrapping="Wrap" Margin="0,4,0,12" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-            <Button Content="Refresh demo" Click="RefreshClicked" Padding="12,6" Margin="0,0,8,0" />
+            <Button Content="Refresh now" Click="RefreshClicked" Padding="12,6" Margin="0,0,8,0" />
             <Button x:Name="PauseButton" Content="Pause updates" Click="PauseClicked" Padding="12,6" />
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <Label Content="Demo refresh (5-300 seconds):" Target="{Binding ElementName=IntervalText}" VerticalAlignment="Center" />
-            <TextBox x:Name="IntervalText" Width="55" VerticalContentAlignment="Center" />
-            <Button Content="Save settings" Click="SaveClicked" Padding="12,6" Margin="8,0,0,0" />
+        <WrapPanel Margin="0,0,0,8">
+            <Button Content="Open GitHub browser sign-in" Click="SignInClicked" Padding="12,6" Margin="0,0,8,0" />
+            <Button Content="Log out" Click="SignOutClicked" Padding="12,6" />
+            <Button Content="Skip account" Click="SkipClicked" Padding="12,6" Margin="8,0,0,0" />
+        </WrapPanel>
+        <TextBlock Text="Browser sign-in connects automatically when GitHub CLI finishes. To connect manually, leave the login blank to use the single signed-in GitHub CLI login, or enter a login (never a token). Only Windows Credential Manager storage is accepted. Connect switches this app's account; local history is not reassigned." TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+            <TextBox x:Name="AccountLogin" Width="230" MaxLength="39" VerticalContentAlignment="Center" AutomationProperties.Name="GitHub login" />
+            <Button Content="Connect account" Click="ConnectClicked" Padding="12,6" Margin="8,0,0,0" />
         </StackPanel>
         <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Margin="0,4,0,8" />
-        <TextBlock Text="Closing this window keeps the tray engine running. Use the tray menu's Exit to stop it. Authentication, real usage and chat embedding are not implemented." TextWrapping="Wrap" />
+        <TextBlock Text="Closing this window keeps tracking. Exit from the tray menu stops it. Local history is never uploaded. GitHub sign-in is optional; local history is not attributed to the signed-in account. Detailed filters/export and packaging remain Phase 5." TextWrapping="Wrap" />
     </StackPanel>
 </Window>

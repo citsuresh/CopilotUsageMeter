@@ -19,6 +19,11 @@ namespace CopilotUsageMeter.Client
         private Task? worker;
         private long sequence;
         private string hostInstance = "";
+        private string? activeSessionId;
+        private string? repositoryKey;
+        private long contextVersion;
+        private readonly object contextGate = new object();
+        private readonly SemaphoreSlim contextDeliveryGate = new SemaphoreSlim(1, 1);
 
         public event Action<UsageSnapshot>? SnapshotChanged;
         public event Action<string>? StatusChanged;
@@ -70,8 +75,7 @@ namespace CopilotUsageMeter.Client
                                 throw new InvalidDataException("Invalid tray handshake.");
                             sequence = 0;
                             hostInstance = "";
-                            await active.WriteAsync(new ProtocolMessage { Type = "Subscribe" }, lifetime.Token).ConfigureAwait(false);
-                            connection = active;
+                            await SubscribeAsync(active, promote: true).ConfigureAwait(false);
                             while (!lifetime.IsCancellationRequested)
                             {
                                 var message = await active.ReadAsync(lifetime.Token).ConfigureAwait(false);
@@ -83,21 +87,25 @@ namespace CopilotUsageMeter.Client
                                     var snapshot = message.Snapshot;
                                     if (snapshot == null || string.IsNullOrWhiteSpace(snapshot.HostInstanceId)
                                         || snapshot.Revision < 1 || snapshot.Account == null || snapshot.Local == null || snapshot.Settings == null
-                                        || !snapshot.IsDemo || snapshot.Settings.DemoRefreshSeconds < 5 || snapshot.Settings.DemoRefreshSeconds > 300)
-                                        throw new InvalidDataException("Invalid demo snapshot.");
+                                        || snapshot.Settings.DemoRefreshSeconds < 5 || snapshot.Settings.DemoRefreshSeconds > 300)
+                                        throw new InvalidDataException("Invalid usage snapshot.");
                                     if (message.Type != "Snapshot" && (message.Sequence != sequence + 1 || snapshot.HostInstanceId != hostInstance))
                                     {
-                                        await active.WriteAsync(new ProtocolMessage { Type = "Subscribe" }, lifetime.Token).ConfigureAwait(false);
+                                        await SubscribeAsync(active, promote: false).ConfigureAwait(false);
                                         SetStatus("Resynchronizing");
                                         continue;
                                     }
                                     if (message.Sequence < 1) throw new InvalidDataException("Invalid delivery sequence.");
                                     sequence = message.Sequence;
                                     hostInstance = snapshot.HostInstanceId;
-                                    Snapshot = snapshot;
-                                    retrySeconds = 1;
-                                    SetStatus(snapshot.IsPaused ? "Paused - demo" : "Connected - demo");
-                                    SnapshotChanged?.Invoke(snapshot);
+                                    lock (contextGate)
+                                    {
+                                        if (message.ContextVersion != contextVersion) continue;
+                                        Snapshot = snapshot;
+                                        retrySeconds = 1;
+                                        SetStatus(snapshot.IsDemo ? (snapshot.IsPaused ? "Paused - demo" : "Connected - demo") : (snapshot.IsPaused ? "Paused" : "Connected"));
+                                        if (message.ContextVersion == contextVersion) SnapshotChanged?.Invoke(snapshot);
+                                    }
                                 }
                                 else if (message.RequestId != null && pending.TryRemove(message.RequestId, out var completion))
                                     completion.TrySetResult(message);
@@ -111,7 +119,7 @@ namespace CopilotUsageMeter.Client
                     || exception is UnauthorizedAccessException || exception is ObjectDisposedException || exception is OperationCanceledException)
                 {
                     if (!lifetime.IsCancellationRequested)
-                        SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached demo values are stale");
+                        SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached values are stale");
                 }
                 finally
                 {
@@ -129,6 +137,34 @@ namespace CopilotUsageMeter.Client
 
         public async Task<ProtocolMessage> SendAsync(ProtocolMessage command, CancellationToken cancellationToken)
         {
+            var version = Interlocked.Read(ref contextVersion);
+            if (command.Type == "SetActiveSession")
+            {
+                lock (contextGate)
+                {
+                    activeSessionId = command.ActiveSessionId;
+                    repositoryKey = command.RepositoryKey;
+                    version = Interlocked.Increment(ref contextVersion);
+                    var previous = Snapshot;
+                    if (previous != null)
+                    {
+                        Snapshot = new UsageSnapshot
+                        {
+                            HostInstanceId = previous.HostInstanceId, Revision = previous.Revision, IsDemo = previous.IsDemo,
+                            IsPaused = previous.IsPaused, RefreshCount = previous.RefreshCount, Account = previous.Account, Settings = previous.Settings,
+                            Local = new LocalUsage
+                            {
+                                Status = previous.Local.Status, RepositoryId = command.RepositoryKey ?? "unavailable",
+                                OverallCredits = previous.Local.OverallCredits, RepositoryCredits = null,
+                                InputTokens = previous.Local.InputTokens, OutputTokens = previous.Local.OutputTokens,
+                                AsOfUtc = previous.Local.AsOfUtc, ErrorCode = previous.Local.ErrorCode,
+                                WindowStartUtc = previous.Local.WindowStartUtc, WindowEndUtc = previous.Local.WindowEndUtc
+                            }
+                        };
+                    }
+                }
+                if (Snapshot != null) SnapshotChanged?.Invoke(Snapshot);
+            }
             var active = connection ?? throw new IOException("Tray is not connected.");
             var requestId = Guid.NewGuid().ToString("N");
             var request = new ProtocolMessage
@@ -136,6 +172,9 @@ namespace CopilotUsageMeter.Client
                 Protocol = command.Protocol, Type = command.Type, RequestId = requestId,
                 Sequence = command.Sequence, Snapshot = command.Snapshot,
                 Settings = command.Settings, Paused = command.Paused,
+                ActiveSessionId = command.ActiveSessionId,
+                RepositoryKey = command.RepositoryKey, AccountLogin = command.AccountLogin,
+                ContextVersion = version,
                 Code = command.Code, Message = command.Message
             };
             var completion = new TaskCompletionSource<ProtocolMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -147,11 +186,14 @@ namespace CopilotUsageMeter.Client
                 {
                     try
                     {
-                        await active.WriteAsync(request, timeout.Token).ConfigureAwait(false);
+                        await contextDeliveryGate.WaitAsync(timeout.Token).ConfigureAwait(false);
+                        try { await active.WriteAsync(request, timeout.Token).ConfigureAwait(false); }
+                        finally { contextDeliveryGate.Release(); }
                         var reply = await completion.Task.ConfigureAwait(false);
                         if (reply.Type != "Ack" && reply.Type != "Error") throw new InvalidDataException("Invalid command response.");
                         return reply;
                     }
+
                     catch (ObjectDisposedException exception)
                     {
                         throw new IOException("Tray disconnected before command acknowledgement.", exception);
@@ -168,9 +210,30 @@ namespace CopilotUsageMeter.Client
             if (worker != null) await worker.ConfigureAwait(false);
         }
 
+        private async Task SubscribeAsync(PipeConnection active, bool promote)
+        {
+            await contextDeliveryGate.WaitAsync(lifetime.Token).ConfigureAwait(false);
+            try
+            {
+                if (promote) connection = active;
+                await active.WriteAsync(CreateSubscription(), lifetime.Token).ConfigureAwait(false);
+            }
+            finally { contextDeliveryGate.Release(); }
+        }
+
+        private ProtocolMessage CreateSubscription()
+        {
+            lock (contextGate) return new ProtocolMessage
+            {
+                Type = "Subscribe", ActiveSessionId = activeSessionId, RepositoryKey = repositoryKey, ContextVersion = contextVersion
+            };
+        }
+
         public void Dispose()
         {
             lifetime.Cancel();
+            activeSessionId = null;
+            repositoryKey = null;
             connection?.Dispose();
         }
     }

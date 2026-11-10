@@ -44,15 +44,14 @@ public partial class App : Application
         }
         try
         {
-            host = new TrayHost(user, new DemoSettingsStore(System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CopilotUsageMeter", "settings.json")), ExitAsync);
+            host = new TrayHost(user, ExitAsync);
             host.Start();
             if (e.Args.Contains("--show-status", StringComparer.Ordinal)) host.ShowWindow();
         }
         catch (Exception exception) when (exception is InvalidDataException || exception is IOException || exception is UnauthorizedAccessException
             || exception is JsonException || exception is ArgumentOutOfRangeException)
         {
-            MessageBox.Show("Unable to start the demo tray. Check access to the named pipe and the demo settings file under LocalAppData\\CopilotUsageMeter.",
+            MessageBox.Show("Unable to start tracking. Check access to the named pipe and local history directory.",
                 "Copilot Usage Meter", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }

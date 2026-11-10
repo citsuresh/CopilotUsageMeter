@@ -19,6 +19,10 @@ namespace CopilotUsageMeter.Contracts
         [DataMember(Name = "snapshot", EmitDefaultValue = false)] public UsageSnapshot? Snapshot { get; set; }
         [DataMember(Name = "settings", EmitDefaultValue = false)] public UsageSettings? Settings { get; set; }
         [DataMember(Name = "paused", EmitDefaultValue = false)] public bool? Paused { get; set; }
+        [DataMember(Name = "activeSessionId", EmitDefaultValue = false)] public string? ActiveSessionId { get; set; }
+        [DataMember(Name = "repositoryKey", EmitDefaultValue = false)] public string? RepositoryKey { get; set; }
+        [DataMember(Name = "accountLogin", EmitDefaultValue = false)] public string? AccountLogin { get; set; }
+        [DataMember(Name = "contextVersion", EmitDefaultValue = false)] public long ContextVersion { get; set; }
         [DataMember(Name = "code", EmitDefaultValue = false)] public string? Code { get; set; }
         [DataMember(Name = "message", EmitDefaultValue = false)] public string? Message { get; set; }
     }

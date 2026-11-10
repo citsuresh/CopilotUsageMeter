@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CopilotUsageMeter.Contracts;
@@ -18,6 +19,9 @@ namespace CopilotUsageMeter.Transport.Pipes
             public bool Subscribed;
             public long Sequence;
             public long Revision;
+            public string? ActiveSessionId;
+            public string? RepositoryKey;
+            public long ContextVersion;
             public Session(PipeConnection connection) => Connection = connection;
         }
 
@@ -30,16 +34,26 @@ namespace CopilotUsageMeter.Transport.Pipes
         private readonly SemaphoreSlim slots = new SemaphoreSlim(16, 16);
         private Task? listener;
         private int nextSession;
+        private readonly Func<UsageSnapshot, string?, UsageSnapshot>? projectSnapshot;
+        private readonly Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext;
 
         public event Action<string>? Faulted;
+        public event Action? ContextsChanged;
 
         public UsagePipeServer(Func<NamedPipeServerStream> createPipe, Func<UsageSnapshot> getSnapshot,
-            Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> handleCommand)
+            Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> handleCommand,
+            Func<UsageSnapshot, string?, UsageSnapshot>? projectSnapshot = null,
+            Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext = null)
         {
             this.createPipe = createPipe;
             this.getSnapshot = getSnapshot;
             this.handleCommand = handleCommand;
+            this.projectSnapshot = projectSnapshot;
+            this.projectContext = projectContext;
         }
+
+        public string[] GetActiveSessionIds() => sessions.Values
+            .Select(session => session.ActiveSessionId).Where(id => id != null).Cast<string>().Distinct(StringComparer.Ordinal).ToArray();
 
         public void Start()
         {
@@ -118,14 +132,35 @@ namespace CopilotUsageMeter.Transport.Pipes
                             await connection.WriteAsync(Error(request, "version_mismatch", "Update the tray and extension to matching protocol versions."), lifetime.Token).ConfigureAwait(false);
                             return;
                         }
-                        if (request.Type == "Subscribe")
+                        if (request.Type == "Subscribe" || request.Type == "SetActiveSession")
                         {
+                            if (request.ContextVersion < 0 || (request.ActiveSessionId != null && !Guid.TryParseExact(request.ActiveSessionId, "D", out _))
+                                || (request.RepositoryKey != null && (request.RepositoryKey.Length > 201
+                                    || !Regex.IsMatch(request.RepositoryKey, @"\A[A-Za-z0-9._-]{1,100}/[A-Za-z0-9._-]{1,100}\z"))))
+                            {
+                                await connection.WriteAsync(Error(request, "invalid_context", "A valid opaque session identifier or null is required."), lifetime.Token).ConfigureAwait(false);
+                                continue;
+                            }
                             await session.Gate.WaitAsync(lifetime.Token).ConfigureAwait(false);
                             try
                             {
+                                if (request.ContextVersion < session.ContextVersion)
+                                {
+                                    await connection.WriteAsync(Error(request, "stale_context", "A newer active-chat context has already been selected."), lifetime.Token).ConfigureAwait(false);
+                                    continue;
+                                }
+                                var canonicalId = request.ActiveSessionId == null ? null : Guid.Parse(request.ActiveSessionId).ToString("D");
+                                var changed = !string.Equals(session.ActiveSessionId, canonicalId, StringComparison.Ordinal)
+                                    || !string.Equals(session.RepositoryKey, request.RepositoryKey, StringComparison.OrdinalIgnoreCase);
+                                session.ActiveSessionId = canonicalId;
+                                session.RepositoryKey = request.RepositoryKey;
+                                session.ContextVersion = request.ContextVersion;
                                 var snapshot = getSnapshot();
                                 await SendSnapshotAsync(session, snapshot, "Snapshot", lifetime.Token).ConfigureAwait(false);
                                 session.Subscribed = true;
+                                if (request.Type == "SetActiveSession")
+                                    await connection.WriteAsync(new ProtocolMessage { Type = "Ack", RequestId = request.RequestId }, lifetime.Token).ConfigureAwait(false);
+                                if (changed) ContextsChanged?.Invoke();
                             }
                             finally { session.Gate.Release(); }
                         }
@@ -150,16 +185,22 @@ namespace CopilotUsageMeter.Transport.Pipes
                 {
                     if (!lifetime.IsCancellationRequested) Faulted?.Invoke("Pipe session closed or handshake timed out.");
                 }
-                finally { sessions.TryRemove(id, out _); }
+                finally
+                {
+                    sessions.TryRemove(id, out _);
+                    ContextsChanged?.Invoke();
+                }
             }
         }
 
-        private static async Task SendSnapshotAsync(Session session, UsageSnapshot snapshot, string type, CancellationToken token)
+        private async Task SendSnapshotAsync(Session session, UsageSnapshot snapshot, string type, CancellationToken token)
         {
+            snapshot = projectContext?.Invoke(snapshot, session.ActiveSessionId, session.RepositoryKey)
+                ?? projectSnapshot?.Invoke(snapshot, session.ActiveSessionId) ?? snapshot;
             long nextSequence = session.Sequence + 1;
             await session.Connection.WriteAsync(new ProtocolMessage
             {
-                Type = type, Snapshot = snapshot, Sequence = nextSequence
+                Type = type, Snapshot = snapshot, Sequence = nextSequence, ContextVersion = session.ContextVersion
             }, token).ConfigureAwait(false);
             session.Sequence = nextSequence;
             session.Revision = snapshot.Revision;

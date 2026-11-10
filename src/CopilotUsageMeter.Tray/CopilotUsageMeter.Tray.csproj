@@ -20,4 +20,13 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\tools\chathistory\**\*" Link="tools\chathistory\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CheckHistoryTool" BeforeTargets="Build" Condition="!Exists('..\..\tools\chathistory\chathistory.exe')">
+    <Warning Text="Portable chathistory CLI is absent. Publish the toolkit into tools\chathistory before running local tracking; it will otherwise show unavailable." />
+  </Target>
+
 </Project>

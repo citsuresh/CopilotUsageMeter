@@ -22,7 +22,23 @@ public sealed class ProtocolTests
             {
                 HostInstanceId = "host-001", Revision = 7,
                 Account = new AccountUsage { Allowance = 100, Consumed = 39, Remaining = 61 },
-                Local = new LocalUsage { OverallCredits = 400, RepositoryCredits = 125 }
+                Local = new LocalUsage
+                {
+                    OverallCredits = 400, RepositoryCredits = 125,
+                    CurrentChat = new CurrentChatUsage
+                    {
+                        Status = "available",
+                        AsOfUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+                        Turns = new[]
+                        {
+                            new CurrentChatTurnUsage
+                            {
+                                TurnIndex = 3, Credits = 2.5m,
+                                TimestampUtc = DateTimeOffset.Parse("2026-01-01T00:00:30Z")
+                            }
+                        }
+                    }
+                }
             }
         }, CancellationToken.None);
         stream.Position = 0;
@@ -33,7 +49,81 @@ public sealed class ProtocolTests
         Assert.Equal(400, result.Snapshot.Local.OverallCredits);
         Assert.Equal(125, result.Snapshot.Local.RepositoryCredits);
         Assert.Equal("demo-account-credits", result.Snapshot.Account.Unit);
+        Assert.Equal("available", result.Snapshot.Local.CurrentChat.Status);
+        var turn = Assert.Single(result.Snapshot.Local.CurrentChat.Turns);
+        Assert.Equal(3, turn.TurnIndex);
+        Assert.Equal(2.5m, turn.Credits);
+        Assert.Equal(DateTimeOffset.Parse("2026-01-01T00:00:30Z"), turn.TimestampUtc);
         Assert.Null(await connection.ReadAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task LegacySnapshotWithoutCurrentChatDefaultsToUnavailable()
+    {
+        const string frame = "{\"protocol\":1,\"type\":\"Snapshot\",\"snapshot\":{\"Local\":{}}}\n";
+        using var connection = new PipeConnection(new MemoryStream(Encoding.UTF8.GetBytes(frame)));
+
+        var message = await connection.ReadAsync(CancellationToken.None);
+
+        Assert.NotNull(message?.Snapshot?.Local.CurrentChat);
+        Assert.Equal("unavailable", message!.Snapshot!.Local.CurrentChat.Status);
+        Assert.Empty(message.Snapshot.Local.CurrentChat.Turns);
+        Assert.Null(message.Snapshot.Local.CurrentChat.AsOfUtc);
+    }
+
+    [Theory]
+    [InlineData("{}", "unavailable")]
+    [InlineData("{\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":null,\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\" \",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\"}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":null}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":null,\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[null]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":-1}]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0},{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0,\"Credits\":-1}]}", "unavailable")]
+    [InlineData("{\"Status\":\"unavailable\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0}]}", "unavailable")]
+    [InlineData("{\"Status\":\"unsupported\",\"AsOfUtc\":\"__AS_OF__\",\"Turns\":[{\"TurnIndex\":0}]}", "unsupported")]
+    public async Task PartialOrInvalidCurrentChatPayloadsFailClosed(string currentChatJson, string expectedStatus)
+    {
+        var asOfJson = SerializeDateTimeOffset(DateTimeOffset.Parse("2026-01-01T00:00:00Z"));
+        currentChatJson = currentChatJson.Replace("\"__AS_OF__\"", asOfJson, StringComparison.Ordinal);
+        var frame = "{\"protocol\":1,\"type\":\"Snapshot\",\"snapshot\":{\"Local\":{\"CurrentChat\":" + currentChatJson + "}}}\n";
+        using var connection = new PipeConnection(new MemoryStream(Encoding.UTF8.GetBytes(frame)));
+
+        var currentChat = (await connection.ReadAsync(CancellationToken.None))!.Snapshot!.Local.CurrentChat;
+
+        Assert.Equal(expectedStatus, currentChat.Status);
+        Assert.Empty(currentChat.Turns);
+        Assert.Null(currentChat.AsOfUtc);
+    }
+
+    [Fact]
+    public async Task AvailableCurrentChatPreservesUnknownTurnValues()
+    {
+        var asOfJson = SerializeDateTimeOffset(DateTimeOffset.Parse("2026-01-01T00:00:00Z"));
+        var frame = "{\"protocol\":1,\"type\":\"Snapshot\",\"snapshot\":{\"Local\":{\"CurrentChat\":{\"Status\":\"available\",\"AsOfUtc\":" + asOfJson + ",\"Turns\":[{\"TurnIndex\":2,\"Credits\":null,\"TimestampUtc\":null}]}}}}\n";
+        using var connection = new PipeConnection(new MemoryStream(Encoding.UTF8.GetBytes(frame)));
+
+        var currentChat = (await connection.ReadAsync(CancellationToken.None))!.Snapshot!.Local.CurrentChat;
+
+        Assert.Equal("available", currentChat.Status);
+        Assert.Equal(DateTimeOffset.Parse("2026-01-01T00:00:00Z"), currentChat.AsOfUtc);
+        var turn = Assert.Single(currentChat.Turns);
+        Assert.Equal(2, turn.TurnIndex);
+        Assert.Null(turn.Credits);
+        Assert.Null(turn.TimestampUtc);
+    }
+
+    private static string SerializeDateTimeOffset(DateTimeOffset value)
+    {
+        using var stream = new MemoryStream();
+        var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(DateTimeOffset));
+        serializer.WriteObject(stream, value);
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
 
     [Theory]

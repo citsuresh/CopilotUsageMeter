@@ -10,62 +10,40 @@ namespace CopilotUsageMeter.Panel.Vsix
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(UsageDemoToolWindow))]
+    [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
     public sealed class UsagePackage : AsyncPackage
     {
         public const string PackageGuid = "0c23c94b-6817-4e31-bdb9-6fb5296ed705";
         private static readonly Guid CommandSet = new Guid("f975a94c-b23c-4239-a413-e3dc7275b87e");
+        private ChatUsageIntegration? integration;
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             var service = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService
                 ?? throw new InvalidOperationException("Visual Studio menu service is unavailable.");
-            service.AddCommand(new MenuCommand((_, _) => JoinableTaskFactory.RunAsync(async () =>
-            {
-                try
-                {
-                    var window = await ShowToolWindowAsync(typeof(UsageDemoToolWindow), 0, true, DisposalToken);
-                    if (window == null) throw new InvalidOperationException("Unable to create the Phase 2 demo test window.");
-                }
-                catch (OperationCanceledException) when (DisposalToken.IsCancellationRequested) { }
-                catch (Exception exception) when (exception is COMException || exception is InvalidOperationException)
-                {
-                    ActivityLog.LogError(nameof(UsagePackage), $"Demo window creation failed: {exception.GetType().Name}, HRESULT 0x{exception.HResult:X8}.");
-                    VsShellUtilities.ShowMessageBox(this, "The demo window could not be opened. Check the Visual Studio ActivityLog and retry.",
-                        "Copilot Usage Meter - demo", OLEMSGICON.OLEMSGICON_WARNING, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                }
-            }), new CommandID(CommandSet, 0x0100)));
-            // Phase 3 probes touch Copilot's live visual tree and write to %TEMP%: register them only in the experimental instance.
             if (!IsExperimentalInstance()) return;
-            service.AddCommand(new MenuCommand((_, _) =>
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                try { ChatPlacementProbe.Run(); }
-                catch (Exception exception)
+            var statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar
+                ?? throw new InvalidOperationException("Visual Studio status bar is unavailable.");
+            integration = new ChatUsageIntegration(this, statusBar, JoinableTaskFactory);
+            service.AddCommand(new MenuCommand((_, _) => integration.OpenStatus(), new CommandID(CommandSet, 0x0100)));
+            service.AddCommand(new MenuCommand((_, _) => integration.Recheck(), new CommandID(CommandSet, 0x0101)));
+            service.AddCommand(new MenuCommand((_, _) => integration.Recheck(1), new CommandID(CommandSet, 0x0102)));
+            service.AddCommand(new MenuCommand((_, _) => integration.Recheck(2), new CommandID(CommandSet, 0x0103)));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && integration != null)
+                JoinableTaskFactory.Run(async () =>
                 {
-                    ActivityLog.LogError(nameof(UsagePackage), $"Placement probe failed: {exception.GetType().Name}.");
-                }
-            }, new CommandID(CommandSet, 0x0101)));
-            service.AddCommand(new MenuCommand((_, _) =>
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                try { ChatPlacementProbe.RunTopOfPane(); }
-                catch (Exception exception)
-                {
-                    ActivityLog.LogError(nameof(UsagePackage), $"Top-of-pane probe failed: {exception.GetType().Name}.");
-                }
-            }, new CommandID(CommandSet, 0x0102)));
-            service.AddCommand(new MenuCommand((_, _) =>
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                try { ActiveChatProbe.Run(); }
-                catch (Exception exception)
-                {
-                    ActivityLog.LogError(nameof(UsagePackage), $"Active chat probe failed: {exception.GetType().Name}.");
-                }
-            }, new CommandID(CommandSet, 0x0103)));
+                    await JoinableTaskFactory.SwitchToMainThreadAsync();
+                    integration.Dispose();
+                    integration = null;
+                });
+            base.Dispose(disposing);
         }
 
         private static bool IsExperimentalInstance()

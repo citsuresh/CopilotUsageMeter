@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CopilotUsageMeter.Contracts;
+using CopilotUsageMeter.Panel.Core;
 
 namespace CopilotUsageMeter.Tray;
 
@@ -23,36 +24,32 @@ public partial class MainWindow : Window
 
     internal void RefreshSnapshot(UsageSnapshot snapshot)
     {
-        StatusText.Text = $"{(snapshot.IsPaused ? "Paused" : "Running")} - revision {snapshot.Revision}; shared demo refreshes {snapshot.RefreshCount}";
-        AccountText.Text = $"Consumed {snapshot.Account.Consumed} / {snapshot.Account.Allowance} {snapshot.Account.Unit}; remaining {snapshot.Account.Remaining}. As of {snapshot.Account.AsOfUtc:HH:mm:ss} UTC.";
-        LocalText.Text = $"Overall {snapshot.Local.OverallCredits} local credits; {snapshot.Local.RepositoryId}: {snapshot.Local.RepositoryCredits}. Input {snapshot.Local.InputTokens}; output {snapshot.Local.OutputTokens}. As of {snapshot.Local.AsOfUtc:HH:mm:ss} UTC.";
+        StatusText.Text = $"{(snapshot.IsPaused ? "Paused" : "Running")} - revision {snapshot.Revision}; shared local refreshes {snapshot.RefreshCount}";
+        var presentation = CompactUsagePresentation.Create(snapshot, true, DateTimeOffset.UtcNow);
+        AccountText.Text = presentation.Account;
+        AccountRefreshText.Text = presentation.Refresh;
+        LocalText.Text = presentation.Local;
         PauseButton.Content = snapshot.IsPaused ? "Resume updates" : "Pause updates";
-        if (!IntervalText.IsKeyboardFocusWithin) IntervalText.Text = snapshot.Settings.DemoRefreshSeconds.ToString(CultureInfo.InvariantCulture);
     }
 
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });
     private async void PauseClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SetPaused", Paused = !getSnapshot().IsPaused });
 
-    private async void SaveClicked(object sender, RoutedEventArgs e)
-    {
-        if (!int.TryParse(IntervalText.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds) || seconds < 5 || seconds > 300)
-        {
-            NoticeText.Text = "Enter a whole number from 5 through 300 seconds. Settings were not changed.";
-            return;
-        }
-        await ExecuteAsync(new ProtocolMessage { Type = "SetSettings", Settings = new UsageSettings { DemoRefreshSeconds = seconds } });
-    }
+    private async void SignInClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "BeginSignIn" });
+    private async void SignOutClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SignOut" });
+    private async void SkipClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SkipAccount" });
+    private async void ConnectClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "ConnectAccount", AccountLogin = AccountLogin.Text.Trim() });
 
     private async Task ExecuteAsync(ProtocolMessage command)
     {
         try
         {
             var reply = await send(command, CancellationToken.None);
-            NoticeText.Text = reply.Type == "Error" ? reply.Message : "Demo command acknowledged.";
+            NoticeText.Text = reply.Message ?? "Command acknowledged.";
         }
         catch (Exception exception) when (exception is IOException || exception is OperationCanceledException)
         {
-            NoticeText.Text = "Demo command did not complete; check the tray status before retrying.";
+            NoticeText.Text = "Command did not complete; check the tray status before retrying.";
         }
     }
 }

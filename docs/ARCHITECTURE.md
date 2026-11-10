@@ -138,7 +138,7 @@ Pipe name `CopilotUsageMeter.v1.<current user SID>`, access limited to the curre
 
 Rules: unknown fields are ignored; additions are optional fields; a major protocol mismatch ends with `Error {version_mismatch}` and a readable message naming which side to update; a client that sees a gap in `seq` asks for a fresh snapshot; if the host restarts the client reconnects, resends Hello and Subscribe and receives a new Snapshot. Reserved but unused in v1: chat-level messages. If Visual Studio runs elevated and the tray does not, the pipe must still accept it (test this).
 
-Named pipes, not WCF, are the local transport. Phase 2 implements independent demo account/local payloads, refresh/pause/settings/status commands, subscription and per-client delivery sequencing, resynchronization, bounded frames and cancellation; the implemented wire contract is `PROTOCOL.md`. Same-user elevated-client/unelevated-host interoperability was verified on the test machine. Intentional coalescing or other clients' updates may skip host revisions, never delivery sequences. The legacy message outline above is not a frozen production contract.
+Named pipes, not WCF, are the local transport. Phase 4 implements real separate account/local payloads, refresh/pause/status/account commands, per-connection ephemeral active-chat/repository context, delivery sequencing, resynchronization, bounded frames and cancellation; the implemented wire contract is `PROTOCOL.md`. The legacy demo timer/settings DTO remains only for compatibility/fixtures, not production scheduling. Same-user elevated-client/unelevated-host interoperability was verified during Phase 2. Intentional coalescing may skip host revisions, never delivery sequences. The legacy message outline above is not the production contract; no solution path or chat identifier appears in a snapshot.
 
 ## 8. User interface
 
@@ -171,7 +171,7 @@ Created on open, actually closed and released on close; single instance; remembe
 - If allowance is unavailable, show an explicit status or clearly labeled manual fallback, not a fabricated percentage.
 - States: **Connected** (normal); **Connecting** (last numbers dimmed); **Tray not running** (last numbers dimmed, error text, Start button, automatic retry with backoff); **Tray not installed** (empty dimmed bar, install instructions); **Version mismatch** (dimmed, names which side to update); **History unreadable** (numbers marked stale, reason in tooltip). The panel never reads the history itself unless built with `InProcUsageClient`.
 - Visibility can reduce UI delivery/rendering, not background tracking. On start, restore or show, request the latest cached snapshot; GitHub calls remain governed by the shared refresh policy.
-- Solution to repo: the panel sends its solution folder; the host maps it to a repo key (git root). No chat identification.
+- Phase 4 context: resolve the solution Git origin locally, send only a supported public owner/repo key, and match the toolkit's recorded repository group exactly. This is not canonical local-path proof. The approved opaque visible-session ID is sent only in same-user pipe context requests, held in memory per connection and never logged/persisted/exported/uploaded or included in snapshots. Missing identity/source data is explicit.
 
 ## 9. Settings, install and layout
 

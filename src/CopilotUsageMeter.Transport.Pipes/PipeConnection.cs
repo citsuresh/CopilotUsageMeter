@@ -68,6 +68,10 @@ namespace CopilotUsageMeter.Transport.Pipes
 
         public async Task WriteAsync(ProtocolMessage message, CancellationToken cancellationToken)
         {
+            if ((message.ActiveSessionId != null || message.RepositoryKey != null) && message.Type != "Subscribe" && message.Type != "SetActiveSession")
+                throw new InvalidDataException("Active-chat context is permitted only on context requests.");
+            if (message.AccountLogin != null && message.Type != "ConnectAccount")
+                throw new InvalidDataException("Account login is permitted only on account connection requests.");
             byte[] bytes;
             using (var payload = new MemoryStream())
             {

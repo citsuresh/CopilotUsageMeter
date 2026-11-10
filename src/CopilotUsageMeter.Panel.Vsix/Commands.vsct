@@ -12,28 +12,28 @@
       <Button guid="guidUsageCommands" id="ShowDemo" priority="0x0100" type="Button">
         <Parent guid="guidUsageCommands" id="DemoGroup" />
         <Strings>
-          <ButtonText>Copilot Usage Meter - Phase 2 Demo</ButtonText>
+          <ButtonText>Copilot Usage Meter - Status</ButtonText>
           <CommandName>CopilotUsageMeter.ShowDemo</CommandName>
         </Strings>
       </Button>
       <Button guid="guidUsageCommands" id="PlacementProbe" priority="0x0101" type="Button">
         <Parent guid="guidUsageCommands" id="DemoGroup" />
         <Strings>
-          <ButtonText>Copilot Usage Meter - Phase 3 Placement Probe</ButtonText>
+          <ButtonText>Copilot Usage Meter - Recheck chat placement (Exp)</ButtonText>
           <CommandName>CopilotUsageMeter.PlacementProbe</CommandName>
         </Strings>
       </Button>
       <Button guid="guidUsageCommands" id="TopPaneProbe" priority="0x0102" type="Button">
         <Parent guid="guidUsageCommands" id="DemoGroup" />
         <Strings>
-          <ButtonText>Copilot Usage Meter - Phase 3 Top-of-Pane Probe</ButtonText>
+          <ButtonText>Copilot Usage Meter - Test top-of-pane fallback (Exp)</ButtonText>
           <CommandName>CopilotUsageMeter.TopPaneProbe</CommandName>
         </Strings>
       </Button>
       <Button guid="guidUsageCommands" id="ActiveChatProbe" priority="0x0103" type="Button">
         <Parent guid="guidUsageCommands" id="DemoGroup" />
         <Strings>
-          <ButtonText>Copilot Usage Meter - Phase 3 Active Chat Probe</ButtonText>
+          <ButtonText>Copilot Usage Meter - Test status-bar fallback (Exp)</ButtonText>
           <CommandName>CopilotUsageMeter.ActiveChatProbe</CommandName>
         </Strings>
       </Button>

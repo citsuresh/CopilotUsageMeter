@@ -23,14 +23,16 @@ namespace CopilotUsageMeter.Panel.Core
         public string Status => snapshot != null && !CanSend && !status.Contains("stale")
             ? status + " - cached demo values are stale" : status;
         public string Notice => notice;
-        public bool CanSend => status == "Connected - demo" || status == "Paused - demo";
+        public bool CanSend => status == "Connected - demo" || status == "Paused - demo" || status == "Connected" || status == "Paused";
         public double DataOpacity => CanSend ? 1 : 0.45;
         public string PauseLabel => snapshot?.IsPaused == true ? "Resume updates" : "Pause updates";
         public string Identity => snapshot == null ? "No demo snapshot received." :
             $"Host {snapshot.HostInstanceId}; revision {snapshot.Revision}; shared demo refreshes {snapshot.RefreshCount}";
-        public string AccountText => snapshot == null ? "Unavailable - tray not connected." :
+        public string AccountText => snapshot == null ? "Unavailable - tray not connected." : !snapshot.IsDemo
+            ? CompactUsagePresentation.Create(snapshot, CanSend, DateTimeOffset.UtcNow).Account :
             $"Consumed {snapshot.Account.Consumed} / {snapshot.Account.Allowance} {snapshot.Account.Unit}; remaining {snapshot.Account.Remaining}. As of {snapshot.Account.AsOfUtc:HH:mm:ss} UTC.";
-        public string LocalText => snapshot == null ? "Unavailable - tray not connected." :
+        public string LocalText => snapshot == null ? "Unavailable - tray not connected." : !snapshot.IsDemo
+            ? CompactUsagePresentation.Create(snapshot, CanSend, DateTimeOffset.UtcNow).Local :
             $"Overall {snapshot.Local.OverallCredits} local credits; {snapshot.Local.RepositoryId}: {snapshot.Local.RepositoryCredits}. Input {snapshot.Local.InputTokens}; output {snapshot.Local.OutputTokens}. As of {snapshot.Local.AsOfUtc:HH:mm:ss} UTC.";
         public string DemoIntervalText
         {
