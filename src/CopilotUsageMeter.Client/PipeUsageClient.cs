@@ -152,6 +152,10 @@ namespace CopilotUsageMeter.Client
                         if (reply.Type != "Ack" && reply.Type != "Error") throw new InvalidDataException("Invalid command response.");
                         return reply;
                     }
+                    catch (ObjectDisposedException exception)
+                    {
+                        throw new IOException("Tray disconnected before command acknowledgement.", exception);
+                    }
                     finally { pending.TryRemove(requestId, out _); }
                 }
             }

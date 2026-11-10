@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using CopilotUsageMeter.Client;
 using CopilotUsageMeter.Contracts;
+using CopilotUsageMeter.Panel.Core;
 using CopilotUsageMeter.Transport.Pipes;
 
 namespace CopilotUsageMeter.Architecture.Tests;
@@ -120,6 +121,47 @@ public sealed class ProtocolTests
         await first.StopAsync();
         await second.StopAsync();
         await restarted.StopAsync();
+    }
+
+    [Fact]
+    public async Task DisconnectDuringCommandReportsFailureWithoutEscapingThePanel()
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        using var resumeReader = new ManualResetEventSlim();
+        var connected = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var name = "CopilotUsageMeter.Test." + Guid.NewGuid().ToString("N");
+        using var server = new UsagePipeServer(
+            () => new NamedPipeServerStream(name, PipeDirection.InOut, 16, PipeTransmissionMode.Byte, PipeOptions.Asynchronous),
+            () => new UsageSnapshot { HostInstanceId = "host-006", Revision = 1 },
+            (_, _) => Task.FromResult(new ProtocolMessage { Type = "Ack" }));
+        using var client = new PipeUsageClient(name);
+        using var model = new UsagePanelViewModel(client, action => action());
+        client.StatusChanged += status =>
+        {
+            if (status != "Connected - demo") return;
+            connected.TrySetResult(true);
+            resumeReader.Wait(timeout.Token);
+        };
+        server.Start();
+        model.Start();
+        try
+        {
+            await connected.Task.WaitAsync(timeout.Token);
+            Assert.True(model.CanSend);
+            var connection = (PipeConnection)typeof(PipeUsageClient)
+                .GetField("connection", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(client)!;
+            // Hold the reader before cleanup to reproduce a write racing connection disposal.
+            connection.Dispose();
+            await Assert.ThrowsAsync<IOException>(() => client.SendAsync(new ProtocolMessage { Type = "Refresh" }, timeout.Token));
+            await model.RefreshAsync().WaitAsync(timeout.Token);
+            Assert.Equal("Command not acknowledged; check connection/state before retrying.", model.Notice);
+        }
+        finally
+        {
+            resumeReader.Set();
+            await client.StopAsync();
+            await server.StopAsync();
+        }
     }
 
     [Fact]

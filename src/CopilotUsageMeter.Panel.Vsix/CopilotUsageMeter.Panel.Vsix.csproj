@@ -18,6 +18,12 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System.Design" />
+    <VSCTCompile Include="Commands.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+    </VSCTCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CopilotUsageMeter.Client\CopilotUsageMeter.Client.csproj" />
     <ProjectReference Include="..\CopilotUsageMeter.Contracts\CopilotUsageMeter.Contracts.csproj" />
     <ProjectReference Include="..\CopilotUsageMeter.Panel.Core\CopilotUsageMeter.Panel.Core.csproj" />

@@ -4,9 +4,9 @@ This is an invented-data transport skeleton, not GitHub/history integration or t
 
 ## Connection and framing
 
-Implementation status: Part 2 provides protocol libraries only. Endpoint ACL composition, engine ownership, command behavior/coalescing and settings persistence described below are Part 3 requirements, not implemented host capabilities.
+Implemented by the Phase 2 tray host and experimental VSIX demo client. All values are invented; production readers and refresh policies are not implemented.
 
-- Production endpoint: `CopilotUsageMeter.v1.<current user SID>`, local machine only. The Tray creates the pipe with a protected DACL granting only that user access and explicitly denying network-logon access. At most 16 connections, including handshakes, are accepted.
+- Endpoint: `CopilotUsageMeter.v1.<current user SID>`, local machine only. The Tray creates the pipe with a protected DACL granting only that user access and explicitly denying network-logon access. At most 16 connections, including handshakes, are accepted. This same-user boundary is not protection against other applications running as that user.
 - Bidirectional UTF-8 JSON objects, one LF-terminated frame per line. Maximum **65,536 bytes excluding LF**, enforced before deserialization. Invalid UTF-8, malformed/incomplete JSON and oversized frames disconnect the sender and produce a generic host diagnostic, never an echo of received content.
 - Every envelope has lower-camel-case `protocol` (integer, currently 1) and `type` (case-sensitive string). Unknown fields are ignored. Snapshot DTO members retain their PascalCase contract names. DateTimeOffset values use the DataContract JSON representation, not an ISO string.
 - Hello must complete within 10 seconds. Writes are bounded to 5 seconds; cancellation after a write begins closes the connection to avoid reusing a partial frame. All accept/read/retry work is cancelled and streams closed during shutdown. Clients retry with 1/2/4/8/10-second backoff; a protocol-major mismatch reports which components to update and stops automatic retry.
@@ -20,6 +20,7 @@ Implementation status: Part 2 provides protocol libraries only. Endpoint ACL com
 | `Refresh` | `Ack` or `Error`; manually refreshes invented values, including while paused. Host coalesces requests arriving within one second. |
 | `SetPaused` with explicit `paused` boolean | `Ack` or `Error`; suspends/resumes automatic demo updates. Resume catches up once. |
 | `SetSettings` with `settings.DemoRefreshSeconds` | `Ack` or `Error`; integer 5-300 seconds, persisted by the host. This setting controls only the demo timer, not the future independent GitHub/local policies. |
+| `OpenStatus` | `Ack` or `Error`; opens/activates the tray's demo status/settings window without starting another engine. |
 | `Bye` or EOF | Connection closes. |
 
 Commands carry a client-generated `requestId`; `Ack`/`Error` echoes it. Client commands time out after 10 seconds. A timeout/disconnect is not proof that an already-sent command was not applied; settings and pause are idempotent. Unknown commands and invalid settings return readable errors rather than successful defaults. The socket handshake, not a version string in a UI, is the compatibility check.

@@ -3,7 +3,7 @@
   <Metadata>
     <Identity Id="CopilotUsageMeter.Panel.citsuresh" Version="0.1.0" Language="en-US" Publisher="citsuresh" />
     <DisplayName>Copilot Usage Meter</DisplayName>
-    <Description xml:space="preserve">Phase 1 extension scaffold. No usage panel or chat integration is implemented yet.</Description>
+    <Description xml:space="preserve">Phase 2 invented-data transport test surface. Not Copilot Chat embedding; no GitHub or history reading.</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">

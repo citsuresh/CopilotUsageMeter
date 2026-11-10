@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidUsagePackage">
+    <Groups>
+      <Group guid="guidUsageCommands" id="DemoGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidUsageCommands" id="ShowDemo" priority="0x0100" type="Button">
+        <Parent guid="guidUsageCommands" id="DemoGroup" />
+        <Strings>
+          <ButtonText>Copilot Usage Meter - Phase 2 Demo</ButtonText>
+          <CommandName>CopilotUsageMeter.ShowDemo</CommandName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidUsagePackage" value="{0c23c94b-6817-4e31-bdb9-6fb5296ed705}" />
+    <GuidSymbol name="guidUsageCommands" value="{f975a94c-b23c-4239-a413-e3dc7275b87e}">
+      <IDSymbol name="DemoGroup" value="0x1020" />
+      <IDSymbol name="ShowDemo" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

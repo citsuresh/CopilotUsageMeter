@@ -61,3 +61,11 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Why: begin Phase 2 on a stable supported toolchain while preserving modern-tray/.NET Framework-extension interoperability. The user explicitly approved the migration and SDK installation; the Microsoft installer hash and signature were verified before installation.
 - Given up: the preview compiler pin and original net8.0/net472 scaffold baseline. No dependency package upgrades, production behavior or extension runtime support is implied by retargeting. Full SLNX/non-deploying VSIX build and 23 architecture tests passed; Test Explorer discovery returned no matches, so tests ran via CLI.
 - Revisit: shipping toolchain/support and Phase 3 extension runtime feasibility; do not infer chat embedding or account availability from a successful package build.
+
+## 2026-11-10 - Phase 2 invented-data host and temporary VS test surface
+
+- Decision: compose one tray-owned deterministic demo engine and protected current-user pipe endpoint. Serialize host commands/refreshes; keep a configurable 5-300-second demo timer and persist only that interval. Closing the status/settings window releases it without stopping the engine; only tray Exit stops tracking. Local commands share shutdown cancellation and are drained before disposal.
+- Why: prove lifetime, source separation, commands, reconnect and shared work across IDE instances before integrating any real history or account data. Seven settings tests exercise the production store through a linked source file, keeping UI/framework boundaries and the eleven-project solution intact.
+- Given up: no production GitHub/local schedules or accounting claims. The explicitly approved Tools-menu tool window is a temporary Phase 2 transport test surface, not a substitute for chat embedding. No secrets, real chat content or paths enter payloads.
+- Evidence: two actual experimental VS instances shared one host/revision/count; a remote refresh advanced it once. Token inspection verified elevated VS clients interoperating bidirectionally with a non-elevated tray. This closes the earlier hosting decision's Phase 2 interoperability test, not the Phase 3 chat/account gates.
+- Revisit: the Phase 3 supported-account/chat-placement/accounting probes, then independent production refresh policies and final details-window geometry/lifetime.

@@ -2,39 +2,47 @@
 
 Planned Windows tray app and compact Visual Studio usage expander. GitHub-reported account allowance/consumption is separate from locally recorded repository, token and current-chat analytics. Local history is never uploaded. Authentication, billing availability and Copilot Chat embedding require feasibility proofs.
 
-## Current state - Phase 2 baseline
+## Current state - Phase 2 demo
 
-Open `CopilotUsageMeter.slnx`. This is the only supported solution file; the old `.sln` has been removed. Reopen this file if an existing Visual Studio workspace still references the old solution path. The SLNX Debug build and all 39 tests pass (23 architecture guards and 16 protocol/lifecycle cases). It contains ten production projects and one test project:
+Open `CopilotUsageMeter.slnx`, the sole solution. **Phase 2 is complete**, with invented data only. The full SLNX Debug build succeeds and all **57 tests pass**, zero failed/skipped: 23 architecture, 17 protocol/lifecycle, 7 demo engine, 7 settings and 3 panel view-model cases. There are ten production projects and one test project:
 
 | Project | Target | Boundary |
 | --- | --- | --- |
 | Contracts | netstandard2.0 | Source-separated demo DTOs/protocol |
-| Core | netstandard2.0 | Future aggregation/scheduling, no infrastructure |
+| Core | netstandard2.0 | Deterministic invented-data engine; no infrastructure |
 | Readers.ChatHistoryCli | netstandard2.0 | Local CLI boundary |
 | Readers.GitHub | netstandard2.0 | Separate account/profile integration |
 | Signals.FileWatcher | netstandard2.0 | Local change notifications |
 | Transport.Pipes | netstandard2.0 | Bounded JSON-lines framing and pipe server |
 | Client | netstandard2.0 | Reconnecting pipe client abstraction |
 | Panel.Core | netstandard2.0 | UI-independent view models |
-| Tray | net10.0-windows | WPF host scaffold |
-| Panel.Vsix | net48 | In-process VSIX package scaffold |
-| Architecture.Tests | net10.0 | Dependency/compiled-type guards and protocol/real-pipe lifecycle tests |
+| Tray | net10.0-windows | Notification icon/menu, engine/pipe lifetime and WPF demo status/settings |
+| Panel.Vsix | net48 | Explicit temporary transport-test tool window |
+| Architecture.Tests | net10.0 | Architecture, real-pipe lifecycle, demo engine/settings and view-model tests |
 
-Set **CopilotUsageMeter.Tray** as the startup project if inspecting the scaffold. It opens a clearly labeled placeholder window: there is no tray icon, engine, running pipe server, sign-in or history reading yet. Contracts/transport/client libraries now implement the [demo protocol](docs/PROTOCOL.md); Core, readers, signals and Panel.Core remain empty. The VSIX contains an empty package, not a panel. No extension is deployed by building.
+Set **CopilotUsageMeter.Tray** as startup project. It starts a real notification-area icon and one background demo engine/pipe server, without opening a window. Double-click the icon or choose **Status / Settings...**; `--show-status` opens it at launch. A second launch activates the existing host's status window. Closing status keeps the engine running; the tray menu's **Exit** stops it. Pause suspends automatic demo updates; manual refresh remains available, and resume refreshes once.
+
+Demo settings persist only the refresh interval (5-300 seconds, default 15) in `%LOCALAPPDATA%\CopilotUsageMeter\settings.json`. This timer is not the future independent GitHub/local refresh policy. Invalid settings are reported rather than silently replaced. See the [wire contract](docs/PROTOCOL.md).
+
+In an explicitly deployed **experimental** VS instance, choose **Tools > Copilot Usage Meter - Phase 2 Demo**. This temporary tool window displays separate invented account/local values and freshness, refresh/pause/settings controls and a tray-status action. Disconnected values are retained, dimmed and labeled stale; commands are disabled until connected. This is **not Copilot Chat embedding** or an approved production fallback. Readers and file-watcher integration remain empty; there is no authentication, real usage/history reading, service or WCF.
 
 ## Phase progress
 
 | Phase | Status |
 | --- | --- |
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
-| 2 - End-to-end skeleton | In progress: baseline and protocol/client libraries built/tested; engine/tray/VS UI integration pending |
+| 2 - End-to-end skeleton | Complete: demo tray/engine, protected pipes and experimental VSIX verified live; independent review fixes and 57-test final verification passed |
 | 3 - Feasibility proofs and resource baseline | Not started |
 | 4 - Tracking and compact UI | Not started |
 | 5 - Details, packaging and final measurements | Not started |
 
-The [phase checklist](docs/PHASE_PLAN.md#progress-checklist---source-of-truth) is the authoritative task-level progress record. Update it as verified work progresses, and synchronize this summary. Updating the README is the required final step of every phase; completion does not automatically start the next phase. No performance/battery measurements or extension runtime validation have been completed yet.
+The [phase checklist](docs/PHASE_PLAN.md#progress-checklist---source-of-truth) is authoritative. Phase completion does not authorize the next phase. No resource/battery measurements or production account/chat feasibility claims have been made.
 
-Tray scaffold smoke test (2026-11-10): launched the built executable, attached the VS debugger by PID, paused/resumed, verified the expected window title and responsiveness, then closed the window normally. The process exited and VS returned to design mode. Exception inspection was unavailable on the selected paused frame (`no-stack-frame`); no separate exception-inspection result is claimed. No VSIX was launched or installed.
+Phase 2 live checks (2026-11-10): real icon/menu and paused state; automatic/manual refresh and resume; settings persistence; status close/recreation and single-instance activation; normal tray Exit; cached-value retention and reconnect to a new host; two actual experimental VS instances sharing identical host/revision/count. One remote refresh advanced the shared count exactly once. Process-token inspection confirmed both VS clients elevated and the tray non-elevated; bidirectional pause/refresh commands succeeded. A fresh final VSIX/unelevated-tray pass also verified remote settings saved as 10 seconds, persistence across restart, default windowless startup, remote status creation, retained stale values and disabled disconnected commands. All task-owned tray/experimental VS processes were closed normally; originally absent test settings and named activity logs were removed. The demo extension remains deployed only to Exp.
+
+Independent review fixes include protocol recovery/request correlation/sequence handling, shutdown cancellation, invalid-settings startup handling, and a final disposed-connection command race. The last defect was reproduced by a deterministic real-pipe regression (red before the client fix, green afterward). Full solution/VSIX verification and all 57 tests passed after the fixes. No unresolved audit findings remain. Reusable cross-integrity verification helpers are indexed in [SCRIPTS.md](docs/SCRIPTS.md).
+
+Historical Phase 1 scaffold smoke test (2026-11-10): launched, attached debugger by PID, paused/resumed, confirmed responsiveness/title and closed normally. Exception inspection was unavailable (`no-stack-frame`). This was before the tray lifetime and VSIX integration existed.
 
 Post-migration smoke test (2026-11-10): launched the net10.0-windows scaffold, verified the expected window title and responsiveness, confirmed the process loaded .NET 10.0.14 CoreCLR, then requested normal window close. The process exited with code 0. No debugger attach or VSIX runtime test was performed in this check.
 
@@ -50,11 +58,11 @@ The approved baseline replaces the original draft targets and temporary preview 
 | Shared libraries | netstandard2.0 | Remain consumable by both the modern tray and .NET Framework VSIX |
 | Build SDK | 10.0.403, stable .NET 10 SDK | Pin the installed stable SDK; allow only stable patches within its feature band |
 
-SDK 10.0.403 was installed with explicit approval after verifying Microsoft's published SHA512 and installer signature. `global.json` selects 10.0.403 with `latestPatch` and prerelease disabled. The full SLNX Debug build produced a net48 VSIX without deployment; all 23 architecture tests passed on net10.0 (zero failed/skipped). Test Explorer returned no matching tests, so tests ran with the CLI command below. Tray launch/close on .NET 10 passed as recorded above; extension runtime validation remains pending. See [Microsoft's .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and [modern VSIX targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
+SDK 10.0.403 was installed with explicit approval after verifying Microsoft's published SHA512 and installer signature. `global.json` selects it with `latestPatch` and prerelease disabled. Migration build/23-test verification passed; initial Test Explorer discovery failed, so that check used the CLI. Test Explorer now discovers/runs the complete 57-case suite. See [Microsoft's .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and [modern VSIX targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
 
 ## Build and tests
 
-Windows with Visual Studio's extension-development tooling is required for the full solution. The locally verified route is VS 2026 Insiders MSBuild 18.12.2 with stable SDK 10.0.403 pinned in `global.json`. Tray/tests require .NET 10; the in-process VSIX requires .NET Framework 4.8. Packaging and runtime feasibility still require later validation.
+Windows with Visual Studio's extension-development tooling is required for the full solution. The locally verified route is VS 2026 Insiders MSBuild 18.12.2 with stable SDK 10.0.403 pinned in `global.json`. Tray/tests require .NET 10; the in-process VSIX requires .NET Framework 4.8. Shipping packaging/support and real-data/chat feasibility require later validation.
 
 From the repository root in PowerShell:
 
@@ -65,17 +73,25 @@ dotnet test '.\tests\CopilotUsageMeter.Architecture.Tests\CopilotUsageMeter.Arch
 
 On other machines, use the corresponding VS installation's MSBuild path and the pinned SDK (or deliberately update the SDK pin). NuGet restore requires network access. Build output is ignored under each project's `bin`/`obj` folders.
 
-VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.Vsix.vsix`. Debug configuration uses `/RootSuffix Exp`; runtime testing is reserved for an experimental instance. Nothing has been installed into the main instance, and the extension has not yet been run. Never open/install the VSIX into the main instance as a shortcut.
+VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.Vsix.vsix`. Ordinary builds do not deploy it. For development, close only your task-owned experimental instances, resolve the intended VS installation's instance ID with `vswhere -all -prerelease -format json`, then explicitly deploy to **Exp only**:
+
+```powershell
+$instanceId = '<the intended VS installation instanceId>'
+& 'C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe' '.\src\CopilotUsageMeter.Panel.Vsix\CopilotUsageMeter.Panel.Vsix.csproj' '-t:CreateVsixContainer;DeployVsixExtensionFiles' -p:Configuration=Debug -p:DeployExtension=true -p:VsixDeployOnDebug=false -p:VSSDKTargetPlatformRegRootSuffix=Exp "-p:DeployTargetInstanceId=$instanceId"
+& 'C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE\devenv.exe' /RootSuffix Exp
+```
+
+The full build must succeed first. The standalone deploy target without the packaging target fails because `TargetVsixContainer` is not initialized. Never install/open the VSIX in the main instance or terminate unrelated VS processes. Experimental deployment/runtime verification does not prove Copilot Chat integration.
 
 ## Continuing in a new chat
 
 [Repository instructions](.github/copilot-instructions.md) direct Copilot to read this README and the active [phase checklist/plan](docs/PHASE_PLAN.md) at the start of a repository-related chat. Resume from verified checklist progress, not the archived original proposal. Do not automatically start the next phase; maintain the checklist as work progresses and update this README at each phase's final step. Keep these files with the repository so continuity does not depend on a particular chat session.
 
-Project memory is summarized in `docs\CODE_SUMMARY.md` and `docs\PROJECT_STATE.md`; `docs\ROADMAP.md` points back to the authoritative plan. The solution graph registry/query instructions are in `.github\copilot-instructions.md`. Open `docs\graph-viewer.html` and select/drag in the slug-named graph/dependencies files; its automatic loader still expects legacy filenames. The initial graph contains metadata-reference warnings, so graph absence is not proof of absent source. Memory does not change Phase 1's scaffold-only status.
+Project memory is summarized in `docs\CODE_SUMMARY.md` and `docs\PROJECT_STATE.md`; `docs\ROADMAP.md` is a static priority pointer, not the current progress checklist. The graph registry/query instructions are in `.github\copilot-instructions.md`. Open `docs\graph-viewer.html` and select/drag in the slug-named graph/dependencies files; its automatic loader expects legacy filenames. Metadata-reference warnings mean graph absence is not proof of absent source.
 
 ## Next
 
-Phase 2 wires invented data from the tray through named pipes to the extension. Phase 3 proves account access, chat embedding, current-chat attribution and local accounting completeness, and measures initial resource costs. Phase 5 repeats measurements before shipping.
+Await user direction. Phase 3 must prove supported account access, actual chat-expander placement, current-chat attribution and local accounting completeness, and measure initial resource costs. Phase 5 repeats measurements before shipping. None of those gates is satisfied by this invented-data demo.
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Approved phase plan and archived original proposal](docs/PHASE_PLAN.md)

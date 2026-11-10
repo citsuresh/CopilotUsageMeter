@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\DemoSettingsStore.cs" Link="Tray\DemoSettingsStore.cs" />
   </ItemGroup>
 
   <ItemGroup>

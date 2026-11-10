@@ -2,7 +2,7 @@
 
 This brief is the shared context for every build phase. It describes a first-cut architecture that is meant to grow and change. Where it says "v1", later versions may replace it, so keep the seams narrow and the contracts additive. If a phase prompt and this brief disagree, stop and ask. Decisions not covered here are reported in the phase's final report, not made silently.
 
-Updated 2026-11-10 after scope discussion. See `PHASE_PLAN.md` for the approved skeleton-first sequence and `DECISIONS.md` for decision records. Everything below describes intended behavior, not completed functionality. Phase 1 provides buildable project scaffolding only.
+Updated 2026-11-10. See `PHASE_PLAN.md` for verified progress and `DECISIONS.md` for decisions. Production behavior below remains intended unless explicitly marked implemented. Phase 1 scaffolding and the Phase 2 invented-data end-to-end demo are complete; real account/history integration and chat embedding are not.
 
 ## 0. Summary of decisions (v0.4)
 
@@ -71,7 +71,9 @@ Panel UI (VSIX shell, tray flyout, WPF details window)     Hosts: Tray | Windows
 
 **Phase 1 toolchain:** installed VS 2026 Insiders MSBuild at `C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe` builds the solution and real VSIX. `global.json` temporarily pins installed SDK `11.0.100-rc.3.26522.148`; this is a preview compiler, not a change to the draft's net8.0/net472/netstandard2.0 targets. Revisit supported SDK/runtime targets before packaging. The WPF launch window and empty AsyncPackage are scaffolding, not an implemented tray/panel.
 
-**Approved Phase 2 baseline (2026-11-10):** supersedes the historical Phase 1 targets/pin above. Stable SDK 10.0.403 (`latestPatch`, prerelease disabled), Tray net10.0-windows, tests net10.0, in-process VSIX net48 with matching manifest prerequisite; shared libraries retain netstandard2.0. Full SLNX Debug build and non-deploying VSIX packaging passed; all 23 architecture tests passed on .NET 10. Hosts remain scaffolds; no new runtime validation is implied.
+**Approved Phase 2 baseline (2026-11-10):** supersedes the historical Phase 1 targets/pin above. Stable SDK 10.0.403 (`latestPatch`, prerelease disabled), Tray net10.0-windows, tests net10.0, in-process VSIX net48 with matching manifest prerequisite; shared libraries retain netstandard2.0. Migration build/packaging and 23 architecture tests passed. Retargeting alone did not establish runtime support.
+
+**Implemented Phase 2 demo:** one tray-hosted `DemoUsageEngine`, real notification icon/menu, explicit lifetime, validated interval persistence and status/settings window; protected current-user pipes and a reconnecting UI-independent client/view model; explicit temporary experimental VSIX tool window. Final build and 57 tests passed. Runtime checks verified normal Exit/restart/reconnect, status close/recreation, two VS clients sharing one engine, and elevated clients with a token-verified unelevated host. No production schedules, account/history reads, chat embedding or resource measurements are implied. The temporary window is not a production fallback for chat placement.
 
 ## 3. The history toolkit dependency
 
@@ -136,7 +138,7 @@ Pipe name `CopilotUsageMeter.v1.<current user SID>`, access limited to the curre
 
 Rules: unknown fields are ignored; additions are optional fields; a major protocol mismatch ends with `Error {version_mismatch}` and a readable message naming which side to update; a client that sees a gap in `seq` asks for a fresh snapshot; if the host restarts the client reconnects, resends Hello and Subscribe and receives a new Snapshot. Reserved but unused in v1: chat-level messages. If Visual Studio runs elevated and the tray does not, the pipe must still accept it (test this).
 
-Named pipes, not WCF, are the local transport. Same-user operation should not require administrator rights; verify elevated-client interoperability. Protocol completion belongs to Phase 2: define independent account/local payloads, refresh/settings commands, subscription/sequence semantics and resynchronization without treating intentional coalescing or other clients' updates as data loss. Enforce message size limits and cancellation. The legacy message outline above is not a frozen contract.
+Named pipes, not WCF, are the local transport. Phase 2 implements independent demo account/local payloads, refresh/pause/settings/status commands, subscription and per-client delivery sequencing, resynchronization, bounded frames and cancellation; the implemented wire contract is `PROTOCOL.md`. Same-user elevated-client/unelevated-host interoperability was verified on the test machine. Intentional coalescing or other clients' updates may skip host revisions, never delivery sequences. The legacy message outline above is not a frozen production contract.
 
 ## 8. User interface
 
@@ -197,7 +199,7 @@ Numbers/times and explicitly requested GitHub profile data only. Local titles/me
 
 Fakes for reader, clock and change signal make Core, the debounce and throttle, the visibility state machine, the cache rules and the projection deterministic. Contract tests use small sample JSON files written by hand in the CLI's shape. Architecture tests enforce the dependency rules and the no-titles rule. Pipe tests use real pipes in-process. UI tests that need focus carry a trait and are kept few. Manual checks (tray icon at several DPI scales, light and dark taskbar, details window, Visual Studio experimental instance) are listed in each phase's report.
 
-Measure resources during the POC and again after the final phase: idle/busy CPU time, memory, refresh duration, child-process launches, icon handles and multi-client read deduplication. No battery-efficiency claim without measurements. Phase 1 contains dependency/compiled-type architecture guards and negative guard tests, not implemented DTO/privacy/accounting tests. Run a separate review at each agreed phase boundary; the final review includes whole-change build/test and docs consistency.
+Measure resources during the POC and again after the final phase: idle/busy CPU time, memory, refresh duration, child-process launches, icon handles and multi-client read deduplication. No battery-efficiency claim without measurements. Phase 1 added dependency/compiled-type guards and negative controls; Phase 2 adds demo protocol/lifecycle/engine/settings/view-model tests (57 total), not production privacy/accounting proofs. Its independent phase review and final build/tests/runtime checks are recorded in `PHASE_PLAN.md`. Future phases still require their own reviews and whole-change verification.
 
 ## 13. Deferred items and open questions
 

@@ -5,11 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CopilotUsageMeter.Tray"
         mc:Ignorable="d"
-        Title="Copilot Usage Meter - Scaffold" Height="240" Width="540">
+        Title="Copilot Usage Meter - Phase 2 Demo" Height="460" Width="600" MinHeight="440" MinWidth="560">
     <StackPanel Margin="24">
-        <TextBlock Text="Copilot Usage Meter" FontSize="22" Margin="0,0,0,16" />
-        <TextBlock Text="Phase 1: solution and project scaffolding only." TextWrapping="Wrap" />
-        <TextBlock Text="Tray hosting, account sign-in, local tracking and the usage panel are not implemented yet."
-                   TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBlock Text="PHASE 2 DEMO - invented data only" FontSize="20" FontWeight="Bold" Margin="0,0,0,12" />
+        <TextBlock x:Name="StatusText" Margin="0,0,0,12" />
+        <TextBlock Text="Demo account (not GitHub-reported usage)" FontWeight="Bold" />
+        <TextBlock x:Name="AccountText" TextWrapping="Wrap" Margin="0,4,0,12" />
+        <TextBlock Text="Demo local analytics (this-machine scope; not billing)" FontWeight="Bold" />
+        <TextBlock x:Name="LocalText" TextWrapping="Wrap" Margin="0,4,0,12" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh demo" Click="RefreshClicked" Padding="12,6" Margin="0,0,8,0" />
+            <Button x:Name="PauseButton" Content="Pause updates" Click="PauseClicked" Padding="12,6" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <Label Content="Demo refresh (5-300 seconds):" Target="{Binding ElementName=IntervalText}" VerticalAlignment="Center" />
+            <TextBox x:Name="IntervalText" Width="55" VerticalContentAlignment="Center" />
+            <Button Content="Save settings" Click="SaveClicked" Padding="12,6" Margin="8,0,0,0" />
+        </StackPanel>
+        <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Margin="0,4,0,8" />
+        <TextBlock Text="Closing this window keeps the tray engine running. Use the tray menu's Exit to stop it. Authentication, real usage and chat embedding are not implemented." TextWrapping="Wrap" />
     </StackPanel>
 </Window>
