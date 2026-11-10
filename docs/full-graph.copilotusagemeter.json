@@ -1,0 +1,961 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-11-10T07:37:55.3022391Z",
+  "solutionPath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\CopilotUsageMeter.slnx",
+  "mode": "incremental",
+  "commitSha": "5d18b8700c99433af89560045c3a002d203dc552",
+  "nodes": [
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "kind": "class",
+      "name": "UsagePackage",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 7,
+      "endLine": 12,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.PackageGuid",
+      "kind": "field",
+      "name": "PackageGuid",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 11,
+      "endLine": 11,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Tray.App",
+      "kind": "class",
+      "name": "App",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Tray",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\App.xaml.cs",
+      "startLine": 10,
+      "endLine": 12,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Tray.MainWindow",
+      "kind": "class",
+      "name": "MainWindow",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Tray",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\MainWindow.xaml.cs",
+      "startLine": 17,
+      "endLine": 23,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Tray.MainWindow..ctor()",
+      "kind": "constructor",
+      "name": ".ctor",
+      "containingType": "CopilotUsageMeter.Tray.MainWindow",
+      "project": "CopilotUsageMeter.Tray",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\MainWindow.xaml.cs",
+      "startLine": 19,
+      "endLine": 22,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "kind": "class",
+      "name": "DependencyRulesTests",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 8,
+      "endLine": 207,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.Prefix",
+      "kind": "field",
+      "name": "Prefix",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 10,
+      "endLine": 10,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.SolutionFileName",
+      "kind": "field",
+      "name": "SolutionFileName",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 11,
+      "endLine": 11,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllowedReferences",
+      "kind": "field",
+      "name": "AllowedReferences",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 13,
+      "endLine": 27,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "kind": "method",
+      "name": "AllProductionProjectsAreRegisteredInTheSolution",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 29,
+      "endLine": 50,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "kind": "method",
+      "name": "ProjectReferencesRespectLayerBoundaries",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 52,
+      "endLine": 66,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardRejectsForbiddenReferences(string,string)",
+      "kind": "method",
+      "name": "DependencyGuardRejectsForbiddenReferences",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 68,
+      "endLine": 78,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardAcceptsAllowedReferences(string,string)",
+      "kind": "method",
+      "name": "DependencyGuardAcceptsAllowedReferences",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 80,
+      "endLine": 87,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "kind": "method",
+      "name": "UiAndVisualStudioDependenciesStayInTheirShells",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 89,
+      "endLine": 138,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "kind": "method",
+      "name": "CompiledSharedLogicHasNoInfrastructureTypes",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 140,
+      "endLine": 157,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardRejectsInfrastructureTypes(string)",
+      "kind": "method",
+      "name": "TypeGuardRejectsInfrastructureTypes",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 159,
+      "endLine": 170,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardAcceptsPlainFrameworkTypes()",
+      "kind": "method",
+      "name": "TypeGuardAcceptsPlainFrameworkTypes",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 172,
+      "endLine": 176,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "kind": "method",
+      "name": "IsForbiddenInfrastructureType",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 178,
+      "endLine": 184,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "kind": "method",
+      "name": "FindForbiddenReferences",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 186,
+      "endLine": 187,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "kind": "method",
+      "name": "ReadProject",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 189,
+      "endLine": 193,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "kind": "method",
+      "name": "FindRepositoryRoot",
+      "containingType": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "startLine": 195,
+      "endLine": 206,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "AutoGeneratedProgram",
+      "kind": "class",
+      "name": "AutoGeneratedProgram",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\Users\\sveluswa\\.nuget\\packages\\microsoft.net.test.sdk\\17.14.1\\build\\net8.0\\Microsoft.NET.Test.Sdk.Program.cs",
+      "startLine": 3,
+      "endLine": 4,
+      "accessibility": "internal",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "AutoGeneratedProgram.Main(string[])",
+      "kind": "method",
+      "name": "Main",
+      "containingType": "AutoGeneratedProgram",
+      "project": "CopilotUsageMeter.Architecture.Tests",
+      "filePath": "C:\\Users\\sveluswa\\.nuget\\packages\\microsoft.net.test.sdk\\17.14.1\\build\\net8.0\\Microsoft.NET.Test.Sdk.Program.cs",
+      "startLine": 4,
+      "endLine": 4,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    }
+  ],
+  "edges": [
+    {
+      "type": "extends",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 7
+    },
+    {
+      "type": "extends",
+      "sourceId": "CopilotUsageMeter.Tray.App",
+      "targetId": "System.Windows.Application",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\App.xaml.cs",
+      "line": 10
+    },
+    {
+      "type": "extends",
+      "sourceId": "CopilotUsageMeter.Tray.MainWindow",
+      "targetId": "System.Windows.Window",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\MainWindow.xaml.cs",
+      "line": 17
+    },
+    {
+      "type": "implements",
+      "sourceId": "CopilotUsageMeter.Tray.MainWindow",
+      "targetId": "System.Windows.Markup.IComponentConnector",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\MainWindow.xaml.cs",
+      "line": 17
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Tray.MainWindow..ctor()",
+      "targetId": "CopilotUsageMeter.Tray.MainWindow.InitializeComponent()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\MainWindow.xaml.cs",
+      "line": 21
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 32
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Linq.Enumerable.ToHashSet\u00601(IEqualityComparer\u003Cstring\u003E?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003Cstring, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003CXElement, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Xml.Linq.XContainer.Descendants(XName?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Xml.Linq.XDocument.Load(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 33
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.Xml.Linq.XElement.Attribute(XName)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 35
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.GetFullPath(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 37
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 37
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "string.Replace(char,char)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 37
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Directory.GetFiles(string,string,SearchOption)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 39
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 39
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "Xunit.Assert.Equal\u00601(int,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 41
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "Xunit.Assert.Equal\u00601(int,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 42
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "Xunit.Assert.False(bool)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 43
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.File.Exists(string?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 43
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 43
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "Xunit.Assert.Contains\u00601(string,HashSet\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 44
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.Path.Combine(string,string,string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 44
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "Xunit.Assert.Contains\u00601(string,HashSet\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 48
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.AllProductionProjectsAreRegisteredInTheSolution()",
+      "targetId": "System.IO.InvalidDataException",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 36
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 57
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003Cstring, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 58
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003CXElement, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 58
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.Xml.Linq.XContainer.Descendants(XName?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 58
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.IO.Path.GetFileNameWithoutExtension(string?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 59
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.Xml.Linq.XElement.Attribute(XName)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 59
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 61
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "Xunit.Assert.Empty(IEnumerable)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 64
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 64
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ProjectReferencesRespectLayerBoundaries()",
+      "targetId": "System.IO.InvalidDataException",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 60
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardRejectsForbiddenReferences(string,string)",
+      "targetId": "Xunit.Assert.Equal\u00601(string[],string[])",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 77
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardRejectsForbiddenReferences(string,string)",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 77
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardAcceptsAllowedReferences(string,string)",
+      "targetId": "Xunit.Assert.Empty(IEnumerable)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 86
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.DependencyGuardAcceptsAllowedReferences(string,string)",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 86
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 94
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003CXElement\u003E,Predicate\u003CXElement\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 98
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Xml.Linq.XContainer.Descendants()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 98
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.Equals(string?,string?,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 100
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003CXElement\u003E,Predicate\u003CXElement\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 105
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Xml.Linq.XContainer.Descendants(XName?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 105
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.Equals(string?,string?,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 106
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Linq.Enumerable.ToArray\u00601()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 109
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003CXElement, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 109
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Linq.Enumerable.Where\u00601(Func\u003CXElement, bool\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 109
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Xml.Linq.XContainer.Descendants()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 109
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "System.Xml.Linq.XElement.Attribute(XName)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 111
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003Cstring\u003E,Predicate\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 113
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.Contains(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 114
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003Cstring\u003E,Predicate\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 118
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 119
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 120
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 121
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003Cstring\u003E,Predicate\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 126
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 127
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003Cstring\u003E,Predicate\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 132
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 133
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 134
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.UiAndVisualStudioDependenciesStayInTheirShells()",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 135
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.Assembly.Load(AssemblyName)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 146
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.IO.File.OpenRead(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 147
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.Metadata.PEReaderExtensions.GetMetadataReader()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 149
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Linq.Enumerable.Select\u00602(Func\u003CTypeReferenceHandle, string\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 150
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.Metadata.MetadataReader.GetTypeReference(TypeReferenceHandle)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 152
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.Metadata.MetadataReader.GetString(StringHandle)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 153
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.Metadata.MetadataReader.GetString(StringHandle)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 153
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "Xunit.Assert.DoesNotContain\u00601(IEnumerable\u003Cstring\u003E,Predicate\u003Cstring\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 156
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.AssemblyName",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 146
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.CompiledSharedLogicHasNoInfrastructureTypes(string)",
+      "targetId": "System.Reflection.PortableExecutable.PEReader",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 148
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardRejectsInfrastructureTypes(string)",
+      "targetId": "Xunit.Assert.True(bool)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 169
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardRejectsInfrastructureTypes(string)",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 169
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardAcceptsPlainFrameworkTypes()",
+      "targetId": "Xunit.Assert.False(bool)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 175
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.TypeGuardAcceptsPlainFrameworkTypes()",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 175
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 179
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 180
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 181
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.IsForbiddenInfrastructureType(string)",
+      "targetId": "string.StartsWith(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 182
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "targetId": "System.Linq.Enumerable.ToArray\u00601()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 187
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "targetId": "System.Linq.Enumerable.Where\u00601(Func\u003Cstring, bool\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 187
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindForbiddenReferences(string,IEnumerable\u003Cstring\u003E)",
+      "targetId": "System.Linq.Enumerable.Contains\u00601(string,IEqualityComparer\u003Cstring\u003E?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 187
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "targetId": "System.Xml.Linq.XDocument.Load(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 192
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "targetId": "System.IO.Path.Combine(string,string,string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 192
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.ReadProject(string)",
+      "targetId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 192
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "targetId": "System.IO.File.Exists(string?)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 199
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 199
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "targetId": "System.IO.DirectoryInfo",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 197
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests.FindRepositoryRoot()",
+      "targetId": "System.IO.DirectoryNotFoundException",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\DependencyRulesTests.cs",
+      "line": 205
+    }
+  ]
+}

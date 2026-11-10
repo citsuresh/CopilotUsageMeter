@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-11-10T07:37:55.312478Z",
+  "solutionPath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\CopilotUsageMeter.slnx",
+  "commitSha": "5d18b8700c99433af89560045c3a002d203dc552",
+  "projects": [
+    {
+      "name": "CopilotUsageMeter.Architecture.Tests",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\CopilotUsageMeter.Architecture.Tests.csproj",
+      "references": [
+        "CopilotUsageMeter.Client",
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core",
+        "CopilotUsageMeter.Panel.Core",
+        "CopilotUsageMeter.Readers.ChatHistoryCli",
+        "CopilotUsageMeter.Readers.GitHub",
+        "CopilotUsageMeter.Signals.FileWatcher",
+        "CopilotUsageMeter.Transport.Pipes"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Client",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Client\\CopilotUsageMeter.Client.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core",
+        "CopilotUsageMeter.Transport.Pipes"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Contracts",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Contracts\\CopilotUsageMeter.Contracts.csproj",
+      "references": []
+    },
+    {
+      "name": "CopilotUsageMeter.Core",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Core\\CopilotUsageMeter.Core.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Panel.Core",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Core\\CopilotUsageMeter.Panel.Core.csproj",
+      "references": [
+        "CopilotUsageMeter.Client",
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core",
+        "CopilotUsageMeter.Transport.Pipes"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Panel.Vsix",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\CopilotUsageMeter.Panel.Vsix.csproj",
+      "references": [
+        "CopilotUsageMeter.Client",
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core",
+        "CopilotUsageMeter.Panel.Core",
+        "CopilotUsageMeter.Transport.Pipes"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Readers.ChatHistoryCli",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Readers.ChatHistoryCli\\CopilotUsageMeter.Readers.ChatHistoryCli.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Readers.GitHub",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Readers.GitHub\\CopilotUsageMeter.Readers.GitHub.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Signals.FileWatcher",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Signals.FileWatcher\\CopilotUsageMeter.Signals.FileWatcher.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Transport.Pipes",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Transport.Pipes\\CopilotUsageMeter.Transport.Pipes.csproj",
+      "references": [
+        "CopilotUsageMeter.Contracts"
+      ]
+    },
+    {
+      "name": "CopilotUsageMeter.Tray",
+      "path": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Tray\\CopilotUsageMeter.Tray.csproj",
+      "references": [
+        "CopilotUsageMeter.Client",
+        "CopilotUsageMeter.Contracts",
+        "CopilotUsageMeter.Core",
+        "CopilotUsageMeter.Panel.Core",
+        "CopilotUsageMeter.Readers.ChatHistoryCli",
+        "CopilotUsageMeter.Readers.GitHub",
+        "CopilotUsageMeter.Signals.FileWatcher",
+        "CopilotUsageMeter.Transport.Pipes"
+      ]
+    }
+  ]
+}

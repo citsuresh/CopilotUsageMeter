@@ -69,6 +69,8 @@ VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net472\CopilotUsageMete
 
 [Repository instructions](.github/copilot-instructions.md) direct Copilot to read this README and the active [phase checklist/plan](docs/PHASE_PLAN.md) at the start of a repository-related chat. Resume from verified checklist progress, not the archived original proposal. Do not automatically start the next phase; maintain the checklist as work progresses and update this README at each phase's final step. Keep these files with the repository so continuity does not depend on a particular chat session.
 
+Project memory is summarized in `docs\CODE_SUMMARY.md` and `docs\PROJECT_STATE.md`; `docs\ROADMAP.md` points back to the authoritative plan. The solution graph registry/query instructions are in `.github\copilot-instructions.md`. Open `docs\graph-viewer.html` and select/drag in the slug-named graph/dependencies files; its automatic loader still expects legacy filenames. The initial graph contains metadata-reference warnings, so graph absence is not proof of absent source. Memory does not change Phase 1's scaffold-only status.
+
 ## Next
 
 Phase 2 wires invented data from the tray through named pipes to the extension. Phase 3 proves account access, chat embedding, current-chat attribution and local accounting completeness, and measures initial resource costs. Phase 5 repeats measurements before shipping.
