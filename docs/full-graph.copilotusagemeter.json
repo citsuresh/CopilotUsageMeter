@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-11-10T10:07:59.3971692Z",
+  "generatedAt": "2026-11-10T12:52:18.6629548Z",
   "solutionPath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\CopilotUsageMeter.slnx",
   "mode": "incremental",
-  "commitSha": "12972d2231e75030b5b25642bb2770ce9acccbc4",
+  "commitSha": "8d13672c67d0ddd397b277c490c57d46a17af20d",
   "nodes": [
     {
       "id": "CopilotUsageMeter.Architecture.Tests.DependencyRulesTests",
@@ -1756,58 +1756,6 @@
       "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsageDemoToolWindow.cs",
       "startLine": 76,
       "endLine": 80,
-      "accessibility": "protected",
-      "isStatic": false,
-      "isAbstract": false
-    },
-    {
-      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
-      "kind": "class",
-      "name": "UsagePackage",
-      "containingType": null,
-      "project": "CopilotUsageMeter.Panel.Vsix",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "startLine": 11,
-      "endLine": 41,
-      "accessibility": "public",
-      "isStatic": false,
-      "isAbstract": false
-    },
-    {
-      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.PackageGuid",
-      "kind": "field",
-      "name": "PackageGuid",
-      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
-      "project": "CopilotUsageMeter.Panel.Vsix",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "startLine": 17,
-      "endLine": 17,
-      "accessibility": "public",
-      "isStatic": true,
-      "isAbstract": false
-    },
-    {
-      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.CommandSet",
-      "kind": "field",
-      "name": "CommandSet",
-      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
-      "project": "CopilotUsageMeter.Panel.Vsix",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "startLine": 18,
-      "endLine": 18,
-      "accessibility": "private",
-      "isStatic": true,
-      "isAbstract": false
-    },
-    {
-      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "kind": "method",
-      "name": "InitializeAsync",
-      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
-      "project": "CopilotUsageMeter.Panel.Vsix",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "startLine": 20,
-      "endLine": 40,
       "accessibility": "protected",
       "isStatic": false,
       "isAbstract": false
@@ -3576,6 +3524,435 @@
       "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\ProtocolTests.cs",
       "startLine": 331,
       "endLine": 334,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "kind": "class",
+      "name": "ActiveChatProbe",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 18,
+      "endLine": 124,
+      "accessibility": "internal",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.GuidPattern",
+      "kind": "field",
+      "name": "GuidPattern",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 20,
+      "endLine": 20,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.ViewTypes",
+      "kind": "field",
+      "name": "ViewTypes",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 21,
+      "endLine": 21,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.ReportPath",
+      "kind": "property",
+      "name": "ReportPath",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 23,
+      "endLine": 23,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "kind": "method",
+      "name": "Run",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 25,
+      "endLine": 47,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "kind": "method",
+      "name": "Collect",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 49,
+      "endLine": 58,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "kind": "method",
+      "name": "Inspect",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 60,
+      "endLine": 66,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "kind": "method",
+      "name": "Dump",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "startLine": 68,
+      "endLine": 123,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "kind": "class",
+      "name": "ChatPlacementProbe",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 16,
+      "endLine": 407,
+      "accessibility": "internal",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.TargetName",
+      "kind": "field",
+      "name": "TargetName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 18,
+      "endLine": 18,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPath",
+      "kind": "property",
+      "name": "ReportPath",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 20,
+      "endLine": 20,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "kind": "method",
+      "name": "Run",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 22,
+      "endLine": 63,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.PaneGridName",
+      "kind": "field",
+      "name": "PaneGridName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 65,
+      "endLine": 65,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.TopMarkerName",
+      "kind": "field",
+      "name": "TopMarkerName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 66,
+      "endLine": 66,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe._paneGrid",
+      "kind": "field",
+      "name": "_paneGrid",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 67,
+      "endLine": 67,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe._addedRow",
+      "kind": "field",
+      "name": "_addedRow",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 68,
+      "endLine": 68,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe._originalRows",
+      "kind": "field",
+      "name": "_originalRows",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 69,
+      "endLine": 69,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPathTop",
+      "kind": "property",
+      "name": "ReportPathTop",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 71,
+      "endLine": 71,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "kind": "method",
+      "name": "RunTopOfPane",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 75,
+      "endLine": 192,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "kind": "method",
+      "name": "Restore",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 194,
+      "endLine": 215,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "kind": "method",
+      "name": "FindGrid",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 217,
+      "endLine": 229,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "kind": "method",
+      "name": "FindByTypeName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 231,
+      "endLine": 243,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "kind": "method",
+      "name": "FindByName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 245,
+      "endLine": 262,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.MarkerName",
+      "kind": "field",
+      "name": "MarkerName",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 264,
+      "endLine": 264,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "kind": "method",
+      "name": "ToggleMarker",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 268,
+      "endLine": 331,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "kind": "method",
+      "name": "Report",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 333,
+      "endLine": 351,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "kind": "method",
+      "name": "DescribeTarget",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 353,
+      "endLine": 387,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "kind": "method",
+      "name": "Describe",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "startLine": 389,
+      "endLine": 406,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "kind": "class",
+      "name": "UsagePackage",
+      "containingType": null,
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 11,
+      "endLine": 85,
+      "accessibility": "public",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.PackageGuid",
+      "kind": "field",
+      "name": "PackageGuid",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 17,
+      "endLine": 17,
+      "accessibility": "public",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.CommandSet",
+      "kind": "field",
+      "name": "CommandSet",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 18,
+      "endLine": 18,
+      "accessibility": "private",
+      "isStatic": true,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "kind": "method",
+      "name": "InitializeAsync",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 20,
+      "endLine": 69,
+      "accessibility": "protected",
+      "isStatic": false,
+      "isAbstract": false
+    },
+    {
+      "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "kind": "method",
+      "name": "IsExperimentalInstance",
+      "containingType": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "project": "CopilotUsageMeter.Panel.Vsix",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "startLine": 71,
+      "endLine": 84,
       "accessibility": "private",
       "isStatic": true,
       "isAbstract": false
@@ -5632,104 +6009,6 @@
       "targetId": "Microsoft.VisualStudio.Shell.WindowPane.Dispose(bool)",
       "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsageDemoToolWindow.cs",
       "line": 79
-    },
-    {
-      "type": "extends",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
-      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 11
-    },
-    {
-      "type": "overrides",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 20
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Threading.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 22
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.GetServiceAsync(Type)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 23
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.ComponentModel.Design.MenuCommandService.AddCommand(MenuCommand)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 25
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Threading.JoinableTaskFactory.RunAsync(Func\u003CTask\u003E)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 25
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.ShowToolWindowAsync(Type,int,bool,CancellationToken)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 29
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Shell.ActivityLog.LogError(string,string)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 35
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.Exception.GetType()",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 35
-    },
-    {
-      "type": "calls",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "Microsoft.VisualStudio.Shell.VsShellUtilities.ShowMessageBox(IServiceProvider,string,string?,OLEMSGICON,OLEMSGBUTTON,OLEMSGDEFBUTTON)",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 36
-    },
-    {
-      "type": "uses",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.InvalidOperationException",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 24
-    },
-    {
-      "type": "uses",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.ComponentModel.Design.MenuCommand",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 25
-    },
-    {
-      "type": "uses",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.InvalidOperationException",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 30
-    },
-    {
-      "type": "uses",
-      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
-      "targetId": "System.ComponentModel.Design.CommandID",
-      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
-      "line": 39
     },
     {
       "type": "implements",
@@ -10952,6 +11231,1812 @@
       "targetId": "System.Threading.Tasks.Task.Delay(int,CancellationToken)",
       "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\tests\\CopilotUsageMeter.Architecture.Tests\\ProtocolTests.cs",
       "line": 333
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.ReportPath",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 23
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.ReportPath",
+      "targetId": "System.IO.Path.GetTempPath()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 23
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 28
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 36
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 37
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 40
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.IO.File.WriteAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 46
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 46
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 27
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "targetId": "System.Collections.Generic.List\u003CSystem.Windows.FrameworkElement\u003E",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 35
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChildrenCount(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 51
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChild(DependencyObject,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 54
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 55
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "targetId": "System.Collections.Generic.List\u003CSystem.Windows.FrameworkElement\u003E.Add(FrameworkElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 55
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Collect(DependencyObject,string,List\u003CFrameworkElement\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 56
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 63
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 63
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 65
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Inspect(StringBuilder,string,FrameworkElement)",
+      "targetId": "System.Collections.Generic.HashSet\u003Cobject\u003E",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 65
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Collections.Generic.HashSet\u003Cobject\u003E.Add(object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 70
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Type.GetMembers(BindingFlags)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 72
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 72
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Reflection.PropertyInfo.GetIndexParameters()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 78
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Reflection.PropertyInfo.GetValue(object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 81
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "string.Contains(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 83
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Reflection.FieldInfo.GetValue(object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 86
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "string.Contains(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 99
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 100
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "object.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 102
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 103
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.RegularExpressions.Regex.IsMatch(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 103
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 107
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 111
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 115
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 116
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Dump(StringBuilder,string,object,int,HashSet\u003Cobject\u003E)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ActiveChatProbe.cs",
+      "line": 120
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPath",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 20
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPath",
+      "targetId": "System.IO.Path.GetTempPath()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 20
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 25
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Collections.Generic.List\u003CSystem.Windows.Window\u003E.Add(Window)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 29
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 31
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 37
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 43
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 46
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 53
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 57
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 58
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.IO.File.WriteAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 61
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 61
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 62
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 24
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "targetId": "System.Collections.Generic.List\u003CSystem.Windows.Window\u003E",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 26
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPathTop",
+      "targetId": "System.IO.Path.Combine(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 71
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ReportPathTop",
+      "targetId": "System.IO.Path.GetTempPath()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 71
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 78
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 84
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.IO.File.WriteAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 85
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 85
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 86
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 93
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 102
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 109
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.IO.File.WriteAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 110
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 110
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 111
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 114
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 114
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 117
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 123
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 123
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.GetRow(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 123
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.GetRowSpan(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 123
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Math.Min(double,double)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 131
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 131
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 131
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 135
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 136
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 136
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 137
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.GetRow(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 141
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.RowDefinitionCollection.Insert(int,RowDefinition)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 142
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.SetRow(UIElement,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 143
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.GetRow(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 143
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Grid.SetRow(UIElement,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 152
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.UIElementCollection.Add(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 153
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.UIElement.UpdateLayout()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 155
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.TimeSpan.FromSeconds(double)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 157
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Threading.DispatcherTimer.Stop()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 160
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 164
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 167
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 167
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 168
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "object.ReferenceEquals(object,object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 172
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Math.Min(double,double)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 174
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 174
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 174
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 178
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 179
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 180
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 183
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 183
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.IO.File.AppendAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 185
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 185
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Threading.DispatcherTimer.Start()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 188
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.IO.File.WriteAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 190
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 190
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 191
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 77
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 131
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 136
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.RowDefinition",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 139
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Collections.Generic.Dictionary\u003CSystem.Windows.UIElement, int\u003E",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 140
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.Border",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 145
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Controls.TextBlock",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 150
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Thickness",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 150
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Threading.DispatcherTimer",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 157
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 161
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 167
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 174
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "targetId": "System.Windows.Controls.UIElementCollection.Remove(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 203
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "targetId": "System.Collections.Generic.Dictionary\u003CSystem.Windows.UIElement, int\u003E.TryGetValue(UIElement,out int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 207
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "targetId": "System.Windows.Controls.Grid.SetRow(UIElement,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 207
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "targetId": "System.Windows.Controls.RowDefinitionCollection.Remove(RowDefinition)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 210
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Restore(StringBuilder)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 214
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChildrenCount(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 219
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChild(DependencyObject,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 222
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindGrid(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 224
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChildrenCount(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 233
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChild(DependencyObject,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 236
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 237
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByTypeName(DependencyObject,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 238
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChildrenCount(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 247
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetChild(DependencyObject,int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 250
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "targetId": "System.Windows.Automation.AutomationProperties.GetAutomationId(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 252
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.FindByName(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 257
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 271
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 271
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 273
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 276
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 280
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 286
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 290
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 290
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "object.ReferenceEquals(object,object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 293
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 294
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 294
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Controls.UIElementCollection.Remove(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 301
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 302
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Controls.UIElementCollection.IndexOf(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 314
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Controls.UIElementCollection.Insert(int,UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 315
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.UIElement.UpdateLayout()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 316
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 317
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.TimeSpan.FromSeconds(double)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 319
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Threading.DispatcherTimer.Stop()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 322
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 324
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 325
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 325
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.IO.File.AppendAllText(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 327
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 327
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Threading.DispatcherTimer.Start()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 330
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Controls.Border",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 307
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Controls.TextBlock",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 312
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Thickness",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 312
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Windows.Threading.DispatcherTimer",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 319
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.ToggleMarker(StringBuilder,Window,FrameworkElement)",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 323
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 335
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Controls.UIElementCollection.Contains(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 335
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 339
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 346
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 346
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Media.GeneralTransform.Transform(Point)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 347
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Media.Visual.TransformToAncestor(Visual)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 347
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 348
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 349
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 350
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 346
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Report(StringBuilder,string,Window,FrameworkElement,FrameworkElement,Panel)",
+      "targetId": "System.Windows.Point",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 347
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 356
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 356
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 357
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Reflection.Assembly.GetName()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 357
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 357
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 359
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 360
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 363
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 363
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 364
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 367
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 370
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 374
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 374
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "object.ReferenceEquals(object,object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 378
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 379
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 379
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 384
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Text.StringBuilder.AppendLine(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 385
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Windows.Controls.Grid.GetRow(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 385
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.DescribeTarget(StringBuilder,DependencyObject)",
+      "targetId": "System.Windows.Controls.Grid.GetRowSpan(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 385
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "object.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 391
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "string.IsNullOrEmpty(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 394
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 394
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 394
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Windows.Automation.AutomationProperties.GetAutomationId(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 395
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "string.IsNullOrEmpty(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 396
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 396
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 396
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 397
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(char)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 397
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 397
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 397
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(object)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 398
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 398
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Windows.Media.VisualTreeHelper.GetParent(DependencyObject)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 399
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(int)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 401
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.Append(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 401
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Windows.Controls.Grid.GetRow(UIElement)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 401
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder.ToString()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 405
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Describe(DependencyObject)",
+      "targetId": "System.Text.StringBuilder",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\ChatPlacementProbe.cs",
+      "line": 391
+    },
+    {
+      "type": "extends",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage",
+      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 11
+    },
+    {
+      "type": "overrides",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 20
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Threading.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 22
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.GetServiceAsync(Type)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 23
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommandService.AddCommand(MenuCommand)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 25
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Threading.JoinableTaskFactory.RunAsync(Func\u003CTask\u003E)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 25
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.AsyncPackage.ShowToolWindowAsync(Type,int,bool,CancellationToken)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 29
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ActivityLog.LogError(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 35
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 35
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.VsShellUtilities.ShowMessageBox(IServiceProvider,string,string?,OLEMSGICON,OLEMSGBUTTON,OLEMSGDEFBUTTON)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 36
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 41
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommandService.AddCommand(MenuCommand)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 42
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 44
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.Run()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 45
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ActivityLog.LogError(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 48
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 48
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommandService.AddCommand(MenuCommand)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 51
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 53
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ChatPlacementProbe.RunTopOfPane()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 54
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ActivityLog.LogError(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 57
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 57
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommandService.AddCommand(MenuCommand)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 60
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread(string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 62
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "CopilotUsageMeter.Panel.Vsix.ActiveChatProbe.Run()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 63
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "Microsoft.VisualStudio.Shell.ActivityLog.LogError(string,string)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 66
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.Exception.GetType()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 66
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.InvalidOperationException",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 24
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommand",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 25
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.InvalidOperationException",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 30
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.CommandID",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 39
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommand",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 42
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.CommandID",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 50
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommand",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 51
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.CommandID",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 59
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.MenuCommand",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 60
+    },
+    {
+      "type": "uses",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.InitializeAsync(CancellationToken,IProgress\u003CServiceProgressData\u003E)",
+      "targetId": "System.ComponentModel.Design.CommandID",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 68
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "targetId": "System.Environment.GetCommandLineArgs()",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 73
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "targetId": "string.Equals(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 76
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "targetId": "string.Equals(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 76
+    },
+    {
+      "type": "calls",
+      "sourceId": "CopilotUsageMeter.Panel.Vsix.UsagePackage.IsExperimentalInstance()",
+      "targetId": "string.Equals(string,StringComparison)",
+      "filePath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\src\\CopilotUsageMeter.Panel.Vsix\\UsagePackage.cs",
+      "line": 77
     }
   ]
 }

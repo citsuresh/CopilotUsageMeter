@@ -4,12 +4,12 @@ This file is overwritten, not appended, at the end of each working session. The 
 
 ## Current focus
 
-2026-11-10: **Phase 3 (feasibility proofs) is complete with limits (user sign-off 2026-11-10).** Phases 1 and 2 are complete and pushed (HEAD `b7f0479`). Do not start Phase 4 until the user directs it.
+Phases 1-3 are committed and pushed to origin/main (`b65d27d` submodule, `8d13672` Phase 3, plus the end-session graph commit). Do not start
 
 ## Phase 3 outcomes (details and limits in `PHASE_PLAN.md` and `DECISIONS.md`)
 
-- Toolkit added as submodule `external/VsChatHistoryToolkit`, pinned at `12bbfeb` (adds `usage-breakdown`); CLI published to gitignored `tools\chathistory`.
-GitHub App route untested and parked as a future alternative. Decision 2026-11-10: use `copilot_internal/user` for now.
+gitignored `tools\chathistory`.
+- GitHub App route
 - Placement: a marker inserted into `ChatWorkingSet`'s parent panel lands directly above Total changes (and above the prompt when it is absent) but is lost when the session view is recreated; a top-of-pane row survives new chats and switches. Neither is a supported extension point.
 - Active chat: `HarnessSessionViewModel.SessionId` equals the toolkit session id. Per-turn rows already include subagents; refresh must replace per-(session, turn_index) snapshots.
 - Local completeness: `usage-breakdown` gives joint repo x model x day totals (rows sum to total; matches `activity`).
@@ -21,11 +21,9 @@ GitHub App route untested and parked as a future alternative. Decision 2026-11-1
 - Not established: meaning of `currentSessionId`; cause of the `by_turn` versus `turn_count` mismatch; live subagent turn behaviour; duplicate-injection idempotence; real-engine resource cost; tray-icon slowness seen once when launched from VS (ask whether F5, Ctrl+F5 or direct if it recurs).
 - Build note: restore fails on private Itron feeds (401); use `dotnet restore <slnx> --source https://api.nuget.org/v3/index.json` then build with `/restore:false`.
 
-## Uncommitted changes (manual diff review required before any commit)
+## Uncommitted changes
 
-- Staged: `.gitmodules`, submodule `external/VsChatHistoryToolkit` at `12bbfeb`.
-- Modified: `.gitignore`, `README.md`, `docs/DECISIONS.md`, `docs/PHASE_PLAN.md`, `docs/SCRIPTS.md`, VSIX `Commands.vsct` and `UsagePackage.cs`.
-- New: `scripts/agent/Measure-Resources.ps1`, `Test-GitHubQuota.ps1`, `Test-LocalAccountingCompleteness.ps1`, `Test-TurnAccounting.ps1`; VSIX `ActiveChatProbe.cs`, `ChatPlacementProbe.cs`.
+- None after the end-session commit. Next: Phase 4 only on explicit user direction; remove or replace the Exp-only probes there and re-run the placement probes.
 
 ## Verified
 
