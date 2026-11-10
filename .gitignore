@@ -11,3 +11,5 @@
 
 # Test results
 [Tt]est[Rr]esults/
+# Published toolkit CLI (built from external/VsChatHistoryToolkit)
+/tools/chathistory/

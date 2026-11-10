@@ -1,0 +1,3 @@
+[submodule "external/VsChatHistoryToolkit"]
+	path = external/VsChatHistoryToolkit
+	url = https://github.com/citsuresh/VsChatHistoryToolkit.git
