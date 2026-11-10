@@ -16,8 +16,8 @@ Maintain this checklist as work progresses, including meaningful progress within
 	- [x] Persist new-chat instructions in `.github/copilot-instructions.md` to read/follow the active plan, maintain progress and preserve agreed privacy/safety boundaries.
 	- [x] Tray scaffold smoke test, 2026-11-10: explicitly launched the built executable, attached VS debugger by PID, paused/resumed, confirmed the expected window title and responsiveness, and closed the window normally; process exited and debugger returned to design mode. Exception inspection returned `no-stack-frame` on the selected paused context, so no separate exception-inspection result is claimed. No VSIX installation or runtime test.
   - [x] Final step: update README with current capabilities, limitations, build/open instructions and next phase.
-- [ ] **Phase 2 - End-to-end skeleton: not started; awaiting user direction**
-  - [ ] Resolve the framework/SDK baseline recommendation below before feature implementation.
+- [ ] **Phase 2 - End-to-end skeleton: approved; baseline migration verified, feature work pending**
+  - [x] Resolve the framework/SDK baseline before feature implementation: approved stable SDK 10.0.403 installed and selected, Tray net10.0-windows/tests net10.0/VSIX net48, shared netstandard2.0 retained. Full SLNX Debug build produced a real net48 VSIX with deployment disabled; 23 architecture tests passed, zero failed/skipped via CLI (Test Explorer returned no matching tests). Independent increment review found no code/configuration regressions and one stale SDK-wording finding, corrected with user approval. Post-migration Tray smoke test passed: expected title, responsive window, loaded .NET 10.0.14 CoreCLR, normal close and exit code 0. No new debugger attach or VSIX runtime verification.
   - [ ] Add tray-hosted engine, invented test data, status, pause/resume and basic settings.
   - [ ] Specify and implement source-separated protocol, commands, sequencing, limits and cancellation.
   - [ ] Connect named-pipe server/client to the minimal VS extension in the experimental instance.
@@ -47,11 +47,11 @@ Maintain this checklist as work progresses, including meaningful progress within
   - [ ] Complete final build/test, whole-change review and documentation consistency checks.
   - [ ] Final step: publish accurate README setup/use instructions, verification results and known limitations; update this checklist.
 
-## Framework/SDK baseline - pending approval
+## Framework/SDK baseline - approved and applied 2026-11-10
 
-Phase 1 retained the original draft targets to prove the scaffold. They are not the recommended new-product baseline. Microsoft's current support table lists .NET 8 end of support as **2026-11-10**, and .NET 10 LTS through **2028-11-14**. The pinned SDK is also a release candidate, not a stable SDK baseline.
+Phase 1 retained the original draft targets and release-candidate SDK to prove the scaffold. That historical baseline is superseded below. Microsoft's support table lists .NET 8 end of support as **2026-11-10**, and .NET 10 LTS through **2028-11-14**.
 
-Recommendation before Phase 2: `net10.0-windows` for Tray, `net10.0` for tests, `net48` for the in-process VSIX, and retain `netstandard2.0` for shared libraries consumed by both hosts. Modern VS templates use .NET Framework 4.8 for in-process extensions; net472 compiled successfully but need not constrain a new VS 2026 project. Use a supported stable .NET 10 SDK after confirming availability. Do not silently change targets or install tooling; record the approved migration and reverify the full solution, VSIX and tests.
+Approved and applied before Phase 2 feature work: `net10.0-windows` for Tray, `net10.0` for tests, `net48` for the in-process VSIX, and retain `netstandard2.0` for shared libraries consumed by both hosts. Modern VS templates use .NET Framework 4.8 for in-process extensions; the VSIX manifest prerequisite is now 4.8. Stable SDK 10.0.403 was installed with explicit approval and Microsoft hash/signature verification; `global.json` uses `latestPatch` with prerelease disabled. Full solution/VSIX build and 23 tests passed. This does not establish extension runtime support or prove Phase 3 gates.
 
 Sources: [Microsoft .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), [Modern VSIX project targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
 
@@ -97,7 +97,7 @@ Acceptance: source-specific totals/freshness/errors are explicit; guards cover a
 
 Finish standalone details, filters, settings, exports, authentication storage, themes/accessibility/DPI and install/uninstall. Actually close/release the details window and restore its geometry on recreation. Package tray and VSIX separately, without main-instance installation during development.
 
-Repeat resource measurements against Phase 3's baseline, including icon handles, idle/busy behavior and multi-client read deduplication. Revisit the preview SDK pin and .NET runtime support before shipping. Full build/test, docs consistency and final review; report measurements and remaining limitations.
+Repeat resource measurements against Phase 3's baseline, including icon handles, idle/busy behavior and multi-client read deduplication. Revalidate SDK/runtime support before shipping. Full build/test, docs consistency and final review; report measurements and remaining limitations.
 
 ## Required final step - README and checklist sync
 

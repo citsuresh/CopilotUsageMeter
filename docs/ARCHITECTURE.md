@@ -52,10 +52,10 @@ Panel UI (VSIX shell, tray flyout, WPF details window)     Hosts: Tray | Windows
 | `CopilotUsageMeter.Transport.Pipes` | netstandard2.0 | Named-pipe server and client for the protocol. |
 | `CopilotUsageMeter.Client` | netstandard2.0 | `IUsageClient` with `PipeUsageClient` and `InProcUsageClient`. |
 | `CopilotUsageMeter.Panel.Core` | netstandard2.0 | View models, bar layer math, connection state machine, number formatting. No UI framework types. |
-| `CopilotUsageMeter.Tray` | net8.0-windows | Host: tray icon, tooltip, menu, flyout, WPF details window, settings, pipe server, startup entry, single instance. |
-| `CopilotUsageMeter.Panel.Vsix` | net472 / VSSDK in-proc | Visual Studio shell: tool window, visibility notifications, theme. |
+| `CopilotUsageMeter.Tray` | net10.0-windows | Host: tray icon, tooltip, menu, flyout, WPF details window, settings, pipe server, startup entry, single instance. |
+| `CopilotUsageMeter.Panel.Vsix` | net48 / VSSDK in-proc | Visual Studio shell: temporary Phase 2 test surface; intended chat placement remains a Phase 3 gate. |
 | `external\VsChatHistoryToolkit` | submodule | Source of the CLI. Not referenced by code. |
-| `tests\*` | net8.0 | Architecture tests exist in Phase 1; focused library tests are added with behavior. |
+| `tests\*` | net10.0 | Architecture tests exist in Phase 1; focused library tests are added with behavior. |
 
 **Seams (keep narrow; add more only when a second implementation exists):** `IHistoryReader`, `IChangeSignal`, `IClock`, `IUsageClient`, plain composition roots per host.
 
@@ -70,6 +70,8 @@ Panel UI (VSIX shell, tray flyout, WPF details window)     Hosts: Tray | Windows
 **Host lifetime:** the tray owns the background Usage Engine and pipe server; no Windows service is installed. Exiting the tray stops tracking. The standalone details window is created on demand, actually closed/released, and recreated with saved geometry. VS controls its own panel lifetime; collapsing the expander does not stop tracking.
 
 **Phase 1 toolchain:** installed VS 2026 Insiders MSBuild at `C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe` builds the solution and real VSIX. `global.json` temporarily pins installed SDK `11.0.100-rc.3.26522.148`; this is a preview compiler, not a change to the draft's net8.0/net472/netstandard2.0 targets. Revisit supported SDK/runtime targets before packaging. The WPF launch window and empty AsyncPackage are scaffolding, not an implemented tray/panel.
+
+**Approved Phase 2 baseline (2026-11-10):** supersedes the historical Phase 1 targets/pin above. Stable SDK 10.0.403 (`latestPatch`, prerelease disabled), Tray net10.0-windows, tests net10.0, in-process VSIX net48 with matching manifest prerequisite; shared libraries retain netstandard2.0. Full SLNX Debug build and non-deploying VSIX packaging passed; all 23 architecture tests passed on .NET 10. Hosts remain scaffolds; no new runtime validation is implied.
 
 ## 3. The history toolkit dependency
 

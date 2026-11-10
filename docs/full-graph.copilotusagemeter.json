@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-11-10T07:37:55.3022391Z",
+  "generatedAt": "2026-11-10T07:41:02.7362982Z",
   "solutionPath": "C:\\MyFiles\\Git\\CopilotUsageMeter\\CopilotUsageMeter.slnx",
-  "mode": "incremental",
-  "commitSha": "5d18b8700c99433af89560045c3a002d203dc552",
+  "mode": "full",
+  "commitSha": "0aa108020c63c37344bf50b597ecca4003c74dee",
   "nodes": [
     {
       "id": "CopilotUsageMeter.Panel.Vsix.UsagePackage",

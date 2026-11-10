@@ -2,7 +2,7 @@
 
 Planned Windows tray app and compact Visual Studio usage expander. GitHub-reported account allowance/consumption is separate from locally recorded repository, token and current-chat analytics. Local history is never uploaded. Authentication, billing availability and Copilot Chat embedding require feasibility proofs.
 
-## Current state - Phase 1
+## Current state - Phase 2 baseline
 
 Open `CopilotUsageMeter.slnx`. This is the only supported solution file; the old `.sln` has been removed. Reopen this file if an existing Visual Studio workspace still references the old solution path. The SLNX Debug build and all 23 tests pass. It contains ten production projects and one architecture-test project:
 
@@ -16,9 +16,9 @@ Open `CopilotUsageMeter.slnx`. This is the only supported solution file; the old
 | Transport.Pipes | netstandard2.0 | Named-pipe transport |
 | Client | netstandard2.0 | Client abstraction |
 | Panel.Core | netstandard2.0 | UI-independent view models |
-| Tray | net8.0-windows | WPF host scaffold |
-| Panel.Vsix | net472 | In-process VSIX package scaffold |
-| Architecture.Tests | net8.0 | Dependency/compiled-type guards, including negative guard tests |
+| Tray | net10.0-windows | WPF host scaffold |
+| Panel.Vsix | net48 | In-process VSIX package scaffold |
+| Architecture.Tests | net10.0 | Dependency/compiled-type guards, including negative guard tests |
 
 Set **CopilotUsageMeter.Tray** as the startup project if inspecting the scaffold. It opens a clearly labeled placeholder window: there is no tray icon, engine, pipe server, sign-in or history reading yet. Libraries are intentionally empty. The VSIX contains an empty package, not a panel. No extension is deployed by building.
 
@@ -27,7 +27,7 @@ Set **CopilotUsageMeter.Tray** as the startup project if inspecting the scaffold
 | Phase | Status |
 | --- | --- |
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
-| 2 - End-to-end skeleton | Not started; framework baseline decision and user direction pending |
+| 2 - End-to-end skeleton | In progress: framework migration built and tested; engine/tray/pipes/VS client not implemented |
 | 3 - Feasibility proofs and resource baseline | Not started |
 | 4 - Tracking and compact UI | Not started |
 | 5 - Details, packaging and final measurements | Not started |
@@ -36,23 +36,25 @@ The [phase checklist](docs/PHASE_PLAN.md#progress-checklist---source-of-truth) i
 
 Tray scaffold smoke test (2026-11-10): launched the built executable, attached the VS debugger by PID, paused/resumed, verified the expected window title and responsiveness, then closed the window normally. The process exited and VS returned to design mode. Exception inspection was unavailable on the selected paused frame (`no-stack-frame`); no separate exception-inspection result is claimed. No VSIX was launched or installed.
 
-## Framework recommendation - not yet applied
+Post-migration smoke test (2026-11-10): launched the net10.0-windows scaffold, verified the expected window title and responsiveness, confirmed the process loaded .NET 10.0.14 CoreCLR, then requested normal window close. The process exited with code 0. No debugger attach or VSIX runtime test was performed in this check.
 
-The current targets in the project table preserve the original draft and successfully built the scaffold; they are not all the recommended baseline for further development:
+## Framework baseline - applied 2026-11-10
 
-| Component | Recommended target | Reason |
+The approved baseline replaces the original draft targets and temporary preview SDK pin:
+
+| Component | Current target | Reason |
 | --- | --- | --- |
 | Tray | net10.0-windows | .NET 10 LTS is supported through 2028-11-14; .NET 8 reaches end of support on 2026-11-10 |
 | Tests | net10.0 | Match the supported modern runtime baseline |
 | In-process VSIX | net48 | Align with modern Visual Studio in-process extension templates; not .NET 10 inside the VS process |
 | Shared libraries | netstandard2.0 | Remain consumable by both the modern tray and .NET Framework VSIX |
-| Build SDK | Stable, supported .NET 10 SDK | Replace the temporary release-candidate pin after approval and availability checks |
+| Build SDK | 10.0.403, stable .NET 10 SDK | Pin the installed stable SDK; allow only stable patches within its feature band |
 
-No project targets or SDK pin have been changed by this documentation update. Approve and validate the migration before Phase 2. See [Microsoft's .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and [modern VSIX targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
+SDK 10.0.403 was installed with explicit approval after verifying Microsoft's published SHA512 and installer signature. `global.json` selects 10.0.403 with `latestPatch` and prerelease disabled. The full SLNX Debug build produced a net48 VSIX without deployment; all 23 architecture tests passed on net10.0 (zero failed/skipped). Test Explorer returned no matching tests, so tests ran with the CLI command below. Tray launch/close on .NET 10 passed as recorded above; extension runtime validation remains pending. See [Microsoft's .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) and [modern VSIX targets](https://learn.microsoft.com/en-us/visualstudio/extensibility/visualstudio-extensibility/ship/create-vsix-with-project-sdk?view=visualstudio).
 
 ## Build and tests
 
-Windows with Visual Studio's extension-development tooling is required for the full solution. The locally verified route is VS 2026 Insiders MSBuild 18.12.2. The installed preview SDK is pinned in `global.json`; no SDK was installed for this phase. Existing draft target frameworks are retained, but supported shipping targets/toolchain must be reviewed before packaging.
+Windows with Visual Studio's extension-development tooling is required for the full solution. The locally verified route is VS 2026 Insiders MSBuild 18.12.2 with stable SDK 10.0.403 pinned in `global.json`. Tray/tests require .NET 10; the in-process VSIX requires .NET Framework 4.8. Packaging and runtime feasibility still require later validation.
 
 From the repository root in PowerShell:
 
@@ -63,7 +65,7 @@ dotnet test '.\tests\CopilotUsageMeter.Architecture.Tests\CopilotUsageMeter.Arch
 
 On other machines, use the corresponding VS installation's MSBuild path and the pinned SDK (or deliberately update the SDK pin). NuGet restore requires network access. Build output is ignored under each project's `bin`/`obj` folders.
 
-VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net472\CopilotUsageMeter.Panel.Vsix.vsix`. Debug configuration uses `/RootSuffix Exp`; runtime testing is reserved for an experimental instance. Nothing has been installed into the main instance, and the extension has not yet been run. Never open/install the VSIX into the main instance as a shortcut.
+VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.Vsix.vsix`. Debug configuration uses `/RootSuffix Exp`; runtime testing is reserved for an experimental instance. Nothing has been installed into the main instance, and the extension has not yet been run. Never open/install the VSIX into the main instance as a shortcut.
 
 ## Continuing in a new chat
 

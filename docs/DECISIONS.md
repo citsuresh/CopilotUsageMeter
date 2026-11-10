@@ -54,3 +54,10 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Why: this new project targets modern Visual Studio/MSBuild; SLNX is concise and easier to review/merge. One authoritative solution avoids configuration drift.
 - Given up: support for older tooling that cannot open SLNX. No framework targets, SDK pin, project references or runtime behavior are changed by this migration.
 - Revisit: only if an actual consumer requires older solution tooling.
+
+## 2026-11-10 - Approved stable Phase 2 framework baseline
+
+- Decision: supersede the temporary Phase 1 SDK/host targets with stable SDK 10.0.403, Tray net10.0-windows, tests net10.0 and in-process VSIX net48; retain all eight shared libraries on netstandard2.0. Pin `latestPatch`, disallow prerelease SDK selection and require .NET Framework 4.8 in the VSIX manifest.
+- Why: begin Phase 2 on a stable supported toolchain while preserving modern-tray/.NET Framework-extension interoperability. The user explicitly approved the migration and SDK installation; the Microsoft installer hash and signature were verified before installation.
+- Given up: the preview compiler pin and original net8.0/net472 scaffold baseline. No dependency package upgrades, production behavior or extension runtime support is implied by retargeting. Full SLNX/non-deploying VSIX build and 23 architecture tests passed; Test Explorer discovery returned no matches, so tests ran via CLI.
+- Revisit: shipping toolchain/support and Phase 3 extension runtime feasibility; do not infer chat embedding or account availability from a successful package build.

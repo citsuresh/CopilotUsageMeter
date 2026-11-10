@@ -36,7 +36,8 @@
 - Manual commit review before any commit.
 - Build/test verification after every change; documentation-only edits need no build unless documentation tests exist.
 - Do not commit or push automatically - wait for explicit user confirmation first.
-- This project has a WinForms/WPF UI. If you need to debug it in Visual Studio, use the `vs-debug` skill (also independently useful for debugging tasks not reached via UI navigation). If you need to navigate through the running application to reach a specific screen or feature - including as part of debugging it - use the `ui-navigation-orchestrator` skill, which composes `vs-debug` and `ui-interaction` for you.
+  - This project has a WinForms/WPF UI. If you need to debug it in Visual Studio, use the `vs-debug` skill (also independently useful for debugging tasks not reached via UI navigation). If you need to navigate through the running application to reach a specific screen or feature - including as part of debugging it - use the `ui-navigation-orchestrator` skill, which composes `vs-debug` and `ui-interaction` for you.
+- If the `vs-chat-history` skill is installed, use it to search earlier Visual Studio Copilot Chat conversations on this machine (for example "what did we decide about X", "which chat worked on Y"). It reads `session-store.db` only, and chat text is confidential: show short excerpts only. Ignore this note if the skill is not installed.
 
 ## Response Guidelines
 

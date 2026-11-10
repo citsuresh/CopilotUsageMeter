@@ -4,7 +4,7 @@ Edited deliberately when priorities change; not automatically overwritten each s
 
 ## Near-term
 
-- [ ] Confirm next increment and resolve/apply the supported framework/SDK baseline.
+- [x] Next increment approved; stable SDK 10.0.403 and .NET 10/net48 baseline applied and build/test verified. Independent increment review complete; its sole documentation finding corrected with user approval. See PHASE_PLAN.md for evidence.
 - [ ] Phase 2: real tray-hosted engine, invented data and named-pipe extension skeleton.
 - [ ] Phase 3: feasibility proofs and initial idle/busy resource measurements; user decision before full features.
 

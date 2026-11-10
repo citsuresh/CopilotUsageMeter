@@ -1,8 +1,8 @@
 # Code summary
 
-Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. GitHub account usage and this-machine analytics remain separate; local chat history is never uploaded. Phase 1 is buildable scaffolding only: eight empty netstandard2.0 libraries, a net8.0-windows WPF launch window, a net472 VSIX package and net8.0 architecture tests.
+Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. GitHub account usage and this-machine analytics remain separate; local chat history is never uploaded. Hosts remain scaffolds: eight empty netstandard2.0 libraries, a net10.0-windows WPF launch window, a net48 VSIX package and net10.0 architecture tests.
 
-`PHASE_PLAN.md` is the authoritative progress/acceptance record. The original targets and preview SDK pin remain unchanged; the recommended .NET 10/net48 migration is not applied. Open `CopilotUsageMeter.slnx`, the sole solution.
+`PHASE_PLAN.md` is the authoritative progress/acceptance record. The approved Phase 2 baseline uses stable SDK 10.0.403 with prerelease disabled; full solution/VSIX build and 23 architecture tests passed after retargeting. Phase 2 behavior is not implemented. Open `CopilotUsageMeter.slnx`, the sole solution.
 
 ## Project dependencies
 
@@ -52,4 +52,4 @@ See `docs/KEY_FLOWS.md` for traced end-to-end call flows.
 
 ## Graph coverage
 
-Registry and query command are in `.github/copilot-instructions.md`. Initial graph: 23 nodes, 93 edges, 11 projects, built in 17.03 seconds against commit `5d18b87`. Builder warned about project references without matching metadata references for Contracts, Core and Transport.Pipes; structural queries may be incomplete. A missing graph result is not proof of absent source. Viewer loads slug-named files using file picker/drag-and-drop, not its legacy automatic filenames.
+Registry and query command are in `.github/copilot-instructions.md`. Full graph rebuilt from commit `0aa1080`: 23 nodes, 93 edges across 11 projects, in 14.02 seconds. Builder warned about project references without matching metadata references for Contracts, Core and Transport.Pipes; structural queries may be incomplete. A missing graph result is not proof of absent source. Viewer loads slug-named files using file picker/drag-and-drop, not its legacy automatic filenames.
