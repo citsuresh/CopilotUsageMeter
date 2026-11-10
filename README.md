@@ -4,30 +4,30 @@ Planned Windows tray app and compact Visual Studio usage expander. GitHub-report
 
 ## Current state - Phase 2 baseline
 
-Open `CopilotUsageMeter.slnx`. This is the only supported solution file; the old `.sln` has been removed. Reopen this file if an existing Visual Studio workspace still references the old solution path. The SLNX Debug build and all 23 tests pass. It contains ten production projects and one architecture-test project:
+Open `CopilotUsageMeter.slnx`. This is the only supported solution file; the old `.sln` has been removed. Reopen this file if an existing Visual Studio workspace still references the old solution path. The SLNX Debug build and all 39 tests pass (23 architecture guards and 16 protocol/lifecycle cases). It contains ten production projects and one test project:
 
 | Project | Target | Boundary |
 | --- | --- | --- |
-| Contracts | netstandard2.0 | Future source-separated DTOs/protocol |
+| Contracts | netstandard2.0 | Source-separated demo DTOs/protocol |
 | Core | netstandard2.0 | Future aggregation/scheduling, no infrastructure |
 | Readers.ChatHistoryCli | netstandard2.0 | Local CLI boundary |
 | Readers.GitHub | netstandard2.0 | Separate account/profile integration |
 | Signals.FileWatcher | netstandard2.0 | Local change notifications |
-| Transport.Pipes | netstandard2.0 | Named-pipe transport |
-| Client | netstandard2.0 | Client abstraction |
+| Transport.Pipes | netstandard2.0 | Bounded JSON-lines framing and pipe server |
+| Client | netstandard2.0 | Reconnecting pipe client abstraction |
 | Panel.Core | netstandard2.0 | UI-independent view models |
 | Tray | net10.0-windows | WPF host scaffold |
 | Panel.Vsix | net48 | In-process VSIX package scaffold |
-| Architecture.Tests | net10.0 | Dependency/compiled-type guards, including negative guard tests |
+| Architecture.Tests | net10.0 | Dependency/compiled-type guards and protocol/real-pipe lifecycle tests |
 
-Set **CopilotUsageMeter.Tray** as the startup project if inspecting the scaffold. It opens a clearly labeled placeholder window: there is no tray icon, engine, pipe server, sign-in or history reading yet. Libraries are intentionally empty. The VSIX contains an empty package, not a panel. No extension is deployed by building.
+Set **CopilotUsageMeter.Tray** as the startup project if inspecting the scaffold. It opens a clearly labeled placeholder window: there is no tray icon, engine, running pipe server, sign-in or history reading yet. Contracts/transport/client libraries now implement the [demo protocol](docs/PROTOCOL.md); Core, readers, signals and Panel.Core remain empty. The VSIX contains an empty package, not a panel. No extension is deployed by building.
 
 ## Phase progress
 
 | Phase | Status |
 | --- | --- |
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
-| 2 - End-to-end skeleton | In progress: framework migration built and tested; engine/tray/pipes/VS client not implemented |
+| 2 - End-to-end skeleton | In progress: baseline and protocol/client libraries built/tested; engine/tray/VS UI integration pending |
 | 3 - Feasibility proofs and resource baseline | Not started |
 | 4 - Tracking and compact UI | Not started |
 | 5 - Details, packaging and final measurements | Not started |

@@ -4,7 +4,7 @@ This file is overwritten, not appended, at the end of each working session. The 
 
 ## Current focus
 
-2026-11-10: Phase 1 remains complete. User approved Phase 2's breakdown: baseline; protocol/transport; mock engine/tray; explicitly temporary VSIX test surface; reliability verification/docs. Baseline migration is built/tested and independently reviewed; its sole SDK-wording finding was corrected with user approval. Feature work remains pending. Only `CopilotUsageMeter.slnx` exists. Startup project: CopilotUsageMeter.Tray. No commit/push authorized.
+2026-11-10: User authorized autonomous Phase 2 implementation, appropriate in-scope review fixes and local commits, not pushes. Baseline committed as `a395639`. Protocol/client library review's four findings fixed; all 39 tests pass. Next: mock engine/tray and explicit temporary VSIX test surface, then reliability verification/docs. Phase 1 remains complete; no Phase 3 authorization. Only `CopilotUsageMeter.slnx` exists.
 
 ## Verified
 
@@ -16,11 +16,11 @@ This file is overwritten, not appended, at the end of each working session. The 
 
 ## Open tasks / gates
 
-- Next increment: protocol/transport under the approved breakdown; baseline review is complete and its sole documentation finding corrected. Current targets: Tray net10.0-windows/tests net10.0/VSIX net48, shared netstandard2.0; stable SDK 10.0.403 pin with prerelease disabled.
+- Protocol library review, then mock engine/tray: command dispatch, protected same-user endpoint and persistent demo settings remain to be composed. Full build plus Test Explorer: 35 passed, zero failed/skipped. Current targets: Tray net10.0-windows/tests net10.0/VSIX net48, shared netstandard2.0; stable SDK 10.0.403 pin with prerelease disabled.
 - Phase 2: real tray and fake-data pipe/VS skeleton. Phase 3: account allowance/consumption authentication/logout, chat placement, active-chat turn attribution, local completeness and initial resource baseline. Stop for user decisions on failed gates. Phase 5 repeats resource measurements.
 - Never conflate account/local units/scopes, upload local history, install into main VS, or automatically commit/push.
 
 ## Recently changed files
 
 - Existing Bootstrap changes preserved: repository instructions, CODE_SUMMARY, PROJECT_STATE and graph/dependencies JSON (HEAD is local memory commit `0aa1080`; do not infer publication).
-- This increment: global.json; Tray/VSIX/Architecture.Tests project targets; VSIX manifest prerequisite; README, PHASE_PLAN, ARCHITECTURE, DECISIONS, CODE_SUMMARY, PROJECT_STATE and ROADMAP. No production behavior changes, commits or pushes.
+- Current increment: Contracts demo DTOs/envelopes, PipeConnection/UsagePipeServer, IUsageClient/PipeUsageClient, ProtocolTests, PROTOCOL.md and related README/checklist/memory summaries. No production account/history reads or VSIX deployment.

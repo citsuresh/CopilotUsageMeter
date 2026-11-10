@@ -1,6 +1,6 @@
 # Code summary
 
-Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. GitHub account usage and this-machine analytics remain separate; local chat history is never uploaded. Hosts remain scaffolds: eight empty netstandard2.0 libraries, a net10.0-windows WPF launch window, a net48 VSIX package and net10.0 architecture tests.
+Copilot Usage Meter is a Windows tray host and planned Visual Studio usage expander. GitHub account usage and this-machine analytics remain separate; local chat history is never uploaded. Eight netstandard2.0 libraries now include demo DTOs, pipe framing/server and a reconnecting client; Core/readers/signals/Panel.Core and the net10.0-windows/net48 hosts remain scaffolds. The existing net10.0 test project contains architecture and protocol/lifecycle tests.
 
 `PHASE_PLAN.md` is the authoritative progress/acceptance record. The approved Phase 2 baseline uses stable SDK 10.0.403 with prerelease disabled; full solution/VSIX build and 23 architecture tests passed after retargeting. Phase 2 behavior is not implemented. Open `CopilotUsageMeter.slnx`, the sole solution.
 
@@ -45,8 +45,11 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 | Tray | `MainWindow` | `src/CopilotUsageMeter.Tray/MainWindow.xaml.cs` | Initializes the explicitly labeled scaffold UI; not a tray icon/engine |
 | Panel.Vsix | `UsagePackage` | `src/CopilotUsageMeter.Panel.Vsix/UsagePackage.cs` | Empty AsyncPackage registration; no panel/injection yet |
 | Architecture.Tests | `DependencyRulesTests` | `tests/CopilotUsageMeter.Architecture.Tests/DependencyRulesTests.cs` | SLNX membership and source/compiled dependency guards, with negative controls |
+| Contracts | `UsageSnapshot`, `ProtocolMessage`, `UsageProtocol` | `src/CopilotUsageMeter.Contracts/` | Separate demo account/local payloads and v1 envelopes; see PROTOCOL.md |
+| Transport.Pipes | `PipeConnection`, `UsagePipeServer` | `src/CopilotUsageMeter.Transport.Pipes/` | Bounded framing, handshake, subscription, delivery sequencing and broadcast |
+| Client | `IUsageClient`, `PipeUsageClient` | `src/CopilotUsageMeter.Client/` | Reconnect/backoff, resynchronization, command acknowledgement and stale cached snapshots |
 
-Contracts, Core, Readers.ChatHistoryCli, Readers.GitHub, Signals.FileWatcher, Transport.Pipes, Client and Panel.Core have no implemented types yet. Proposed interfaces/DTOs in ARCHITECTURE.md are not existing code.
+Core, Readers.ChatHistoryCli, Readers.GitHub, Signals.FileWatcher and Panel.Core have no implemented types yet. Proposed production accounting/authentication types in ARCHITECTURE.md are not existing code. All 39 current tests passed via Test Explorer; extension runtime is not verified.
 
 See `docs/KEY_FLOWS.md` for traced end-to-end call flows.
 
