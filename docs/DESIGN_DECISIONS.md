@@ -102,3 +102,8 @@ Live Exp test: Copilot Chat on its session list (no conversation, no working-set
 
 ## 2026-11-11 - Notification identity for the tray
 Tray balloons showed Windows' blank slashed-circle placeholder and the exe name: the process had no AppUserModelID and the exe no icon. The tray exe now has an pp.ico (plain ring) as ApplicationIcon, and NotificationIdentity.Register (called first in App.OnStartup) sets the process AppUserModelID and writes a per-user HKCU\Software\Classes\AppUserModelId\CopilotUsageMeter.Tray DisplayName/IconUri. Failure is logged, never fatal. Unverified that Windows honours it for NotifyIcon balloons; real toasts (as in KekaAttendenceChecker) are deferred to the ROADMAP.
+
+## 2026-11-11 - Phase 5 packaging, install and startup
+- Decision: the tray ships as a zip made by `scripts\agent\Package-Tray.ps1` (framework-dependent by default, `-SelfContained` optional) containing `Install-Tray.ps1`; the per-user install is a plain file copy plus a Start Menu shortcut (no admin rights, MSI or MSIX). Uninstall keeps `%LOCALAPPDATA%\CopilotUsageMeter` data, refuses while the installed tray runs, deletes only a folder that contains the tray exe, refuses a drive root/relative path/data folder/`%LOCALAPPDATA%` or its parents (review finding), and removes the Run value only if it points into the install folder. The scripts never stop processes.
+- Decision: "Start with Windows" is an HKCU Run value (off by default), toggled from the tray menu and re-read when it opens. Rejected: startup-folder shortcut, scheduled task.
+- Direction (user, 2026-11-11): registry/startup behaviour is not pursued further for now; a real installer, the shipping model (self-contained or not, signing, MSIX) and VSIX packaging are planned later.

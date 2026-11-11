@@ -16,6 +16,5 @@ Edited deliberately when priorities change; not automatically overwritten each s
 ## Future alternatives (not scheduled)
 
 - GitHub App user token for account usage instead of the unsupported `copilot_internal/user` endpoint: needs organisation admin approval, untested. Revisit if the internal endpoint changes or is blocked.
-- Real Windows toasts for the tray alerts (`Microsoft.Toolkit.Uwp.Notifications` with a `net10.0-windows10.0.19041.0` target, as in `KekaAttendenceChecker`), replacing `NotifyIcon` balloons: gives a proper app identity, display name and icon on notifications. Deferred 2026-11-11; the tray currently declares an AppUserModelID and HKCU display name/icon (`NotificationIdentity`) instead, and whether Windows honours that for balloons is unverified.
 
 Do not treat the archived P0-P9 proposal

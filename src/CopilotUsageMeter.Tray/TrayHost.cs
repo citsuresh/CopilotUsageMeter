@@ -100,6 +100,11 @@ internal sealed class TrayHost : IDisposable
         pause = new Forms.ToolStripMenuItem("Pause updates", null,
             (_, _) => RunCommand(new ProtocolMessage { Type = "SetPaused", Paused = !state.GetSnapshot().IsPaused }));
         menu.Items.Add(pause);
+        var startup = new Forms.ToolStripMenuItem("Start with Windows");
+        startup.Click += (_, _) => ToggleStartWithWindows(startup);
+        menu.Items.Add(startup);
+        // The Run value can be changed outside the tray (uninstall, Task Manager), so the check mark is read each time the menu opens.
+        menu.Opening += (_, _) => RefreshStartupCheck(startup);
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Exit", null, async (_, _) => await exit());
         icon = new Forms.NotifyIcon { ContextMenuStrip = menu };
@@ -120,6 +125,30 @@ internal sealed class TrayHost : IDisposable
         workers.Add(SuperviseAsync("countdown", RunCountdownAsync, restart: true));
         workers.Add(SuperviseAsync("account", RunAccountAsync, restart: true));
         workers.Add(SuperviseAsync("local_refresh", () => local.ManualRefreshAsync(lifetime.Token), restart: false));
+    }
+
+    private static void RefreshStartupCheck(Forms.ToolStripMenuItem item)
+    {
+        try { item.Checked = StartWithWindows.IsEnabled(); }
+        catch (Exception exception) when (exception is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+        {
+            Diagnostics.Warning("tray.startup", "startup_state_unreadable", exception);
+        }
+    }
+
+    private void ToggleStartWithWindows(Forms.ToolStripMenuItem item)
+    {
+        try
+        {
+            var enable = !StartWithWindows.IsEnabled();
+            StartWithWindows.Set(enable, Environment.ProcessPath);
+            item.Checked = enable;
+        }
+        catch (Exception exception) when (exception is System.Security.SecurityException or UnauthorizedAccessException or IOException or InvalidOperationException)
+        {
+            Diagnostics.Error("tray.startup", "startup_toggle_failed", exception);
+            QueueFault("Start with Windows could not be changed.");
+        }
     }
 
     public void ShowWindow()
