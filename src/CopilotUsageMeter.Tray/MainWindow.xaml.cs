@@ -407,8 +407,9 @@ public partial class MainWindow : Window
             var result = await removeAccount(login);
             SetNotice(result.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            Diagnostics.Warning("tray.window", "account_removal_failed", exception);
             SetNotice("The account removal did not complete; check GitHub CLI before retrying.");
         }
         finally
@@ -459,9 +460,12 @@ public partial class MainWindow : Window
             var reply = await send(command, CancellationToken.None);
             SetNotice(reply.Message ?? "Command acknowledged.");
         }
-        catch (Exception exception) when (exception is IOException || exception is OperationCanceledException)
+        catch (Exception exception)
         {
-            SetNotice("Command did not complete; check the tray status before retrying.");
+            Diagnostics.Warning("tray.window", "command_failed", exception);
+            SetNotice(exception is IOException || exception is OperationCanceledException
+                ? "Command did not complete; check the tray status before retrying."
+                : "Command failed unexpectedly. Details were written to the tray log.");
         }
         finally
         {

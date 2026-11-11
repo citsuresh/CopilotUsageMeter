@@ -66,3 +66,10 @@ Product and implementation decisions are recorded in the existing append-only `D
 
 - Decision: `MainWindow` receives a removal delegate instead of sending a protocol command. `UsagePipeServer` passes any command type to `TrayHost.ProcessAsync`, so a `RemoveAccount` case there would let any same-user pipe client delete `gh` logins. `GitHubAccountReader.ConnectedLogin` exposes the credential's login (not the token) because the snapshot login is null until the profile is verified.
 - Rationale: keeps a credential-deleting action reachable only from the tray's own window.
+
+## 2026-11-11 - Diagnostics facade lives in Contracts; hosts install the sink
+
+- Decision: static `Diagnostics` (netstandard2.0, never throws, labels restricted to `[A-Za-z0-9._-]`, 64 chars) in Contracts so Core, Readers, Transport and Client can log without a host dependency; `App.OnStartup` installs `FileDiagnosticsSink` and `UsagePackage` installs `ActivityLogDiagnosticsSink`. `FileDiagnosticsSink` is UI-free and linked into the test assembly.
+- Decision: `TrayHost.SuperviseAsync` restarts the publications, countdown and account workers (5 s to 60 s backoff, banner only on the first failure, publication re-requested after a restart); `ProcessAsync` converts unexpected exceptions into an `Error` reply (`command_failed`); `ReportUnexpectedFailure` raises the window only the first time. WinForms `ThreadException` is routed to the same path because tray-icon handlers bypass the WPF dispatcher.
+- Decision: `ChatUsageIntegration` logs a repeating tick fault once per code/type until a tick succeeds, using a stopwatch because net48 lacks `TickCount64`.
+- Accepted: no circuit breaker for the account worker; a persistent programming fault retries every 60 s.

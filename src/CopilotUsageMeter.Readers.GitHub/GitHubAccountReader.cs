@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -160,12 +161,22 @@ namespace CopilotUsageMeter.Readers.GitHub
                     lock (gate) completion.TrySetResult(current.Copy());
                     return;
                 }
-                catch (OperationCanceledException) { result = RequestTimedOut(); }
-                catch (TimeoutException) { result = RequestTimedOut(); }
-                catch (HttpRequestException) { result = RequestFailed(); }
-                catch (IOException) { result = RequestFailed(); }
-                catch (InvalidDataException) { result = RequestFailed(); }
-                catch (JsonException) { result = AccountReadResult.Empty("error", "invalid-response", "GitHub returned an unsupported account response."); }
+                catch (OperationCanceledException exception) { Diagnostics.Warning("github.account", "request_timed_out", exception); result = RequestTimedOut(); }
+                catch (TimeoutException exception) { Diagnostics.Warning("github.account", "request_timed_out", exception); result = RequestTimedOut(); }
+                catch (HttpRequestException exception) { Diagnostics.Warning("github.account", "request_failed", exception); result = RequestFailed(); }
+                catch (IOException exception) { Diagnostics.Warning("github.account", "request_failed", exception); result = RequestFailed(); }
+                catch (InvalidDataException exception) { Diagnostics.Warning("github.account", "request_failed", exception); result = RequestFailed(); }
+                catch (JsonException exception)
+                {
+                    Diagnostics.Warning("github.account", "invalid_response", exception);
+                    result = AccountReadResult.Empty("error", "invalid-response", "GitHub returned an unsupported account response.");
+                }
+                catch (Exception exception)
+                {
+                    // A programming fault still propagates to the host; it is recorded first.
+                    Diagnostics.Error("github.account", "unexpected_failure", exception);
+                    throw;
+                }
             }
             var changed = false;
             AccountReadResult published;

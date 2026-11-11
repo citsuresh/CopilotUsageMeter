@@ -76,7 +76,7 @@ internal sealed class TrayHost : IDisposable
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 4096, 4096, security),
             state.GetSnapshot, ProcessAsync, projectContext: state.ProjectContext);
         server.ContextsChanged += ContextsChanged;
-        server.Faulted += QueueFault;
+        server.Faulted += message => QueueFault(message);
         server.Recovered += QueueFaultCleared;
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Status / Settings...", null, (_, _) => ShowWindow());
@@ -95,10 +95,10 @@ internal sealed class TrayHost : IDisposable
     public void Start()
     {
         server.Start();
-        workers.Add(ObserveAsync(RunPublicationsAsync()));
-        workers.Add(ObserveAsync(RunCountdownAsync()));
-        workers.Add(ObserveAsync(RunAccountAsync()));
-        workers.Add(ObserveAsync(local.ManualRefreshAsync(lifetime.Token)));
+        workers.Add(SuperviseAsync("publications", RunPublicationsAsync, restart: true));
+        workers.Add(SuperviseAsync("countdown", RunCountdownAsync, restart: true));
+        workers.Add(SuperviseAsync("account", RunAccountAsync, restart: true));
+        workers.Add(SuperviseAsync("local_refresh", () => local.ManualRefreshAsync(lifetime.Token), restart: false));
     }
 
     public void ShowWindow()
@@ -167,7 +167,22 @@ internal sealed class TrayHost : IDisposable
         RequestPublication();
     }
 
+    // A command failure becomes an error reply so the caller shows a message and the pipe session stays connected.
     internal async Task<ProtocolMessage> ProcessAsync(ProtocolMessage request, CancellationToken token)
+    {
+        try
+        {
+            return await ProcessCoreAsync(request, token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception exception)
+        {
+            Diagnostics.Error("tray.command", "command_failed." + request.Type, exception);
+            return UsagePipeServer.Error(request, "command_failed", "The tray could not complete the command. Details were written to the tray log.");
+        }
+    }
+
+    private async Task<ProtocolMessage> ProcessCoreAsync(ProtocolMessage request, CancellationToken token)
     {
         using var requestLifetime = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token);
         token = requestLifetime.Token;
@@ -237,6 +252,7 @@ internal sealed class TrayHost : IDisposable
         }
         catch (Exception exception) when (exception is Win32Exception || exception is FileNotFoundException)
         {
+            Diagnostics.Warning("tray.signin", "github_cli_unavailable", exception);
             return UsagePipeServer.Error(request, "github_cli_unavailable", "GitHub CLI (gh) is not installed or not on PATH. Install it from https://cli.github.com, then choose Sign in again. Plaintext credential fallback is not accepted.");
         }
     }
@@ -268,7 +284,11 @@ internal sealed class TrayHost : IDisposable
             var process = Process.Start(new ProcessStartInfo("gh", "auth login --web --hostname github.com --git-protocol https") { UseShellExecute = true });
             if (process != null) _ = ConnectAfterBrowserSignInAsync(process);
         }
-        catch (Exception exception) when (exception is Win32Exception || exception is FileNotFoundException) { }
+        catch (Exception exception)
+        {
+            Diagnostics.Warning("tray.signin", "visible_sign_in_failed", exception);
+            QueueFault("GitHub CLI sign-in could not be started. Install GitHub CLI (gh) or check that it is on PATH, then try again.");
+        }
     }
 
     // Waits for the owned gh login process, then imports the single secure gh login without reading any token output.
@@ -285,7 +305,11 @@ internal sealed class TrayHost : IDisposable
             RequestPublication();
         }
         catch (OperationCanceledException) { }
-        catch (InvalidOperationException) { }
+        catch (Exception exception)
+        {
+            Diagnostics.Warning("tray.signin", "connect_after_sign_in_failed", exception);
+            QueueFault("The GitHub account could not be connected after sign-in. Choose Sign in again.");
+        }
     }
 
     private async Task RunPublicationsAsync()
@@ -363,15 +387,59 @@ internal sealed class TrayHost : IDisposable
             if (reply.Type == "Error") QueueFault(reply.Message ?? "Command failed.");
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        catch (Exception exception)
+        {
+            Diagnostics.Error("tray.menu", "menu_command_failed", exception);
+            ReportUnexpectedFailure();
+        }
     }
 
-    private async Task ObserveAsync(Task task)
+    private const string BackgroundFaultMessage = "A background task failed unexpectedly and is restarting. Details were written to the tray log.";
+    private const string UnexpectedFaultMessage = "An unexpected error occurred and was logged. Tracking continues.";
+    private static readonly TimeSpan RestartFloor = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan RestartCeiling = TimeSpan.FromSeconds(60);
+    private long lastUnexpectedReport;
+    private int unexpectedWindowOpened;
+
+    // Shows one banner per minute at most, so a fault repeating in a timer cannot keep re-raising the window.
+    internal void ReportUnexpectedFailure()
     {
-        try { await task.ConfigureAwait(false); }
-        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
-        catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+        var now = Environment.TickCount64;
+        var last = Interlocked.Read(ref lastUnexpectedReport);
+        if (last != 0 && now - last < 60_000) return;
+        Interlocked.Exchange(ref lastUnexpectedReport, now);
+        // The details window is raised only for the first report; later ones update its banner without taking focus.
+        QueueFault(UnexpectedFaultMessage, raiseWindow: Interlocked.Exchange(ref unexpectedWindowOpened, 1) == 0);
+    }
+
+    // Runs a background loop and, when it faults, logs the failure, tells the user and restarts it with backoff.
+    private async Task SuperviseAsync(string name, Func<Task> run, bool restart)
+    {
+        var delay = RestartFloor;
+        var announced = false;
+        while (!lifetime.IsCancellationRequested)
         {
-            QueueFault("Tracking failed. Check source availability and restart the tray.");
+            var started = Stopwatch.StartNew();
+            try
+            {
+                await run().ConfigureAwait(false);
+                return;
+            }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { return; }
+            catch (Exception exception)
+            {
+                Diagnostics.Error("tray.worker", "worker_failed." + name, exception);
+                // Only the first failure raises the banner; later restarts are logged so the window is not re-raised each time.
+                if (!announced) QueueFault(restart ? BackgroundFaultMessage : "Tracking failed. Check source availability and restart the tray.");
+                announced = true;
+                if (!restart) return;
+            }
+            if (started.Elapsed > RestartCeiling) delay = RestartFloor;
+            try { await Task.Delay(delay, lifetime.Token).ConfigureAwait(false); }
+            catch (OperationCanceledException) { return; }
+            delay = TimeSpan.FromTicks(Math.Min(delay.Ticks * 2, RestartCeiling.Ticks));
+            // A publication drained by the failed run would otherwise stay unsent until another event arrives.
+            RequestPublication();
         }
     }
 
@@ -381,14 +449,14 @@ internal sealed class TrayHost : IDisposable
             Application.Current.Dispatcher.BeginInvoke(new Action(() => window?.ClearFault(message)));
     }
 
-    private void QueueFault(string message)
+    private void QueueFault(string message, bool raiseWindow = true)
     {
         if (!lifetime.IsCancellationRequested)
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (lifetime.IsCancellationRequested) return;
                 // A failure is shown as a banner in the details window instead of a blocking message box.
-                ShowWindow();
+                if (raiseWindow) ShowWindow();
                 window?.SetFault(message);
             }));
     }

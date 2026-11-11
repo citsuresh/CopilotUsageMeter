@@ -120,6 +120,14 @@ $ide = 'C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE'
 
 Do not pass a path after `devenv /log`: VS treats it as the log file and overwrites it (it once overwrote the solution file). Never install/open the VSIX in the main instance on your own or terminate unrelated VS processes. Experimental deployment/runtime verification does not prove Copilot Chat integration.
 
+## Logging and failure handling
+
+Unexpected failures are logged and shown to the user instead of ending the tray or Visual Studio. A log line holds only the UTC time, level, component, a fixed code and the exception **type with its HRESULT**; exception messages, stack traces, chat titles/text, repository paths, tokens and one-time codes are never written (`Contracts\Diagnostics`). Nothing is uploaded.
+
+- **Tray:** `%LOCALAPPDATA%\CopilotUsageMeter\logs\tray.log`, rolled to `tray.1.log` at 256 KB; an identical entry repeating within 10 s is written once. Global handlers cover the WPF dispatcher, WinForms tray-icon handlers, unobserved tasks and process-fatal errors. Background workers restart with 5 s to 60 s backoff, a failed command returns an error reply, and a fault shows a banner in the details window (at most once a minute).
+- **Visual Studio extension:** entries go to the Visual Studio activity log (`ActivityLog`, source `CopilotUsageMeter`; run `devenv /log`). A fault in the chat integration shows a note in the usage row and one status-bar message a minute, and the extension keeps retrying; a failed initialization is logged without breaking Visual Studio.
+- Programming faults in the refresh coordinators are logged and still propagate to their supervisors by design. Not exercised live: a forced fault in a running tray or Exp instance.
+
 ## Continuing in a new chat
 
 [Repository instructions](.github/copilot-instructions.md) direct Copilot to read this README and the active [phase checklist/plan](docs/PHASE_PLAN.md) at the start of a repository-related chat. Resume from verified checklist progress, not the archived original proposal. Do not automatically start the next phase; maintain the checklist as work progresses and update this README at each phase's final step. Keep these files with the repository so continuity does not depend on a particular chat session.

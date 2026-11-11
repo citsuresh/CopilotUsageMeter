@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Core;
 
 namespace CopilotUsageMeter.Signals.FileWatcher
@@ -57,6 +58,7 @@ namespace CopilotUsageMeter.Signals.FileWatcher
                 metadataAvailable = false;
                 recoveryNeeded = true;
                 LastErrorCode = "history_watch_metadata_failed";
+                Diagnostics.Warning("watch.signal", "history_watch_metadata_failed", error);
             }
             BindWatcher();
             if (metadataAvailable && !recoveryNeeded)
@@ -65,7 +67,7 @@ namespace CopilotUsageMeter.Signals.FileWatcher
             _ = reconciliation.ContinueWith(failed =>
             {
                 lock (gate) LastErrorCode = "history_watch_faulted";
-                var observed = failed.Exception;
+                Diagnostics.Error("watch.signal", "history_watch_faulted", failed.Exception?.GetBaseException());
             }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
@@ -103,6 +105,7 @@ namespace CopilotUsageMeter.Signals.FileWatcher
                 watcher = null;
                 recoveryNeeded = true;
                 LastErrorCode = "history_watch_unavailable";
+                Diagnostics.Warning("watch.signal", "history_watch_unavailable", error);
             }
         }
 
@@ -119,7 +122,9 @@ namespace CopilotUsageMeter.Signals.FileWatcher
                 }
                 handler = Changed;
             }
-            handler?.Invoke(this, EventArgs.Empty);
+            // A subscriber fault must not end the watcher or the reconciliation loop.
+            try { handler?.Invoke(this, EventArgs.Empty); }
+            catch (Exception exception) { Diagnostics.Error("watch.signal", "change_handler_failed", exception); }
         }
 
         private async Task ReconcileAsync()
@@ -149,6 +154,7 @@ namespace CopilotUsageMeter.Signals.FileWatcher
                             changed = true;
                             recoveryNeeded = true;
                             LastErrorCode = "history_watch_metadata_failed";
+                            Diagnostics.Warning("watch.signal", "history_watch_metadata_failed", error);
                         }
                     }
                     if (changed) OnChange(false);

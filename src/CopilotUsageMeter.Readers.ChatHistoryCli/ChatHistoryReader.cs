@@ -39,7 +39,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             }
             catch (Exception error) when (error is ArgumentException || error is NotSupportedException
                 || error is IOException || error is UnauthorizedAccessException || error is System.Security.SecurityException)
-            { invalidConfiguration = true; }
+            { invalidConfiguration = true; Diagnostics.Warning("history.reader", "history_invalid_configuration", error); }
         }
 
         public async Task<LocalReadResult> ReadAsync(LocalHistoryRequest request, CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             {
                 try { ReadMonth(monthly.Envelope, request, result); }
                 catch (Exception error) when (error is FormatException || error is OverflowException || error is ArgumentException)
-                { result.ErrorCode = "history_invalid_data"; }
+                { Diagnostics.Warning("history.reader", "history_invalid_data", error); result.ErrorCode = "history_invalid_data"; }
                 if (result.Status == "available") result.AsOfUtc = clock.UtcNow.ToUniversalTime();
             }
 
@@ -90,7 +90,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
                 {
                     try { ReadTurns(turns.Envelope, result); }
                     catch (Exception error) when (error is FormatException || error is OverflowException)
-                    { result.CurrentChatErrorCode = "history_invalid_data"; }
+                    { Diagnostics.Warning("history.reader", "history_invalid_data", error); result.CurrentChatErrorCode = "history_invalid_data"; }
                     if (result.CurrentChat.Status == "available") result.CurrentChat.AsOfUtc = clock.UtcNow.ToUniversalTime();
                 }
             }
@@ -109,10 +109,19 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (Exception error) when (error is IOException || error is UnauthorizedAccessException
                 || error is System.ComponentModel.Win32Exception || error is TimeoutException)
-            { return new Invocation { ErrorCode = "history_process_failed" }; }
+            { Diagnostics.Warning("history.reader", "history_process_failed", error); return new Invocation { ErrorCode = "history_process_failed" }; }
             cancellationToken.ThrowIfCancellationRequested();
-            if (process.ErrorCode != null) return new Invocation { ErrorCode = SafeProcessError(process.ErrorCode) };
-            if (process.ExitCode != 0) return new Invocation { ErrorCode = "history_command_failed" };
+            if (process.ErrorCode != null)
+            {
+                var code = SafeProcessError(process.ErrorCode);
+                Diagnostics.Warning("history.reader", code);
+                return new Invocation { ErrorCode = code };
+            }
+            if (process.ExitCode != 0)
+            {
+                Diagnostics.Warning("history.reader", "history_command_failed");
+                return new Invocation { ErrorCode = "history_command_failed" };
+            }
             if (process.StandardOutput == null || process.StandardOutput.Length > ChatHistoryProcessRunner.MaximumOutputCharacters)
                 return new Invocation { ErrorCode = "history_output_limit" };
             try
@@ -133,7 +142,10 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
                 return new Invocation { Envelope = envelope };
             }
             catch (Exception error) when (error is JsonException || error is FormatException || error is OverflowException)
-            { return new Invocation { ErrorCode = "history_invalid_data" }; }
+            {
+                Diagnostics.Warning("history.reader", "history_invalid_data", error);
+                return new Invocation { ErrorCode = "history_invalid_data" };
+            }
         }
 
         private void ReadMonth(Envelope envelope, LocalHistoryRequest request, LocalReadResult result)

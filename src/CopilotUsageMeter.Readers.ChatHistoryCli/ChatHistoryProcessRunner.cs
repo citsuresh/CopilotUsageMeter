@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 
 namespace CopilotUsageMeter.Readers.ChatHistoryCli
 {
@@ -96,6 +97,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
                     || error is System.ComponentModel.Win32Exception || error is System.Security.SecurityException)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    Diagnostics.Warning("history.process", timeoutSource.IsCancellationRequested ? "history_timeout" : "history_process_failed", error);
                     return Failure(timeoutSource.IsCancellationRequested ? "history_timeout" : "history_process_failed");
                 }
                 finally

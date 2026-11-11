@@ -42,6 +42,12 @@ namespace CopilotUsageMeter.Panel.Vsix
         private int manualRefreshes;
         private long? awaitedRefreshCount;
         private DateTime awaitUntil;
+        private string? faultNote;
+        private long lastFaultAnnounced;
+        private string? lastFaultKey;
+        private static readonly System.Diagnostics.Stopwatch FaultClock = System.Diagnostics.Stopwatch.StartNew();
+        private static bool identityFaultLogged;
+        private const string FaultNoteText = "The usage display hit an unexpected error and is retrying. Details are in the Visual Studio activity log.";
 
         public ChatUsageIntegration(IServiceProvider services, IVsStatusbar statusBar, JoinableTaskFactory tasks)
         {
@@ -66,20 +72,87 @@ namespace CopilotUsageMeter.Panel.Vsix
         public void Recheck(int tier = 0)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            forcedTier = tier;
-            Detach();
-            Tick(this, EventArgs.Empty);
+            try
+            {
+                forcedTier = tier;
+                Detach();
+                Tick(this, EventArgs.Empty);
+            }
+            catch (Exception exception)
+            {
+                ReportFault("recheck_failed", exception);
+            }
         }
 
         private void SnapshotChanged(UsageSnapshot value) => Dispatch(Render);
         private void StatusChanged(string value) => Dispatch(Render);
         private void Dispatch(Action action) => _ = tasks.RunAsync(async () =>
         {
-            await tasks.SwitchToMainThreadAsync(lifetime.Token);
-            if (!disposed) action();
+            try
+            {
+                await tasks.SwitchToMainThreadAsync(lifetime.Token);
+                if (!disposed) action();
+            }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+            catch (Exception exception)
+            {
+                ReportFault("render_failed", exception);
+            }
         });
 
+        // Logs the failure (type only), shows a note in the usage row and tells the status bar at most once a minute. It never throws.
+        private void ReportFault(string code, Exception exception)
+        {
+            try
+            {
+                // The tick runs every 2 s, so a persistent fault is logged once per distinct code and exception type until a tick succeeds.
+                var key = code + "|" + exception.GetType().FullName;
+                if (key != lastFaultKey)
+                {
+                    lastFaultKey = key;
+                    Diagnostics.Error("vsix.integration", code, exception);
+                }
+                faultNote = FaultNoteText;
+                var now = FaultClock.ElapsedMilliseconds + 1;
+                if (lastFaultAnnounced == 0 || now - lastFaultAnnounced > 60_000)
+                {
+                    lastFaultAnnounced = now;
+                    _ = tasks.RunAsync(async () =>
+                    {
+                        try
+                        {
+                            await tasks.SwitchToMainThreadAsync();
+                            if (!disposed) statusBar.SetText("Copilot Usage Meter: unexpected error; details are in the Visual Studio activity log.");
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    });
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         private void Tick(object? sender, EventArgs args)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                TickCore();
+                faultNote = null;
+                lastFaultKey = null;
+            }
+            catch (Exception exception)
+            {
+                ReportFault("tick_failed", exception);
+                try { Render(); }
+                catch (Exception) { }
+            }
+        }
+
+        private void TickCore()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (disposed) return;
@@ -191,9 +264,14 @@ namespace CopilotUsageMeter.Panel.Vsix
                     var value = ActiveChatIdentity.Read(context);
                     if (value != null) return value;
                 }
-                catch (Exception exception) when (exception is TargetInvocationException || exception is AmbiguousMatchException || exception is MemberAccessException)
+                catch (Exception exception)
                 {
-                    ActivityLog.LogWarning(nameof(ChatUsageIntegration), "Active-chat identity is unavailable after a Copilot internal change.");
+                    // Copilot's internals are not a contract: any failure reading them is a degraded state, logged once, not a crash.
+                    if (!identityFaultLogged)
+                    {
+                        identityFaultLogged = true;
+                        Diagnostics.Warning("vsix.integration", "active_chat_identity_unavailable", exception);
+                    }
                     return null;
                 }
             }
@@ -207,6 +285,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var notes = new List<string>();
             if (placement.StartsWith("Degraded", StringComparison.Ordinal)) notes.Add("The usage row is shown in a fallback position because the Copilot Chat layout was not recognised.");
             if (activeId == null) notes.Add("Active chat not detected; chat figures are unavailable.");
+            if (faultNote != null) notes.Add(faultNote);
             var snapshot = client.Snapshot;
             var waiting = awaitedRefreshCount.HasValue && snapshot != null && !snapshot.IsPaused && snapshot.RefreshCount <= awaitedRefreshCount.Value && DateTime.UtcNow < awaitUntil;
             if (!waiting) awaitedRefreshCount = null;
@@ -214,7 +293,15 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (parent == null) statusBar.SetText("Copilot Usage Meter: " + client.Status + "; chat placement unavailable. Tools > Copilot Usage Meter.");
         }
 
-        private void SendCommand(ProtocolMessage command) => _ = tasks.RunAsync(() => SendCommandAsync(command));
+        private void SendCommand(ProtocolMessage command) => _ = tasks.RunAsync(async () =>
+        {
+            try { await SendCommandAsync(command); }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+            catch (Exception exception)
+            {
+                ReportFault("command_failed." + command.Type, exception);
+            }
+        });
 
         private async Task SendCommandAsync(ProtocolMessage command)
         {
@@ -233,7 +320,11 @@ namespace CopilotUsageMeter.Panel.Vsix
             {
                 var reply = await client.SendAsync(command, lifetime.Token);
                 await tasks.SwitchToMainThreadAsync(lifetime.Token);
-                if (reply.Type == "Error") statusBar.SetText(reply.Message ?? "Copilot Usage Meter command rejected.");
+                if (reply.Type == "Error")
+                {
+                    Diagnostics.Warning("vsix.command", "command_rejected." + command.Type + "." + reply.Code);
+                    statusBar.SetText(reply.Message ?? "Copilot Usage Meter command rejected.");
+                }
             }
             catch (CommandTimeoutException) when (command.Type == "Refresh")
             {

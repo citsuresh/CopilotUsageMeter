@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 
 namespace CopilotUsageMeter.Core
 {
@@ -204,8 +205,15 @@ namespace CopilotUsageMeter.Core
                 catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { canceled = true; }
                 catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is TimeoutException)
                 {
+                    Diagnostics.Warning("local.refresh", "local_refresh_failed", error);
                     failed = true;
                     LastErrorCode = "local_refresh_failed";
+                }
+                catch (Exception error) when (!(error is OperationCanceledException))
+                {
+                    // A programming fault still propagates to the host; it is recorded first.
+                    Diagnostics.Error("local.refresh", "local_refresh_faulted", error);
+                    throw;
                 }
                 lock (gate)
                 {

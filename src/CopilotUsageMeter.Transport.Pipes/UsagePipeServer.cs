@@ -107,16 +107,21 @@ namespace CopilotUsageMeter.Transport.Pipes
                     {
                         workers.TryRemove(id, out _);
                         slots.Release();
-                        if (completed.IsFaulted) Faulted?.Invoke("Pipe session failed unexpectedly.");
+                        if (completed.IsFaulted)
+                        {
+                            Diagnostics.Error("pipe.session", "session_faulted", completed.Exception?.GetBaseException());
+                            Faulted?.Invoke("Pipe session failed unexpectedly.");
+                        }
                     }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
                 }
                 catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { return; }
                 catch (ObjectDisposedException) when (lifetime.IsCancellationRequested) { return; }
                 catch (Exception) when (lifetime.IsCancellationRequested) { return; }
-                catch (Exception)
+                catch (Exception exception)
                 {
                     if (slotHeld) slots.Release();
                     failures++;
+                    Diagnostics.Warning("pipe.listener", "listener_failed", exception);
                     // The listener recreates the pipe on its own; the user is told only if it keeps failing.
                     if (failures == ListenerFaultNotifyAfter) Faulted?.Invoke(ListenerFaultMessage);
                     try { await Task.Delay(listenerRetryDelay(failures), lifetime.Token).ConfigureAwait(false); }
@@ -206,8 +211,9 @@ namespace CopilotUsageMeter.Transport.Pipes
                             await connection.WriteAsync(Error(request, "busy", "The tray is busy with earlier commands; try again shortly."), lifetime.Token).ConfigureAwait(false);
                     }
                 }
-                catch (InvalidDataException)
+                catch (InvalidDataException exception)
                 {
+                    Diagnostics.Warning("pipe.session", "invalid_frame", exception);
                     Faulted?.Invoke("Rejected an invalid or oversized pipe frame.");
                 }
                 catch (IOException) { /* A client closed its connection. */ }
@@ -286,8 +292,9 @@ namespace CopilotUsageMeter.Transport.Pipes
                     CloseCommands(session);
                     session.Connection.Dispose();
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
+                    Diagnostics.Error("pipe.session", "command_loop_failed", exception);
                     CloseCommands(session);
                     session.Connection.Dispose();
                     Faulted?.Invoke("Pipe session failed unexpectedly.");

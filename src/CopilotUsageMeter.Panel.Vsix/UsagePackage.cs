@@ -3,6 +3,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -21,6 +22,38 @@ namespace CopilotUsageMeter.Panel.Vsix
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            Diagnostics.Sink = new ActivityLogDiagnosticsSink();
+            try
+            {
+                await InitializeCoreAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                // Failing here would show Visual Studio's package-load error; the extension logs and stays inactive instead.
+                Diagnostics.Error("vsix.package", "initialize_failed", exception);
+                await ShowStartupFailureAsync(cancellationToken);
+            }
+        }
+
+        private async Task ShowStartupFailureAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+                if (await GetServiceAsync(typeof(SVsStatusbar)) is IVsStatusbar statusBar)
+                    statusBar.SetText("Copilot Usage Meter could not start; details are in the Visual Studio activity log.");
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private async Task InitializeCoreAsync(CancellationToken cancellationToken)
+        {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             var service = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService
                 ?? throw new InvalidOperationException("Visual Studio menu service is unavailable.");
@@ -36,12 +69,21 @@ namespace CopilotUsageMeter.Panel.Vsix
         protected override void Dispose(bool disposing)
         {
             if (disposing && integration != null)
-                JoinableTaskFactory.Run(async () =>
+            {
+                try
                 {
-                    await JoinableTaskFactory.SwitchToMainThreadAsync();
-                    integration.Dispose();
-                    integration = null;
-                });
+                    JoinableTaskFactory.Run(async () =>
+                    {
+                        await JoinableTaskFactory.SwitchToMainThreadAsync();
+                        integration.Dispose();
+                        integration = null;
+                    });
+                }
+                catch (Exception exception)
+                {
+                    Diagnostics.Error("vsix.package", "dispose_failed", exception);
+                }
+            }
             base.Dispose(disposing);
         }
     }

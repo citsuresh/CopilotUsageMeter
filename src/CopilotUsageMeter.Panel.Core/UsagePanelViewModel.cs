@@ -98,6 +98,11 @@ namespace CopilotUsageMeter.Panel.Core
             {
                 notice = "Command not acknowledged; check connection/state before retrying.";
             }
+            catch (Exception exception)
+            {
+                Diagnostics.Error("panel.viewmodel", "command_failed", exception);
+                notice = "Command failed unexpectedly; details are in the activity log.";
+            }
             Notify();
         }
 

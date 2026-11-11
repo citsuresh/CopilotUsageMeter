@@ -16,6 +16,7 @@ namespace CopilotUsageMeter.Client
         private readonly ConcurrentDictionary<string, TaskCompletionSource<ProtocolMessage>> pending =
             new ConcurrentDictionary<string, TaskCompletionSource<ProtocolMessage>>();
         private PipeConnection? connection;
+        private string? lastLoggedFailure;
         private Task? worker;
         private long sequence;
         private string hostInstance = "";
@@ -64,6 +65,15 @@ namespace CopilotUsageMeter.Client
         {
             Status = status;
             StatusChanged?.Invoke(status);
+        }
+
+        // The reconnect loop repeats a failure every few seconds, so each distinct failure is logged once until a connection succeeds.
+        private void LogOnce(string code, Exception exception)
+        {
+            var key = code + "|" + exception.GetType().FullName;
+            if (key == lastLoggedFailure) return;
+            lastLoggedFailure = key;
+            Diagnostics.Warning("client.pipe", code, exception);
         }
 
         private async Task RunAsync()
@@ -140,6 +150,7 @@ namespace CopilotUsageMeter.Client
                                         if (message.ContextVersion != contextVersion) continue;
                                         Snapshot = snapshot;
                                         retrySeconds = 1;
+                                        lastLoggedFailure = null;
                                         SetStatus(snapshot.IsDemo ? (snapshot.IsPaused ? "Paused - demo" : "Connected - demo") : (snapshot.IsPaused ? "Paused" : "Connected"));
                                         if (message.ContextVersion == contextVersion) SnapshotChanged?.Invoke(snapshot);
                                     }
@@ -160,11 +171,23 @@ namespace CopilotUsageMeter.Client
                     {
                         if (exception is VersionMismatchException)
                         {
+                            LogOnce("version_mismatch", exception);
                             SetStatus(VersionMismatchStatus);
                             delayOverride = mismatchRetryDelay;
                         }
-                        else SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached values are stale");
+                        else
+                        {
+                            // A tray that is simply not running is routine; only protocol faults are recorded.
+                            if (exception is InvalidDataException) LogOnce("protocol_error", exception);
+                            SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached values are stale");
+                        }
                     }
+                }
+                catch (Exception exception) when (!lifetime.IsCancellationRequested)
+                {
+                    // A fault in a subscriber or in this loop must not end reconnecting and leave the status stuck.
+                    LogOnce("client_failed", exception);
+                    SetStatus("Internal error - reconnecting");
                 }
                 finally
                 {

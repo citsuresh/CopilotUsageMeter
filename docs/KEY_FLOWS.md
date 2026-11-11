@@ -9,3 +9,4 @@
 - Tray Exit: `App.ExitAsync -> TrayHost.StopAsync -> UsagePipeServer.StopAsync -> TrayHost.Dispose`.
 - GitHub sign-in: `TrayHost.StartBrowserSignIn -> GitHubSignInFlow.Begin -> GitHubCliSignIn.Begin -> GitHubCliProcessLauncher -> GitHubSignInWindow -> TrayHost.ConnectSignedInAccountAsync` (no code in time: `GitHubSignInFlow -> TrayHost.StartVisibleSignIn`).
 - Remove saved account: `MainWindow.AskToRemoveAccount -> MainWindow.ConfirmRemoveAccountClicked -> GitHubAccountRemoval.RemoveAsync -> GitHubCliLogout.RemoveAsync` (connected login: `-> TrayHost.SignOutTrayAsync -> GitHubAccountReader.SignOutAsync`).
+- Failure logging: `Diagnostics.Error -> FileDiagnosticsSink.Write` (tray, `logs\tray.log`) / `ActivityLogDiagnosticsSink.Write` (VSIX); tray unexpected fault: `App.InstallGlobalHandlers -> TrayHost.ReportUnexpectedFailure -> TrayHost.QueueFault -> MainWindow.SetFault`; worker fault: `TrayHost.SuperviseAsync -> Diagnostics.Error -> restart`.

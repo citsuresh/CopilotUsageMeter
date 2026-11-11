@@ -183,3 +183,9 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 
 - Decision: each saved GitHub CLI login in the chooser gets a remove button; after confirmation the tray runs `gh auth logout --hostname github.com --user <login>` hidden. This supersedes the earlier rule that the app never changes GitHub CLI's own login: it now does so, only on this explicit action. Removing the account the tray is connected with also signs the tray out. The command is in-process only, not a pipe command.
 - Rationale: Log out removed only the app's copy, so the account stayed in the sign-in list. `gh auth logout` is the supported way and also updates gh's own configuration; deleting the Credential Manager entry directly would leave a stale entry in gh's config. The 30 s timeout is a default, not user-confirmed. Not verified against a real `gh` login.
+
+## 2026-11-11 - Failures are logged type-only and surfaced, never fatal (user-authorised)
+
+- Decision: a shared `Diagnostics` facade records only component, a fixed code, the exception type and its HRESULT. The tray writes `%LOCALAPPDATA%\CopilotUsageMeter\logs\tray.log` (256 KB roll to `tray.1.log`, 10 s dedupe); the extension writes to the Visual Studio activity log. Unexpected exceptions in the tray and extension are caught, logged and shown as a banner/note instead of crashing; workers restart with backoff.
+- Rationale: exception messages and stack traces can carry chat titles, paths or payloads, which the privacy rules forbid in logs. The path, size, dedupe window and one-banner-a-minute throttle are defaults, not user-confirmed.
+- Programming faults in `LocalRefreshScheduler`, `AccountRefreshCoordinator` and `GitHubAccountReader` are logged and still propagate to their supervisors (existing tests rely on that).

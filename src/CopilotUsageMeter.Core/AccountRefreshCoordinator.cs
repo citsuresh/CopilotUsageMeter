@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CopilotUsageMeter.Contracts;
 
 namespace CopilotUsageMeter.Core
 {
@@ -174,6 +175,12 @@ namespace CopilotUsageMeter.Core
                 completion.TrySetCanceled();
                 Signal();
                 return;
+            }
+            catch (Exception exception) when (!(exception is OperationCanceledException))
+            {
+                // A programming fault still propagates to the caller; it is recorded first.
+                Diagnostics.Error("account.refresh", "refresh_faulted", exception);
+                throw;
             }
             AccountReadResult published;
             lock (gate)
