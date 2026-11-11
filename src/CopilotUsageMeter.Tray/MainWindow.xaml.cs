@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -26,14 +27,17 @@ public partial class MainWindow : Window
     private static readonly Brush Track = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
 
     private readonly Func<UsageSnapshot> getSnapshot;
+    private readonly Func<IReadOnlyList<string>> listLogins;
+    private bool? chooserOpenedSignedOut;
     private readonly Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send;
     private UsageDisplay display = UsageDisplay.Create(null, true, DateTimeOffset.UtcNow);
     private string signature = "";
 
-    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send)
+    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins)
     {
         this.getSnapshot = getSnapshot;
         this.send = send;
+        this.listLogins = listLogins;
         InitializeComponent();
         // Keep the window, including its button row, above the taskbar on short screens.
         var area = SystemParameters.WorkArea;
@@ -66,6 +70,9 @@ public partial class MainWindow : Window
             LogOutConfirm.Visibility = Visibility.Collapsed;
             Toolbar.Visibility = Visibility.Visible;
         }
+
+        // The refresh timer fires every second, so keep the chooser open and close it only when the sign-in state it was opened for has changed.
+        if (chooserOpenedSignedOut is bool openedSignedOut && openedSignedOut != signedOut) HideAccountChoices();
 
         // Rebuilding every second would drop focus and tooltips, so redraw only when something visible changed.
         var next = string.Join("|", new object?[]
@@ -256,11 +263,66 @@ public partial class MainWindow : Window
 
     private void DismissFaultClicked(object sender, RoutedEventArgs e) => FaultBanner.Visibility = Visibility.Collapsed;
 
+    // One button per saved GitHub CLI login (names only), so the user picks instead of typing.
+    // Signed in: the connected login is disabled and "Add a new account" is offered. Signed out: shown only when several logins exist.
+    internal void ShowAccountChoices()
+    {
+        var account = getSnapshot().Account;
+        var signedOut = account.Status == "signed-out";
+        var logins = listLogins();
+        AccountChoiceButtons.Children.Clear();
+        if (signedOut && logins.Count < 2) { AccountChoices.Visibility = Visibility.Collapsed; chooserOpenedSignedOut = null; return; }
+        AccountChoicesTitle.Text = signedOut ? "Choose a GitHub account:" : "Switch to a saved GitHub account, or add a new one:";
+        foreach (var login in logins)
+        {
+            var choice = login;
+            var connected = !signedOut && string.Equals(choice, account.Login, StringComparison.OrdinalIgnoreCase);
+            var button = new Button
+            {
+                Content = connected ? choice + " (connected)" : choice,
+                IsEnabled = !connected,
+                Padding = new Thickness(12, 6, 12, 6),
+                Margin = new Thickness(0, 0, 8, 4)
+            };
+            AutomationProperties.SetName(button, "Connect GitHub account " + choice);
+            button.Click += async (_, _) =>
+            {
+                HideAccountChoices();
+                await ExecuteAsync(new ProtocolMessage { Type = "ConnectAccount", AccountLogin = choice });
+            };
+            AccountChoiceButtons.Children.Add(button);
+        }
+        if (!signedOut)
+        {
+            var add = new Button { Content = "Add a new account…", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 8, 4) };
+            AutomationProperties.SetName(add, "Add a new GitHub account");
+            add.Click += async (_, _) =>
+            {
+                HideAccountChoices();
+                await ExecuteAsync(new ProtocolMessage { Type = "BeginSignIn" });
+            };
+            AccountChoiceButtons.Children.Add(add);
+        }
+        chooserOpenedSignedOut = signedOut;
+        AccountChoices.Visibility = Visibility.Visible;
+    }
+
+    private void HideAccountChoices()
+    {
+        AccountChoices.Visibility = Visibility.Collapsed;
+        chooserOpenedSignedOut = null;
+    }
+
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });
     private async void PauseClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SetPaused", Paused = !getSnapshot().IsPaused });
-    // Signed out: import an existing secure gh login first (as the panel does) and open the browser sign-in only when there is none. Switching always starts a new sign-in.
-    private async void SignInClicked(object sender, RoutedEventArgs e) =>
-        await ExecuteAsync(new ProtocolMessage { Type = getSnapshot().Account.Status == "signed-out" ? "SignIn" : "BeginSignIn" });
+    // Signed out: import an existing secure gh login first (as the panel does) and open the browser sign-in only when there is none. Signed in: list saved accounts plus "Add a new account".
+    private async void SignInClicked(object sender, RoutedEventArgs e) => await SwitchOrSignInAsync();
+    private async Task SwitchOrSignInAsync()
+    {
+        if (getSnapshot().Account.Status == "signed-out") await ExecuteAsync(new ProtocolMessage { Type = "SignIn" });
+        else ShowAccountChoices();
+    }
+
     private async void SkipClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SkipAccount" });
     private async void ConnectClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "ConnectAccount", AccountLogin = AccountLogin.Text.Trim() });
 

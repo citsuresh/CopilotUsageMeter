@@ -69,6 +69,10 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="3" Margin="20,4,20,12">
+            <StackPanel x:Name="AccountChoices" Visibility="Collapsed" Margin="0,0,0,8">
+                <TextBlock x:Name="AccountChoicesTitle" Text="Choose a GitHub account:" TextWrapping="Wrap" FontWeight="SemiBold" />
+                <WrapPanel x:Name="AccountChoiceButtons" Margin="0,6,0,0" />
+            </StackPanel>
             <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed" AutomationProperties.Name="Last command result" />
             <StackPanel x:Name="LogOutConfirm" Visibility="Collapsed" Margin="0,0,0,8">
                 <TextBlock Text="Log out of GitHub?" FontWeight="SemiBold" />

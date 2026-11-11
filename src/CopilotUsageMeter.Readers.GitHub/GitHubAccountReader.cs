@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
@@ -37,6 +38,16 @@ namespace CopilotUsageMeter.Readers.GitHub
         public Task<AccountReadResult> SignInAsync(string login) => ChangeIdentity(login, false, false, false);
         public Task<AccountReadResult> SwitchAccountAsync(string login) => SignInAsync(login);
         public Task<AccountReadResult> SignOutAsync() => ChangeIdentity(null, true, false, false);
+
+        // Login names only (never secrets), for the account chooser; empty when secure storage cannot be read.
+        public IReadOnlyList<string> ListCliLogins()
+        {
+            try { return store.ListGitHubCliLogins(); }
+            catch (GitHubCredentialStoreException) { return Array.Empty<string>(); }
+            catch (PlatformNotSupportedException) { return Array.Empty<string>(); }
+            catch (DllNotFoundException) { return Array.Empty<string>(); }
+            catch (EntryPointNotFoundException) { return Array.Empty<string>(); }
+        }
         public Task<AccountReadResult> SkipAsync() => ChangeIdentity(null, true, true, false);
 
         private Task<AccountReadResult> ChangeIdentity(string? login, bool signOut, bool skip, bool restore)
@@ -199,7 +210,7 @@ namespace CopilotUsageMeter.Readers.GitHub
             {
                 Failure = logins.Count == 0
                     ? AccountReadResult.Empty("signed-out", "cli-login-not-found", "No GitHub CLI login was found in Windows Credential Manager. Use browser sign-in first.")
-                    : AccountReadResult.Empty("signed-out", "multiple-cli-logins", "Several GitHub CLI logins were found (" + string.Join(", ", logins) + "). Enter the one to connect.")
+                    : AccountReadResult.Empty("signed-out", "multiple-cli-logins", "Several GitHub CLI logins were found (" + string.Join(", ", logins) + "). Choose the one to connect.")
             };
         }
 

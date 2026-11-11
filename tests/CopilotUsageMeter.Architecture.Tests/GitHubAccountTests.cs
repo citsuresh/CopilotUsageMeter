@@ -90,6 +90,7 @@ public sealed class GitHubAccountTests
         Assert.Equal("signed-out", several.Status);
         Assert.Equal("multiple-cli-logins", several.ErrorCode);
         Assert.Contains("account-002", several.ErrorMessage!);
+        Assert.Equal(new[] { "account-001", "account-002" }, reader.ListCliLogins());
         Assert.False(reader.IsAuthorized);
         Assert.Null(store.Saved);
         Assert.Equal(0, api.Calls);

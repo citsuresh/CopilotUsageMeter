@@ -96,12 +96,12 @@ internal sealed class TrayHost : IDisposable
     {
         if (window == null)
         {
-            window = new MainWindow(state.GetSnapshot, ProcessAsync);
+            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins);
             window.Closed += (_, _) => window = null;
         }
         window.Show();
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
-        window.Activate();
+        ForegroundWindow.Bring(window);
     }
 
     private async Task RunAccountAsync()
@@ -186,11 +186,11 @@ internal sealed class TrayHost : IDisposable
                     if (attempt.ErrorCode == "cli-login-not-found") return StartBrowserSignIn(request);
                     if (attempt.ErrorCode == "multiple-cli-logins")
                     {
-                        await Application.Current.Dispatcher.InvokeAsync(ShowWindow);
-                        return new ProtocolMessage { Type = "Ack", Message = attempt.ErrorMessage };
+                        await Application.Current.Dispatcher.InvokeAsync(() => { ShowWindow(); window?.ShowAccountChoices(); });
+                        return new ProtocolMessage { Type = "Ack", Message = "Several GitHub accounts are signed in to GitHub CLI. Choose one in the Full details window." };
                     }
                 }
-                await Application.Current.Dispatcher.InvokeAsync(ShowWindow);
+                await Application.Current.Dispatcher.InvokeAsync(() => { ShowWindow(); if (account.IsAuthorized) window?.ShowAccountChoices(); });
                 return new ProtocolMessage { Type = "Ack" };
             case "OpenStatus":
                 await Application.Current.Dispatcher.InvokeAsync(ShowWindow);
