@@ -12,6 +12,7 @@ namespace CopilotUsageMeter.Core
         private long revision = 1;
         private long refreshCount;
         private bool paused;
+        private bool refreshing;
         private AccountUsage account = new AccountUsage { Status = "signed-out", Unit = "github-premium-interactions" };
         private LocalUsage local = new LocalUsage { Status = "unavailable", RepositoryId = "unavailable" };
         private Dictionary<string, CurrentChatUsage> charts = new Dictionary<string, CurrentChatUsage>(StringComparer.Ordinal);
@@ -22,6 +23,18 @@ namespace CopilotUsageMeter.Core
         public void SetPaused(bool value)
         {
             lock (gate) { if (paused != value) { paused = value; revision++; } }
+        }
+
+        // Returns true when the flag changed, so the caller publishes only real transitions.
+        public bool SetRefreshing(bool value)
+        {
+            lock (gate)
+            {
+                if (refreshing == value) return false;
+                refreshing = value;
+                revision++;
+                return true;
+            }
         }
 
         public void UpdateAccount(AccountUsage value)
@@ -60,7 +73,7 @@ namespace CopilotUsageMeter.Core
             {
                 var result = new UsageSnapshot
                 {
-                    HostInstanceId = hostId, Revision = revision, IsDemo = false, IsPaused = paused,
+                    HostInstanceId = hostId, Revision = revision, IsDemo = false, IsPaused = paused, IsRefreshing = refreshing,
                     RefreshCount = refreshCount, Account = CloneAccount(account), Local = CloneLocal(local)
                 };
                 result.Local.CurrentChat = sessionId != null && charts.TryGetValue(sessionId, out var chat)

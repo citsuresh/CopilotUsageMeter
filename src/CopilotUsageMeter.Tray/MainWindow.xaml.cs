@@ -71,6 +71,8 @@ public partial class MainWindow : Window
     internal void RefreshSnapshot(UsageSnapshot snapshot)
     {
         display = UsageDisplay.Create(snapshot, true, DateTimeOffset.UtcNow);
+        trayRefreshing = snapshot.IsRefreshing;
+        UpdateBusyBar();
         StatusText.Text = display.IsPaused ? "Paused" : "Running";
         StatusChip.Background = display.IsPaused ? Orange : Blue;
         PauseLabel.Text = display.IsPaused ? "Resume updates" : "Pause updates";
@@ -401,7 +403,7 @@ public partial class MainWindow : Window
         if (login == null || removing) return;
         removing = true;
         pendingCommands++;
-        BusyBar.Visibility = Visibility.Visible;
+        UpdateBusyBar();
         try
         {
             var result = await removeAccount(login);
@@ -415,7 +417,8 @@ public partial class MainWindow : Window
         finally
         {
             removing = false;
-            if (--pendingCommands == 0) BusyBar.Visibility = Visibility.Collapsed;
+            pendingCommands--;
+            UpdateBusyBar();
         }
         ShowAccountChoices();
     }
@@ -454,7 +457,7 @@ public partial class MainWindow : Window
     private async Task ExecuteAsync(ProtocolMessage command)
     {
         pendingCommands++;
-        BusyBar.Visibility = Visibility.Visible;
+        UpdateBusyBar();
         try
         {
             var reply = await send(command, CancellationToken.None);
@@ -469,11 +472,16 @@ public partial class MainWindow : Window
         }
         finally
         {
-            if (--pendingCommands == 0) BusyBar.Visibility = Visibility.Collapsed;
+            pendingCommands--;
+            UpdateBusyBar();
         }
     }
 
     private int pendingCommands;
+    private bool trayRefreshing;
+
+    // The bar shows while a command from this window is pending or while the tray is reading account/local data.
+    private void UpdateBusyBar() => BusyBar.Visibility = pendingCommands > 0 || trayRefreshing ? Visibility.Visible : Visibility.Collapsed;
 
     // The notice is replaced by each command and clears itself so a stale result is never left on screen.
     private CancellationTokenSource? noticeClear;

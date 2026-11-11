@@ -43,6 +43,7 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 | --- | --- | --- | --- |
 | Tray | `App` | `src\CopilotUsageMeter.Tray\App.xaml.cs` | Single-instance WPF entry; composes host and explicit shutdown |
 | Tray | `TrayHost` | `src\CopilotUsageMeter.Tray\TrayHost.cs` | Compose source schedulers, protected per-context pipes, atomic pause transitions, coalesced pushes, icon and owned status window |
+| Tray | `TrayIconPainter` | `src\CopilotUsageMeter.Tray\TrayIconPainter.cs` | Draws the usage ring (thin track, thick arc) for the tray icon |
 | Tray | `GitHubAccountRemoval` | `src\CopilotUsageMeter.Tray\GitHubAccountRemoval.cs` | UI-free removal of a saved gh login (one at a time); signs the tray out when the removed login is the connected one |
 | Tray | `GitHubSignInFlow`, `GitHubSignInWindow` | `src\CopilotUsageMeter.Tray\GitHubSignInFlow.cs`, `GitHubSignInWindow.xaml(.cs)` | UI-free sign-in state machine (linked into the tests) and the WPF dialog that shows the one-time code, with fallback to a visible console |
 | Tray | `DemoSettingsStore` | `src\CopilotUsageMeter.Tray\DemoSettingsStore.cs` | Validated atomic local demo-interval persistence; no credentials |
@@ -58,6 +59,7 @@ Exp-only injection/reinjection, explicit preferred/top/status tiers; `CompactUsa
 | Panel.Core | `ActiveChatIdentity` | `src\CopilotUsageMeter.Panel.Core\ActiveChatIdentity.cs` | Bounded approved identity-member/Session/Router bridge reads; validate opaque GUID without reading content or persisting values |
 | Core | `TrackingUsageState`, `LocalRecordedRepositoryMap` | `src\CopilotUsageMeter.Core\` | Detached global monthly/account values and ephemeral per-connection chart/repository projection |
 | Core | `LocalRefreshScheduler`, `AccountRefreshCoordinator` | `src\CopilotUsageMeter.Core\` | Independent debounced local and active/idle/backoff account single-flight scheduling |
+| Core | `RefreshActivity` | `src\CopilotUsageMeter.Core\RefreshActivity.cs` | Per-source refresh activity with a minimum-visible delay, feeding `UsageSnapshot.IsRefreshing` |
 | Readers.ChatHistoryCli | `ChatHistoryReader`, `ChatHistoryProcessRunner` | `src\CopilotUsageMeter.Readers.ChatHistoryCli\` | Bounded, cancellable toolkit-only reads; strict numeric parsing, explicit unknown/failure states |
 | Readers.GitHub | `GitHubAccountReader`, `GitHubApiClient`, `WindowsAccountCredentialStore`, `GitHubQuotaParser`, `GitHubCliSignIn`, `GitHubCliProcessLauncher`, `GitHubCliLogout` | `src\CopilotUsageMeter.Readers.GitHub\` | Approved fixed endpoints, bounded requests, secure app credentials, account isolation and conservative quota mapping |
 | Signals.FileWatcher | `LocalStoreChangeSignal` | `src\CopilotUsageMeter.Signals.FileWatcher\LocalStoreChangeSignal.cs` | DB/WAL events plus metadata reconciliation; absent/recreated store recovery |

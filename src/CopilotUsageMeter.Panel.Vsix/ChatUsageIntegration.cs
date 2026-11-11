@@ -289,7 +289,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var snapshot = client.Snapshot;
             var waiting = awaitedRefreshCount.HasValue && snapshot != null && !snapshot.IsPaused && snapshot.RefreshCount <= awaitedRefreshCount.Value && DateTime.UtcNow < awaitUntil;
             if (!waiting) awaitedRefreshCount = null;
-            view.Update(snapshot, connected, client.Status, notes.Count == 0 ? null : string.Join(" ", notes), manualRefreshes > 0 || waiting);
+            view.Update(snapshot, connected, client.Status, notes.Count == 0 ? null : string.Join(" ", notes), manualRefreshes > 0 || waiting || snapshot?.IsRefreshing == true);
             if (parent == null) statusBar.SetText("Copilot Usage Meter: " + client.Status + "; chat placement unavailable. Tools > Copilot Usage Meter.");
         }
 

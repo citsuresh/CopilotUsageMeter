@@ -42,6 +42,10 @@ Commands carry a client-generated `requestId`; `Ack`/`Error` echoes it. Client c
 
 Repository context and account login are command-only fields; neither is echoed in an envelope. Repository keys may label the local snapshot; chat identity never does. Per-client projection does not trigger per-client monthly or account reads. The host/client implementations and tests, not this outline alone, establish what currently works. Broad runtime/plan compatibility is not promised.
 
+## Additive: `IsRefreshing` (2026-11-11)
+
+`snapshot.IsRefreshing` (boolean) is true while the tray has been reading local or GitHub account data for at least 500 ms. Legacy payloads omit it (false) and older peers ignore it, so the protocol version stays 1. It carries no title, text or identifier.
+
 ## Additive: `CurrentChat.TotalCredits` (2026-11-12)
 
 `Local.CurrentChat.TotalCredits` (nullable decimal) is the whole-chat total, which is not limited to the newest 20 retained turns. Legacy payloads omit it (null, and clients fall back to summing known turn credits). A negative value deserializes to null, and it is cleared with the turns whenever the chat is unavailable. It carries no title, text or identifier; the opaque session id remains request-only.

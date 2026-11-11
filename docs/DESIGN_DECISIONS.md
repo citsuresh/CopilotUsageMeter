@@ -73,3 +73,9 @@ Product and implementation decisions are recorded in the existing append-only `D
 - Decision: `TrayHost.SuperviseAsync` restarts the publications, countdown and account workers (5 s to 60 s backoff, banner only on the first failure, publication re-requested after a restart); `ProcessAsync` converts unexpected exceptions into an `Error` reply (`command_failed`); `ReportUnexpectedFailure` raises the window only the first time. WinForms `ThreadException` is routed to the same path because tray-icon handlers bypass the WPF dispatcher.
 - Decision: `ChatUsageIntegration` logs a repeating tick fault once per code/type until a tick succeeds, using a stopwatch because net48 lacks `TickCount64`.
 - Accepted: no circuit breaker for the account worker; a persistent programming fault retries every 60 s.
+
+## 2026-11-11 - Refresh flag is derived, never trusted from events
+
+- Decision: `IsRefreshing` is additive on `UsageSnapshot` (protocol stays 1; older peers ignore it). `RefreshActivity` debounces by source ("local", "account"); `TrayHost.SetRefreshActivity` updates it and `TrackingUsageState` under one `refreshGate`, and `SyncAccountRefreshing` always re-reads `AccountRefreshCoordinator.IsRefreshing` (on each coordinator event, after the delay and on the 1 s countdown tick), so a missed event cannot latch the bar on. `AccountRefreshCoordinator` now raises `StateChanged` on read start, cancel and fault, as well as completion.
+- Decision: `RefreshAsync` was split into `StartRefresh` plus a wrapper so the start event is raised outside the lock. The earlier line about loading behaviour (only manual refresh and chat switch) is superseded by this entry.
+- Decision: tray icon drawing lives in `TrayIconPainter` (`Style` = track width/colour, arc width/colour); the tray still draws a 32 px bitmap and Windows scales it.

@@ -78,6 +78,15 @@ namespace CopilotUsageMeter.Core
 
         public Task<AccountReadResult> RefreshAsync(bool manual = false, CancellationToken cancellationToken = default)
         {
+            var task = StartRefresh(manual, cancellationToken, out var started);
+            // Lets the host show that a read is in progress; the completion publishes again.
+            if (started) StateChanged?.Invoke(this, EventArgs.Empty);
+            return task;
+        }
+
+        private Task<AccountReadResult> StartRefresh(bool manual, CancellationToken cancellationToken, out bool started)
+        {
+            started = false;
             NotifyScheduleChanged();
             lock (gate)
             {
@@ -97,6 +106,7 @@ namespace CopilotUsageMeter.Core
 
                 var completion = new TaskCompletionSource<AccountReadResult>(TaskCreationOptions.RunContinuationsAsynchronously);
                 flight = completion.Task;
+                started = true;
                 var epoch = generation;
                 var operation = ReadAndPublishAsync(epoch, completion, cancellationToken);
                 _ = operation.ContinueWith(finished =>
@@ -105,6 +115,7 @@ namespace CopilotUsageMeter.Core
                     lock (gate) if (epoch == generation) flight = null;
                     if (finished.IsFaulted) completion.TrySetException(finished.Exception!.InnerExceptions);
                     else completion.TrySetCanceled();
+                    StateChanged?.Invoke(this, EventArgs.Empty);
                 }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
                 return completion.Task;
             }
@@ -174,6 +185,7 @@ namespace CopilotUsageMeter.Core
                 lock (gate) if (epoch == generation) flight = null;
                 completion.TrySetCanceled();
                 Signal();
+                StateChanged?.Invoke(this, EventArgs.Empty);
                 return;
             }
             catch (Exception exception) when (!(exception is OperationCanceledException))

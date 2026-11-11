@@ -42,6 +42,8 @@ internal sealed class TrayHost : IDisposable
     { SingleReader = true, FullMode = BoundedChannelFullMode.DropWrite });
     private readonly List<Task> workers = new();
     private readonly object pauseGate = new();
+    private readonly object refreshGate = new();
+    private readonly RefreshActivity refreshActivity = new(TimeSpan.FromMilliseconds(500));
     private readonly Forms.NotifyIcon icon;
     private readonly Forms.ToolStripMenuItem pause;
     private Icon? currentIcon;
@@ -128,8 +130,36 @@ internal sealed class TrayHost : IDisposable
 
     private void AccountChanged(object? sender, EventArgs args)
     {
+        SyncAccountRefreshing();
         state.UpdateAccount(accountRefresh.Current.Usage);
         RequestPublication();
+    }
+
+    // The account flag is always re-read from the coordinator, never inferred from events, so a missed event cannot leave it stuck on.
+    private void SyncAccountRefreshing() => SetRefreshActivity("account", accountRefresh.IsRefreshing);
+
+    // A read counts as refreshing only after it has run for a short while, so quick reads never flash the progress bar.
+    private void SetRefreshActivity(string source, bool active)
+    {
+        bool started, changed;
+        lock (refreshGate)
+        {
+            started = refreshActivity.Set(source, active);
+            changed = state.SetRefreshing(refreshActivity.IsRefreshing);
+        }
+        if (changed) RequestPublication();
+        if (active && started) _ = SyncRefreshingLaterAsync();
+    }
+
+    private async Task SyncRefreshingLaterAsync()
+    {
+        try
+        {
+            await Task.Delay(refreshActivity.MinimumVisible + TimeSpan.FromMilliseconds(50), lifetime.Token).ConfigureAwait(false);
+            SyncAccountRefreshing();
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception exception) { Diagnostics.Warning("tray.refresh", "refresh_indicator_failed", exception); }
     }
 
     private void ContextsChanged()
@@ -140,6 +170,13 @@ internal sealed class TrayHost : IDisposable
     }
 
     private async Task ReadLocalAsync(CancellationToken token)
+    {
+        SetRefreshActivity("local", true);
+        try { await ReadLocalCoreAsync(token).ConfigureAwait(false); }
+        finally { SetRefreshActivity("local", false); }
+    }
+
+    private async Task ReadLocalCoreAsync(CancellationToken token)
     {
         var request = new LocalHistoryRequest(DateTimeOffset.UtcNow, includeDays: false);
         var monthly = await history.ReadAsync(request, token).ConfigureAwait(false);
@@ -335,6 +372,7 @@ internal sealed class TrayHost : IDisposable
             var now = DateTimeOffset.UtcNow;
             var month = now.Year * 12 + now.Month;
             if (month != utcMonth) { utcMonth = month; refreshSignal.Raise(); }
+            SyncAccountRefreshing();
             await Application.Current.Dispatcher.InvokeAsync(() => window?.RefreshSnapshot(state.GetSnapshot()));
         }
     }
@@ -357,19 +395,7 @@ internal sealed class TrayHost : IDisposable
     private static Icon DrawIcon(bool paused, bool available, float fraction)
     {
         using var bitmap = new Bitmap(32, 32);
-        using var graphics = Graphics.FromImage(bitmap);
-        graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        using var background = new Pen(Color.Gray, 4);
-        graphics.DrawEllipse(background, 4, 4, 24, 24);
-        using var progress = new Pen(paused ? Color.Gray : fraction >= 1 ? Color.Red : fraction >= 0.8f ? Color.DarkOrange : Color.DodgerBlue, 4);
-        if (available) graphics.DrawArc(progress, 4, 4, 24, 24, -90, Math.Clamp(fraction, 0, 1) * 360);
-        if (!available && !paused) graphics.DrawLine(background, 6, 26, 26, 6);
-        if (available && fraction >= 1 && !paused) graphics.FillEllipse(Brushes.Red, 22, 1, 9, 9);
-        if (paused)
-        {
-            graphics.FillRectangle(Brushes.White, 12, 10, 3, 12);
-            graphics.FillRectangle(Brushes.White, 18, 10, 3, 12);
-        }
+        using (var graphics = Graphics.FromImage(bitmap)) TrayIconPainter.Paint(graphics, 32, paused, available, fraction);
         var handle = bitmap.GetHicon();
         try { using var borrowed = Icon.FromHandle(handle); return (Icon)borrowed.Clone(); }
         finally { DestroyIcon(handle); }

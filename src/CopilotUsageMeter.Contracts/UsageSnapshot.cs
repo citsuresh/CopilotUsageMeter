@@ -110,6 +110,8 @@ namespace CopilotUsageMeter.Contracts
         [DataMember] public bool IsDemo { get; set; } = true;
         [DataMember] public bool IsPaused { get; set; }
         [DataMember] public long RefreshCount { get; set; }
+        // Additive: true while the tray has been reading account or local data for a noticeable time. Older peers ignore it.
+        [DataMember] public bool IsRefreshing { get; set; }
         [DataMember] public AccountUsage Account { get; set; } = new AccountUsage();
         [DataMember] public LocalUsage Local { get; set; } = new LocalUsage();
         [DataMember] public UsageSettings Settings { get; set; } = new UsageSettings();

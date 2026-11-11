@@ -229,6 +229,55 @@ public sealed class AccountRefreshTests
     }
 
     [Fact]
+    public async Task StartingAReadPublishesStateSoTheHostCanShowProgress()
+    {
+        var reader = new Reader { Pending = new TaskCompletionSource<AccountReadResult>().Task };
+        using var scheduler = new AccountRefreshCoordinator(reader, new Clock());
+        var observed = new List<bool>();
+        scheduler.StateChanged += (_, _) => observed.Add(scheduler.IsRefreshing);
+        _ = scheduler.RefreshAsync();
+        Assert.Contains(true, observed);
+        var before = observed.Count;
+        _ = scheduler.RefreshAsync();
+        Assert.Equal(before, observed.Count);
+        await Task.Yield();
+    }
+
+    [Fact]
+    public async Task AFaultedReadPublishesStateSoProgressIsNotLeftOn()
+    {
+        var pending = new TaskCompletionSource<AccountReadResult>();
+        var reader = new Reader { Pending = pending.Task };
+        using var scheduler = new AccountRefreshCoordinator(reader, new Clock());
+        var observed = new List<bool>();
+        scheduler.StateChanged += (_, _) => observed.Add(scheduler.IsRefreshing);
+        var refresh = scheduler.RefreshAsync();
+        Assert.True(observed[^1]);
+        pending.SetException(new InvalidOperationException("invented failure"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => refresh);
+        Assert.False(scheduler.IsRefreshing);
+        Assert.False(observed[^1]);
+    }
+
+    [Fact]
+    public async Task ACancelledReadPublishesStateSoProgressIsNotLeftOn()
+    {
+        var pending = new TaskCompletionSource<AccountReadResult>();
+        var reader = new Reader { Pending = pending.Task };
+        using var scheduler = new AccountRefreshCoordinator(reader, new Clock());
+        using var cancellation = new CancellationTokenSource();
+        var observed = new List<bool>();
+        scheduler.StateChanged += (_, _) => observed.Add(scheduler.IsRefreshing);
+        var refresh = scheduler.RefreshAsync(false, cancellation.Token);
+        Assert.True(observed[^1]);
+        cancellation.Cancel();
+        pending.SetCanceled(cancellation.Token);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => refresh);
+        Assert.False(scheduler.IsRefreshing);
+        Assert.False(observed[^1]);
+    }
+
+    [Fact]
     public async Task RunLoopUsesInjectedDelayAndCancelsWithoutRealTimers()
     {
         var clock = new Clock();

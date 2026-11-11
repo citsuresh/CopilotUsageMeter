@@ -189,3 +189,9 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Decision: a shared `Diagnostics` facade records only component, a fixed code, the exception type and its HRESULT. The tray writes `%LOCALAPPDATA%\CopilotUsageMeter\logs\tray.log` (256 KB roll to `tray.1.log`, 10 s dedupe); the extension writes to the Visual Studio activity log. Unexpected exceptions in the tray and extension are caught, logged and shown as a banner/note instead of crashing; workers restart with backoff.
 - Rationale: exception messages and stack traces can carry chat titles, paths or payloads, which the privacy rules forbid in logs. The path, size, dedupe window and one-banner-a-minute throttle are defaults, not user-confirmed.
 - Programming faults in `LocalRefreshScheduler`, `AccountRefreshCoordinator` and `GitHubAccountReader` are logged and still propagate to their supervisors (existing tests rely on that).
+
+## 2026-11-11 - Refresh progress is shown for tray-side reads, and the tray icon is a thin track with a thick arc (user-authorised)
+
+- Decision: the snapshot carries an optional `IsRefreshing` flag, true while a local or GitHub account read has run for at least 500 ms. The extension row/popup and the tray window show their existing progress bar for it. The tray icon uses a 2 px light-grey track and a 6 px cyan arc (orange from 80%, red ring at 100%).
+- Rationale: previously only manual refresh and chat switching showed progress, so automatic refreshes looked like a frozen number. The icon arc was hard to read at 16 px; the user compared rendered variants and chose this one.
+- Given up: very short reads never show progress (by design). The 500 ms value and the colours are defaults. The red dot at 100% was replaced by a full red ring.
