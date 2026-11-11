@@ -18,6 +18,8 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\DemoSettingsStore.cs" Link="Tray\DemoSettingsStore.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\GitHubSignInFlow.cs" Link="Tray\GitHubSignInFlow.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\GitHubAccountRemoval.cs" Link="Tray\GitHubAccountRemoval.cs" />
   </ItemGroup>
 
   <ItemGroup>

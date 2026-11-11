@@ -35,6 +35,8 @@ internal sealed class TrayHost : IDisposable
     private readonly GitHubApiClient api = new();
     private readonly GitHubAccountReader account;
     private readonly AccountRefreshCoordinator accountRefresh;
+    private readonly GitHubSignInFlow signInFlow;
+    private readonly GitHubAccountRemoval accountRemoval;
     private readonly CancellationTokenSource lifetime = new();
     private readonly Channel<bool> publications = Channel.CreateBounded<bool>(new BoundedChannelOptions(1)
     { SingleReader = true, FullMode = BoundedChannelFullMode.DropWrite });
@@ -56,6 +58,11 @@ internal sealed class TrayHost : IDisposable
         changes = new LocalStoreChangeSignal(root, clock);
         account = new GitHubAccountReader(api, new WindowsAccountCredentialStore(), clock);
         accountRefresh = new AccountRefreshCoordinator(account, clock);
+        var uiDispatcher = Application.Current.Dispatcher;
+        signInFlow = new GitHubSignInFlow(new GitHubCliSignIn(new GitHubCliProcessLauncher()), action => { _ = uiDispatcher.InvokeAsync(action); },
+            () => new GitHubSignInWindow(), ConnectSignedInAccountAsync, ShowAccountChoices, StartVisibleSignIn);
+        var cliLogout = new GitHubCliLogout();
+        accountRemoval = new GitHubAccountRemoval(cliLogout.RemoveAsync, () => account.ConnectedLogin, SignOutTrayAsync, RequestPublication);
         local = new LocalRefreshScheduler(refreshSignal, clock, ReadLocalAsync, () => Volatile.Read(ref localAttemptFailed));
         changes.Changed += DatabaseChanged;
         accountRefresh.StateChanged += AccountChanged;
@@ -98,7 +105,7 @@ internal sealed class TrayHost : IDisposable
     {
         if (window == null)
         {
-            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins);
+            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token));
             window.Closed += (_, _) => window = null;
         }
         window.Show();
@@ -224,14 +231,44 @@ internal sealed class TrayHost : IDisposable
     {
         try
         {
-            var process = Process.Start(new ProcessStartInfo("gh", "auth login --web --hostname github.com --git-protocol https") { UseShellExecute = true });
-            if (process != null) _ = ConnectAfterBrowserSignInAsync(process);
-            return new ProtocolMessage { Type = "Ack", Message = "Complete GitHub CLI sign-in; the account connects automatically when it finishes. You can also choose Connect." };
+            return signInFlow.Begin()
+                ? new ProtocolMessage { Type = "Ack", Message = "Copy the code in the GitHub sign-in window and approve access in your browser; the account connects automatically." }
+                : new ProtocolMessage { Type = "Ack", Message = "GitHub sign-in is already in progress. Use the GitHub sign-in window." };
         }
         catch (Exception exception) when (exception is Win32Exception || exception is FileNotFoundException)
         {
-            return UsagePipeServer.Error(request, "github_cli_unavailable", "Install GitHub CLI and run gh auth login --web --hostname github.com, then Connect. Plaintext credential fallback is not accepted.");
+            return UsagePipeServer.Error(request, "github_cli_unavailable", "GitHub CLI (gh) is not installed or not on PATH. Install it from https://cli.github.com, then choose Sign in again. Plaintext credential fallback is not accepted.");
         }
+    }
+
+    // Imports the single secure gh login after the sign-in window reports that gh finished; no token output is read.
+    private async Task<SignInConnection> ConnectSignedInAccountAsync()
+    {
+        var attempt = await account.SwitchAccountAsync("").ConfigureAwait(false);
+        RequestPublication();
+        if (account.IsAuthorized) return new SignInConnection(SignInConnectionState.Connected);
+        return attempt.ErrorCode == "multiple-cli-logins"
+            ? new SignInConnection(SignInConnectionState.ChooseAccount)
+            : new SignInConnection(SignInConnectionState.Failed, attempt.ErrorMessage);
+    }
+
+    private async Task<bool> SignOutTrayAsync() => (await account.SignOutAsync().ConfigureAwait(false)).Status != "error";
+
+    private void ShowAccountChoices()
+    {
+        ShowWindow();
+        window?.ShowAccountChoices();
+    }
+
+    // Used only when the hidden sign-in cannot show a one-time code (for example gh's output format changed): the previous visible console.
+    private void StartVisibleSignIn()
+    {
+        try
+        {
+            var process = Process.Start(new ProcessStartInfo("gh", "auth login --web --hostname github.com --git-protocol https") { UseShellExecute = true });
+            if (process != null) _ = ConnectAfterBrowserSignInAsync(process);
+        }
+        catch (Exception exception) when (exception is Win32Exception || exception is FileNotFoundException) { }
     }
 
     // Waits for the owned gh login process, then imports the single secure gh login without reading any token output.
@@ -372,6 +409,7 @@ internal sealed class TrayHost : IDisposable
         if (disposed) return;
         disposed = true;
         lifetime.Cancel();
+        signInFlow.Dispose();
         server.Dispose();
         local.Dispose();
         changes.Dispose();

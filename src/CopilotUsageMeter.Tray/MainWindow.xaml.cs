@@ -31,16 +31,20 @@ public partial class MainWindow : Window
 
     private readonly Func<UsageSnapshot> getSnapshot;
     private readonly Func<IReadOnlyList<string>> listLogins;
+    private readonly Func<string, Task<AccountRemoval>> removeAccount;
+    private string? pendingRemoval;
+    private bool removing;
     private bool? chooserOpenedSignedOut;
     private readonly Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send;
     private UsageDisplay display = UsageDisplay.Create(null, true, DateTimeOffset.UtcNow);
     private string signature = "";
 
-    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins)
+    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins, Func<string, Task<AccountRemoval>> removeAccount)
     {
         this.getSnapshot = getSnapshot;
         this.send = send;
         this.listLogins = listLogins;
+        this.removeAccount = removeAccount;
         InitializeComponent();
         VersionText.Text = "v" + ProductVersion.Of(typeof(MainWindow).Assembly);
         // Keep the window, including its button row, above the taskbar on short screens.
@@ -79,7 +83,7 @@ public partial class MainWindow : Window
         if (signedOut)
         {
             LogOutConfirm.Visibility = Visibility.Collapsed;
-            Toolbar.Visibility = Visibility.Visible;
+            if (RemoveAccountConfirm.Visibility != Visibility.Visible) Toolbar.Visibility = Visibility.Visible;
         }
 
         // The refresh timer fires every second, so keep the chooser open and close it only when the sign-in state it was opened for has changed.
@@ -309,6 +313,7 @@ public partial class MainWindow : Window
     // Signed in: the connected login is disabled and "Add a new account" is offered. Signed out: shown only when several logins exist.
     internal void ShowAccountChoices()
     {
+        if (RemoveAccountConfirm.Visibility == Visibility.Visible) return;
         var account = getSnapshot().Account;
         var signedOut = account.Status == "signed-out";
         var logins = listLogins();
@@ -323,8 +328,7 @@ public partial class MainWindow : Window
             {
                 Content = connected ? choice + " (connected)" : choice,
                 IsEnabled = !connected,
-                Padding = new Thickness(12, 6, 12, 6),
-                Margin = new Thickness(0, 0, 8, 4)
+                Padding = new Thickness(12, 6, 12, 6)
             };
             AutomationProperties.SetName(button, "Connect GitHub account " + choice);
             button.Click += async (_, _) =>
@@ -332,7 +336,20 @@ public partial class MainWindow : Window
                 HideAccountChoices();
                 await ExecuteAsync(new ProtocolMessage { Type = "ConnectAccount", AccountLogin = choice });
             };
-            AccountChoiceButtons.Children.Add(button);
+            var remove = new Button
+            {
+                Content = new TextBlock { Text = "\uE711", FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 11 },
+                Padding = new Thickness(7, 6, 7, 6),
+                Margin = new Thickness(2, 0, 0, 0),
+                IsEnabled = !removing,
+                ToolTip = "Remove " + choice + " from GitHub CLI"
+            };
+            AutomationProperties.SetName(remove, "Remove GitHub account " + choice);
+            remove.Click += (_, _) => AskToRemoveAccount(choice, connected);
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 8, 4) };
+            row.Children.Add(button);
+            row.Children.Add(remove);
+            AccountChoiceButtons.Children.Add(row);
         }
         var add = new Button { Content = "Add a new account\u2026", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 8, 4) };
         AutomationProperties.SetName(add, "Add a new GitHub account");
@@ -350,6 +367,56 @@ public partial class MainWindow : Window
     {
         AccountChoices.Visibility = Visibility.Collapsed;
         chooserOpenedSignedOut = null;
+    }
+
+    // Inline confirmation, like Log out: the account list is hidden while the question is shown.
+    private void AskToRemoveAccount(string login, bool connected)
+    {
+        if (removing) return;
+        LogOutConfirm.Visibility = Visibility.Collapsed;
+        pendingRemoval = login;
+        RemoveAccountTitle.Text = "Remove " + login + " from GitHub CLI on this computer?";
+        RemoveAccountDetail.Text = (connected ? "This account is connected here, so the tray will also sign out. " : "")
+            + "Other tools that use GitHub CLI with this account will be signed out too. You can add it again anytime.";
+        AutomationProperties.SetName(ConfirmRemoveAccountButton, "Remove GitHub account " + login);
+        HideAccountChoices();
+        Toolbar.Visibility = Visibility.Collapsed;
+        RemoveAccountConfirm.Visibility = Visibility.Visible;
+    }
+
+    private void CancelRemoveAccountClicked(object sender, RoutedEventArgs e)
+    {
+        pendingRemoval = null;
+        RemoveAccountConfirm.Visibility = Visibility.Collapsed;
+        Toolbar.Visibility = Visibility.Visible;
+        ShowAccountChoices();
+    }
+
+    private async void ConfirmRemoveAccountClicked(object sender, RoutedEventArgs e)
+    {
+        var login = pendingRemoval;
+        pendingRemoval = null;
+        RemoveAccountConfirm.Visibility = Visibility.Collapsed;
+        Toolbar.Visibility = Visibility.Visible;
+        if (login == null || removing) return;
+        removing = true;
+        pendingCommands++;
+        BusyBar.Visibility = Visibility.Visible;
+        try
+        {
+            var result = await removeAccount(login);
+            SetNotice(result.Message);
+        }
+        catch (Exception)
+        {
+            SetNotice("The account removal did not complete; check GitHub CLI before retrying.");
+        }
+        finally
+        {
+            removing = false;
+            if (--pendingCommands == 0) BusyBar.Visibility = Visibility.Collapsed;
+        }
+        ShowAccountChoices();
     }
 
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });

@@ -55,3 +55,14 @@ Product and implementation decisions are recorded in the existing append-only `D
 - Decision: paused is a light-grey row with an orange "!" badge and a tooltip; a problem tint wins. The Full details Paused chip is orange. Bar hover is a solid darker red fill (outline only for keyboard focus). The chat label reads "This chat <n>".
 - Decision (supersedes the 2026-11-13 line "Signed out stays a normal state"): signed out is an amber Warning problem ("Not signed in") with the Sign in action, so it is visible in the collapsed row.
 - Not verified live: the mismatch state (needs a deliberately mismatched build) and 0.1.16/0.1.17 visuals.
+
+## 2026-11-11 - Sign-in orchestration is UI-free and injected
+
+- Decision: `GitHubCliSignIn` (netstandard2.0 library) owns parsing, timeouts and cancellation behind `ISignInProcessLauncher`; `GitHubSignInFlow` (Tray, no WPF types, compiled into the test assembly) owns the dialog state machine behind `ISignInDialog` and a `post` delegate. `GitHubCliSignInRun.Completion` never faults and `Cancel()` is always safe; a throwing UI callback is swallowed. The dialog is created only after `Begin` succeeds so a missing `gh` shows nothing.
+- Rationale: output arrives on pool threads, so all UI work is posted; keeping WPF out lets the whole flow be tested with fakes and real `cmd.exe`. Netstandard2.0 has no `Process.Kill(bool)`, so only the `gh` process itself is killed.
+- The dialog text says the account is connected, not who it is, because the login is verified separately afterwards.
+
+## 2026-11-11 - Account removal is an in-process delegate
+
+- Decision: `MainWindow` receives a removal delegate instead of sending a protocol command. `UsagePipeServer` passes any command type to `TrayHost.ProcessAsync`, so a `RemoveAccount` case there would let any same-user pipe client delete `gh` logins. `GitHubAccountReader.ConnectedLogin` exposes the credential's login (not the token) because the snapshot login is null until the profile is verified.
+- Rationale: keeps a credential-deleting action reachable only from the tray's own window.

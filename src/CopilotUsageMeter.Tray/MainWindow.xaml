@@ -77,6 +77,14 @@
                 <WrapPanel x:Name="AccountChoiceButtons" Margin="0,6,0,0" />
             </StackPanel>
             <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed" AutomationProperties.Name="Last command result" />
+            <StackPanel x:Name="RemoveAccountConfirm" Visibility="Collapsed" Margin="0,0,0,8">
+                <TextBlock x:Name="RemoveAccountTitle" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock x:Name="RemoveAccountDetail" Opacity="0.7" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                    <Button Content="Cancel" Click="CancelRemoveAccountClicked" Padding="12,4" Margin="0,0,8,0" />
+                    <Button x:Name="ConfirmRemoveAccountButton" Content="Remove" Click="ConfirmRemoveAccountClicked" Padding="12,4" Background="#D13438" Foreground="White" />
+                </StackPanel>
+            </StackPanel>
             <StackPanel x:Name="LogOutConfirm" Visibility="Collapsed" Margin="0,0,0,8">
                 <TextBlock Text="Log out of GitHub?" FontWeight="SemiBold" />
                 <TextBlock Text="Local tracking continues. You can sign in again anytime." Opacity="0.7" />

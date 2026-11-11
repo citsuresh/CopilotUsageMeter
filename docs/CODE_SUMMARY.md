@@ -43,6 +43,8 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 | --- | --- | --- | --- |
 | Tray | `App` | `src\CopilotUsageMeter.Tray\App.xaml.cs` | Single-instance WPF entry; composes host and explicit shutdown |
 | Tray | `TrayHost` | `src\CopilotUsageMeter.Tray\TrayHost.cs` | Compose source schedulers, protected per-context pipes, atomic pause transitions, coalesced pushes, icon and owned status window |
+| Tray | `GitHubAccountRemoval` | `src\CopilotUsageMeter.Tray\GitHubAccountRemoval.cs` | UI-free removal of a saved gh login (one at a time); signs the tray out when the removed login is the connected one |
+| Tray | `GitHubSignInFlow`, `GitHubSignInWindow` | `src\CopilotUsageMeter.Tray\GitHubSignInFlow.cs`, `GitHubSignInWindow.xaml(.cs)` | UI-free sign-in state machine (linked into the tests) and the WPF dialog that shows the one-time code, with fallback to a visible console |
 | Tray | `DemoSettingsStore` | `src\CopilotUsageMeter.Tray\DemoSettingsStore.cs` | Validated atomic local demo-interval persistence; no credentials |
 | Tray | `MainWindow` | `src\CopilotUsageMeter.Tray\MainWindow.xaml.cs` | Full details window drawn from `UsageDisplay`: GitHub/local sections, turn chart, labelled detail rows, Log out confirm, fault banner, secure-account controls; closing does not stop tracking |
 | Core | `DemoUsageEngine` | `src\CopilotUsageMeter.Core\DemoUsageEngine.cs` | Deterministic detached snapshots, revisions, demo refresh coalescing/pause/settings |
@@ -57,7 +59,7 @@ Exp-only injection/reinjection, explicit preferred/top/status tiers; `CompactUsa
 | Core | `TrackingUsageState`, `LocalRecordedRepositoryMap` | `src\CopilotUsageMeter.Core\` | Detached global monthly/account values and ephemeral per-connection chart/repository projection |
 | Core | `LocalRefreshScheduler`, `AccountRefreshCoordinator` | `src\CopilotUsageMeter.Core\` | Independent debounced local and active/idle/backoff account single-flight scheduling |
 | Readers.ChatHistoryCli | `ChatHistoryReader`, `ChatHistoryProcessRunner` | `src\CopilotUsageMeter.Readers.ChatHistoryCli\` | Bounded, cancellable toolkit-only reads; strict numeric parsing, explicit unknown/failure states |
-| Readers.GitHub | `GitHubAccountReader`, `GitHubApiClient`, `WindowsAccountCredentialStore`, `GitHubQuotaParser` | `src\CopilotUsageMeter.Readers.GitHub\` | Approved fixed endpoints, bounded requests, secure app credentials, account isolation and conservative quota mapping |
+| Readers.GitHub | `GitHubAccountReader`, `GitHubApiClient`, `WindowsAccountCredentialStore`, `GitHubQuotaParser`, `GitHubCliSignIn`, `GitHubCliProcessLauncher`, `GitHubCliLogout` | `src\CopilotUsageMeter.Readers.GitHub\` | Approved fixed endpoints, bounded requests, secure app credentials, account isolation and conservative quota mapping |
 | Signals.FileWatcher | `LocalStoreChangeSignal` | `src\CopilotUsageMeter.Signals.FileWatcher\LocalStoreChangeSignal.cs` | DB/WAL events plus metadata reconciliation; absent/recreated store recovery |
 | Architecture.Tests | `DependencyRulesTests` | `tests/CopilotUsageMeter.Architecture.Tests/DependencyRulesTests.cs` | SLNX membership and source/compiled dependency guards, with negative controls |
 | Contracts | `UsageSnapshot`, `ProtocolMessage`, `UsageProtocol` | `src/CopilotUsageMeter.Contracts/` | Separate account/local payloads, validated chart deserialization and request-only context envelopes; see PROTOCOL.md |

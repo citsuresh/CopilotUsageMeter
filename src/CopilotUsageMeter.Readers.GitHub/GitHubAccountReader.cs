@@ -31,6 +31,8 @@ namespace CopilotUsageMeter.Readers.GitHub
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
         public bool IsAuthorized { get { lock (gate) return credential != null; } }
+        // Login name of the credential the tray currently holds (never the token); null when signed out.
+        public string? ConnectedLogin { get { lock (gate) return credential?.Login; } }
         public AccountReadResult Current { get { lock (gate) return current.Copy(); } }
         public event EventHandler? AuthorizationChanged;
 

@@ -172,3 +172,14 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 ## 2026-11-11 - VSIX starts in every instance; probe commands stay temporarily
 - Decision: the Exp-only gate in `UsagePackage` is removed so the user can test in the main VS. This supersedes the earlier note that the probe/Recheck commands stay only because they are Exp-only: the four Tools-menu test commands remain for now at the user's direction and MUST be removed before publishing (Phase 5). The manifest description now describes the real behaviour. Agent-run runtime tests remain restricted to Exp; the user installs into the main instance themselves.
 - Rationale: the main-instance install otherwise did nothing. The user accepted the temporary test commands during development.
+
+## 2026-11-11 - GitHub sign-in runs `gh` hidden and shows the code in a tray dialog (user-authorised)
+
+- Decision: `gh auth login --web` runs without a window. The tray reads only the one-time code from its output and shows it in a **Sign in to GitHub** dialog whose button copies the code and opens the fixed address `https://github.com/login/device`; the URL printed by `gh` is never opened. If no code is read within about 10 s, the tray falls back to the earlier visible console. No new OAuth app is added and credential storage is unchanged (`gh` stores the login; the tray imports it as before).
+- Rationale: a console or PowerShell window was not intuitive. Parsing only the code and using a constant URL limits what untrusted output can do; the fallback covers a `gh` version whose text differs. The timeouts (10 s for the code, 15 min overall) are defaults, not user-confirmed. `gh` also copies the code to the clipboard on its own. Not verified live.
+- Rejected: a tray-owned OAuth device flow (new app registration and token handling).
+
+## 2026-11-11 - Saved accounts can be removed from the chooser with `gh auth logout` (user-authorised)
+
+- Decision: each saved GitHub CLI login in the chooser gets a remove button; after confirmation the tray runs `gh auth logout --hostname github.com --user <login>` hidden. This supersedes the earlier rule that the app never changes GitHub CLI's own login: it now does so, only on this explicit action. Removing the account the tray is connected with also signs the tray out. The command is in-process only, not a pipe command.
+- Rationale: Log out removed only the app's copy, so the account stayed in the sign-in list. `gh auth logout` is the supported way and also updates gh's own configuration; deleting the Credential Manager entry directly would leave a stale entry in gh's config. The 30 s timeout is a default, not user-confirmed. Not verified against a real `gh` login.
