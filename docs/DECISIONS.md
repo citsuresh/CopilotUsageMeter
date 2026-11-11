@@ -149,3 +149,14 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Problem (found by the user in the live UI): after sign-in the account showed `unavailable` although the endpoint returned a full `premium_interactions` snapshot. Cause: the parser rejected any root `token_based_billing: true` as `unsupported-billing`, a Phase 4 guard added before the real seat shape was checked. The tested enterprise-managed Business seat reports `true` together with finite `entitlement`, `credits_used` and `remaining`.
 - Decision: `token_based_billing: true` is accepted only when the premium snapshot reports both finite `entitlement` and `credits_used` (or is unlimited). Structured/non-boolean billing shapes and partial token-billed snapshots (for example remaining only) remain `unsupported-billing`. `remaining` is still never derived; the reported value is shown.
 - Verification: 286 tests; live tray Status showed Consumed 6339 / 100000, reported remaining 93444, reset 2026-12-01. My earlier note calling this seat's quota a known limit was incorrect and is superseded.
+
+## 2026-11-12 - Post-Phase-4 UI rework: adaptive row + popup (user-approved)
+
+- Decision: the Visual Studio panel is one adaptive row (wide >= 560 DIP, medium >= 330, narrow below) with an anchored popup for details, replacing the Phase 4 inline-expansion header. The Expanded setting is dropped. "Full details..." reuses `OpenStatus`; no new protocol command. Palette: GitHub bar blue, orange from 85%, red when over; local pill red (current chat), orange (rest of repo), light blue (other repos).
+- Preserved: at most 20 bars with exact hover/keyboard-focus tooltips, request-only session id, and never adding or nesting GitHub and local figures.
+- Reconciliations: account data older than 30 minutes is shown stale; a down tray cannot report its own fault, so no host-problem protocol field (the offline row is a client-side state); the tray shows runtime faults as a banner; the "Start host" action stays in Phase 5 (needs an install location). The 85% and 30-minute thresholds are defaults, not user-confirmed values.
+- Additive `CurrentChatUsage.TotalCredits` carries the whole-chat total the toolkit already returns; it is cleared whenever a chat is unusable.
+
+## 2026-11-11 - VSIX starts in every instance; probe commands stay temporarily
+- Decision: the Exp-only gate in `UsagePackage` is removed so the user can test in the main VS. This supersedes the earlier note that the probe/Recheck commands stay only because they are Exp-only: the four Tools-menu test commands remain for now at the user's direction and MUST be removed before publishing (Phase 5). The manifest description now describes the real behaviour. Agent-run runtime tests remain restricted to Exp; the user installs into the main instance themselves.
+- Rationale: the main-instance install otherwise did nothing. The user accepted the temporary test commands during development.

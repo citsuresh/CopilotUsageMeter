@@ -23,8 +23,9 @@ namespace CopilotUsageMeter.Core
             }
         }
 
-        public bool ReplaceTurns(string? sessionId, IEnumerable<CurrentChatTurnUsage> turns, DateTimeOffset asOfUtc)
+        public bool ReplaceTurns(string? sessionId, IEnumerable<CurrentChatTurnUsage> turns, DateTimeOffset asOfUtc, decimal? totalCredits = null)
         {
+            if (totalCredits is < 0) throw new ArgumentOutOfRangeException(nameof(totalCredits), "Total credits cannot be negative.");
             if (string.IsNullOrWhiteSpace(sessionId)) return false;
             if (turns is null) throw new ArgumentNullException(nameof(turns));
 
@@ -53,6 +54,7 @@ namespace CopilotUsageMeter.Core
                     {
                         Status = "available",
                         AsOfUtc = asOfUtc.ToUniversalTime(),
+                        TotalCredits = totalCredits,
                         Turns = orderedTurns.ToArray()
                     };
                 return true;
@@ -74,6 +76,7 @@ namespace CopilotUsageMeter.Core
         {
             Status = usage.Status,
             AsOfUtc = usage.AsOfUtc,
+            TotalCredits = usage.TotalCredits,
             Turns = usage.Turns.Select(CloneTurn).ToArray()
         };
 

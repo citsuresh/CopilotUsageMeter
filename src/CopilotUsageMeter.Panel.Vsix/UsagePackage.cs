@@ -24,7 +24,6 @@ namespace CopilotUsageMeter.Panel.Vsix
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             var service = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService
                 ?? throw new InvalidOperationException("Visual Studio menu service is unavailable.");
-            if (!IsExperimentalInstance()) return;
             var statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar
                 ?? throw new InvalidOperationException("Visual Studio status bar is unavailable.");
             integration = new ChatUsageIntegration(this, statusBar, JoinableTaskFactory);
@@ -44,21 +43,6 @@ namespace CopilotUsageMeter.Panel.Vsix
                     integration = null;
                 });
             base.Dispose(disposing);
-        }
-
-        private static bool IsExperimentalInstance()
-        {
-            var arguments = Environment.GetCommandLineArgs();
-            for (var i = 0; i < arguments.Length - 1; i++)
-            {
-                if ((arguments[i].Equals("/rootsuffix", StringComparison.OrdinalIgnoreCase) || arguments[i].Equals("-rootsuffix", StringComparison.OrdinalIgnoreCase))
-                    && arguments[i + 1].Equals("Exp", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

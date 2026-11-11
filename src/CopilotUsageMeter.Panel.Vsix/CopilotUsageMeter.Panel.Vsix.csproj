@@ -7,6 +7,7 @@
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
     <DeployExtension>false</DeployExtension>
+    <TargetVsixContainerName>CopilotUsageMeter.Panel.vsix</TargetVsixContainerName>
     <VsixDeployOnDebug>true</VsixDeployOnDebug>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>

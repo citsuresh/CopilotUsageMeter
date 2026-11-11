@@ -90,7 +90,7 @@ namespace CopilotUsageMeter.Core
 
         private static CurrentChatUsage CloneChat(CurrentChatUsage value) => new CurrentChatUsage
         {
-            Status = value.Status, AsOfUtc = value.AsOfUtc,
+            Status = value.Status, AsOfUtc = value.AsOfUtc, TotalCredits = value.TotalCredits,
             Turns = value.Turns.Select(turn => new CurrentChatTurnUsage
             {
                 TurnIndex = turn.TurnIndex, Credits = turn.Credits, TimestampUtc = turn.TimestampUtc

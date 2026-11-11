@@ -2,7 +2,7 @@
 
 Copilot Usage Meter is a Windows tray tracking host and Exp-only compact Visual Studio chat integration. Phase 4 composes real toolkit CLI/monthly/current-chat reads, DB/WAL signals, separate optional GitHub quota sync and per-connection context projection. GitHub sign-in uses an explicitly launched gh browser flow followed by named Windows Credential Manager import. Internal quota/placement/identity APIs remain fragile and labelled; local analytics are never uploaded or attributed to the account. The old probes were removed; demo engine/settings/tool-window code remains only historical fixture code. Eight shared libraries target netstandard2.0, Tray net10.0-windows, VSIX net48 and tests net10.0.
 
-286 automated Meter tests and 467 toolkit tests pass; whole-phase review findings were fixed and independently rechecked. Phase 4 development verification is complete with limits; Exp runtime acceptance and live sign-in (tray-first and Exp-first, one enterprise seat, real credits shown) are recorded in PHASE_PLAN. GitHub account reader supports blank-login discovery through `IAccountCredentialStore.ListGitHubCliLogins` (credential target names only); `GitHubQuotaParser` accepts `token_based_billing: true` only with finite entitlement and credits_used. Phase 5 is not authorized.
+317 automated Meter tests
 
 ## Project dependencies
 
@@ -44,13 +44,14 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 | Tray | `App` | `src\CopilotUsageMeter.Tray\App.xaml.cs` | Single-instance WPF entry; composes host and explicit shutdown |
 | Tray | `TrayHost` | `src\CopilotUsageMeter.Tray\TrayHost.cs` | Compose source schedulers, protected per-context pipes, atomic pause transitions, coalesced pushes, icon and owned status window |
 | Tray | `DemoSettingsStore` | `src\CopilotUsageMeter.Tray\DemoSettingsStore.cs` | Validated atomic local demo-interval persistence; no credentials |
-| Tray | `MainWindow` | `src\CopilotUsageMeter.Tray\MainWindow.xaml.cs` | Separate account/local status, cached countdown and optional secure-account controls; closing does not stop tracking |
+| Tray | `MainWindow` | `src\CopilotUsageMeter.Tray\MainWindow.xaml.cs` | Full details window drawn from `UsageDisplay`: GitHub/local sections, turn chart, labelled detail rows, Log out confirm, fault banner, secure-account controls; closing does not stop tracking |
 | Core | `DemoUsageEngine` | `src\CopilotUsageMeter.Core\DemoUsageEngine.cs` | Deterministic detached snapshots, revisions, demo refresh coalescing/pause/settings |
 | Core | `CurrentChatUsageTracker` | `src\CopilotUsageMeter.Core\CurrentChatUsageTracker.cs` | In-memory active-session per-turn snapshot replacement, newest-20 cap and detached snapshots |
 | Panel.Core | `UsagePanelViewModel` | `src\CopilotUsageMeter.Panel.Core\UsagePanelViewModel.cs` | UI-independent separate-source display, stale cache and acknowledged actions |
-| Panel.Vsix | `UsagePackage`, `ChatUsageIntegration`, `CompactUsageView` | `src\CopilotUsageMeter.Panel.Vsix\` | Exp-only injection/reinjection, explicit preferred/top/status tiers, accessible compact bars and expansion |
+Exp-only injection/reinjection, explicit preferred/top/status tiers; `CompactUsageView` is an adaptive one-line row (wide/medium/narrow) with an anchored popup, icon toolbar and inline Log out confirm
 | Panel.Vsix | `RepositoryContextReader` | `src\CopilotUsageMeter.Panel.Vsix\RepositoryContextReader.cs` | Read solution Git origin locally; send only normalized public owner/repo, not paths |
-| Panel.Core | `CompactUsagePresentation`, `RecordedRepositoryKey` | `src\CopilotUsageMeter.Panel.Core\` | Pure source-separated formatting, newest-20 bar scaling/tooltips and supported origin-key parsing |
+| Panel.Core | `UsageDisplay` | `src\CopilotUsageMeter.Panel.Core\UsageDisplay.cs` | Shared presentation model for the row, popup and Full details window: levels (85% warning, over, stale after 30 minutes), segment arithmetic, bar tooltips, labelled detail rows; no UI types |
+| Panel.Core | `CompactUsagePresentation`, `RecordedRepositoryKey`
 | Panel.Core | `ActiveChatIdentity` | `src\CopilotUsageMeter.Panel.Core\ActiveChatIdentity.cs` | Bounded approved identity-member/Session/Router bridge reads; validate opaque GUID without reading content or persisting values |
 | Core | `TrackingUsageState`, `LocalRecordedRepositoryMap` | `src\CopilotUsageMeter.Core\` | Detached global monthly/account values and ephemeral per-connection chart/repository projection |
 | Core | `LocalRefreshScheduler`, `AccountRefreshCoordinator` | `src\CopilotUsageMeter.Core\` | Independent debounced local and active/idle/backoff account single-flight scheduling |

@@ -81,6 +81,24 @@ public sealed class CurrentChatUsageTrackerTests
     }
 
     [Fact]
+    public void KeepsTheWholeChatTotalSeparateFromTheRetainedTurns()
+    {
+        var tracker = new CurrentChatUsageTracker();
+        tracker.SetActiveSession("session-021");
+        var turns = Enumerable.Range(0, 25).Select(index => new CurrentChatTurnUsage { TurnIndex = index, Credits = 1 }).ToArray();
+
+        Assert.True(tracker.ReplaceTurns("session-021", turns, DateTimeOffset.UnixEpoch, 25m));
+        var snapshot = tracker.GetSnapshot();
+        Assert.Equal(25m, snapshot.TotalCredits);
+        Assert.Equal(20, snapshot.Turns.Length);
+        snapshot.TotalCredits = 1;
+        Assert.Equal(25m, tracker.GetSnapshot().TotalCredits);
+        Assert.Throws<ArgumentOutOfRangeException>(() => tracker.ReplaceTurns("session-021", turns, DateTimeOffset.UnixEpoch, -1m));
+        tracker.SetActiveSession("session-022");
+        Assert.Null(tracker.GetSnapshot().TotalCredits);
+    }
+
+    [Fact]
     public void PreservesUnknownCreditsAndRejectsInvalidTurnIndexes()
     {
         var tracker = new CurrentChatUsageTracker();

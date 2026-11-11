@@ -2,9 +2,27 @@
 
 Windows tray host and experimental compact Visual Studio usage expander. GitHub-reported account allowance/consumption is separate from locally recorded repository, token and current-chat analytics. Local history is never uploaded.
 
-## Current state - Phase 4 complete with verification limits
+## Current state - Phase 4 complete; compact UI reworked after Phase 4
 
-The normal tray now hosts real local tracking, optional GitHub account tracking and the same-user pipe server. The Debug solution/VSIX build and **286 automated tests** pass. Toolkit changes independently pass **467 tests**. Independent whole-phase review findings are resolved. Live Exp checks verified active-chat matching, per-turn charts, collapsed/expanded keyboard tooltips, all three placement tiers, reinjection, pause/manual refresh/resume and tray-loss/reconnect. Live sign-in was also verified in both directions (tray Connect -> Exp, and Exp panel sign-in -> tray) with one enterprise-managed seat, including real GitHub-reported credits in the tray Status. This is development verification on one VS/Copilot build, not a shipping/support claim. The interactive `gh auth login --web` browser step itself was not automated.
+The normal tray now hosts real local tracking, optional GitHub account tracking and the same-user pipe server. The Debug solution/VSIX build and **330 automated tests** pass. Toolkit changes independently pass **467 tests**. Independent whole-phase review findings are resolved. Live Exp checks verified active-chat matching, per-turn charts, all three placement tiers, reinjection, pause/manual refresh/resume and tray-loss/reconnect. Live sign-in was also verified in both directions (tray Connect -> Exp, and Exp panel sign-in -> tray) with one enterprise-managed seat, including real GitHub-reported credits. After Phase 4 the Visual Studio panel was reworked into a single usage row plus an anchored popup, and the tray Status window became the **Full details** window (see below); that rework was exercised live in Exp (popup open/close, Log out confirm cancel, Full details, host-offline and reconnect) but this is development verification on one VS/Copilot build, not a shipping/support claim. The interactive `gh auth login --web` browser step itself was not automated.
+
+### Screenshots
+
+The row adapts to the available width (wide, medium, narrow). The popup holds the full summary and a small icon toolbar. Row and popup images below are renders of the real view with invented sample figures; `in-visual-studio.png` and `full-details.png` are captures of a live run.
+
+![Wide row](docs/images/row-wide.png)
+![Medium row](docs/images/row-medium.png)
+![Narrow row](docs/images/row-narrow.png)
+
+| Popup | Warning (85% and over) | Log out confirm |
+| --- | --- | --- |
+| ![Popup](docs/images/popup.png) | ![Popup warning](docs/images/popup-warning.png) | ![Log out confirm](docs/images/popup-logout.png) |
+
+Other row states: ![Warning](docs/images/row-warning.png) ![Over the allowance](docs/images/row-over.png) ![Not signed in](docs/images/row-signedout.png) ![Host offline](docs/images/row-offline.png)
+
+Live captures: ![In Visual Studio](docs/images/in-visual-studio.png) ![Full details window](docs/images/full-details.png)
+
+Colours: the GitHub bar is blue, orange from 85% and red when over the allowance; the local bar is red for the current chat, orange for the rest of the repository and light blue for other repositories; per-turn bars are tints of red with the newest at full strength. The GitHub and local figures are never added together.
 
 | Project | Target | Boundary |
 | --- | --- | --- |
@@ -17,16 +35,16 @@ The normal tray now hosts real local tracking, optional GitHub account tracking 
 | Client | netstandard2.0 | Reconnecting pipe client abstraction |
 | Panel.Core | netstandard2.0 | UI-independent view models |
 | Tray | net10.0-windows | Notification icon, readers/schedulers, protected pipe and status/account controls |
-| Panel.Vsix | net48 | Exp-only compact chat integration and explicit placement fallbacks |
+| Panel.Vsix | net48 | Compact chat integration (starts in any VS instance) and explicit placement fallbacks |
 | Architecture.Tests | net10.0 | Architecture, accounting, adapters, scheduling, credentials, pipes and presentation |
 
-Set **CopilotUsageMeter.Tray** as startup project. It starts a notification-area icon and background tracking without opening a window. Double-click the icon or choose **Status / Settings...**; `--show-status` opens it at launch. A second launch activates the existing host's status window. Closing status keeps tracking; tray **Exit** stops it. Pause suspends automatic local and account refreshes; manual refresh remains deliberate and available. Resume catches up.
+Double-click the icon or choose **Status / Settings...** (it opens the **Full details** window, also reachable from the Visual Studio popup's **Full details…** link); `--show-status` opens it at launch.
 
 Local reads use only the portable toolkit CLI, covering `session-store.db` on this machine: one UTC-month aggregate and distinct visible-chat reads. DB/WAL events use 1.5-second debounce, 5-second throttle and single flight; a 60-second metadata check recovers missed changes. Chat/month changes share the scheduler. No titles/text are read. Repository figures match an exact recorded GitHub origin `owner/repo` key; unsupported origins, unavailable context and capped/missing groups remain explicit. This is not proof of canonical local-path attribution.
 
-GitHub sign-in is optional. In Status, choose **Open GitHub browser sign-in** (requires `gh`) and complete its flow; the tray connects automatically when `gh` exits successfully (this auto-connect after a real browser flow is not yet verified live). **Connect account** also works manually: leave the login blank to import the single `gh:github.com:<login>` entry (only credential target names are listed; with none or several it asks you to type the login), or enter a login (never a token). The Visual Studio panel's **Sign in / switch GitHub account** does the same blank-login connect itself, falling back to browser sign-in when no CLI login exists. Only the matching Windows Credential Manager entry is imported into the application's own secure entry. Plaintext storage and refreshable/legacy keyring formats are not imported. **Log out** removes this app's authorization, not GitHub CLI's login, and never changes local-history attribution. **Skip account** leaves local tracking available. The quota source is the **unsupported** `copilot_internal/user` endpoint; it may change or be blocked. Only premium-interaction fields are mapped; unfamiliar or partial billing formats are unavailable, never replaced with local credits. On the one enterprise-managed Copilot Business seat tested, sign-in, profile verification and quota all work (token-billed credits, e.g. consumed/allowance shown from the endpoint). Authorized sync is 5 minutes during DB activity in the preceding 5 minutes, otherwise 15 minutes; failures back off and honor server deadlines. Account switching between two accounts and other seat types remain unverified. See the [adapter contract](src/CopilotUsageMeter.Readers.GitHub/README.md).
+and complete its flow; the tray connects automatically when `gh` exits successfully (this auto-connect after a real browser flow is not yet verified live). **Connect account** (under
 
-In an explicitly deployed **experimental** VS instance, the compact panel attempts placement above **Total changes**, then at the top of Copilot Chat, then a clearly labeled status-bar fallback. Both embedded positions depend on unsupported internal WPF names. The header chart retains the newest 20 recorded turns, replacing streaming snapshots per index; exact local credits and last usage-event time are available on hover/keyboard focus, including while collapsed. Unknown timestamps remain unknown. Context is per pipe connection and ephemeral; it is never in snapshots/logs/settings/network requests. **Tools > Copilot Usage Meter** opens tray status; placement commands permit Exp-only fallback checks. Disconnected cached data is marked stale. There is no separate Windows service or WCF. See the [wire contract](docs/PROTOCOL.md).
+The Visual Studio view is one row (chevron, GitHub meter with consumed/allowance, local split and the last turns as bars) that adapts to width: wide shows the headline, chat/local text and up to 20 bars; medium keeps the meter, chat and bars; narrow shows the meter and consumed only. The chevron opens an anchored popup (it does not resize the chat pane; Esc or a click away closes it) with the GitHub section (pace marker, schedule), the local section, the turn chart and an icon toolbar (refresh, pause/resume, switch account, log out with an inline confirm) plus **Full details…**; the `…` menu offers the same actions. The chart retains the newest 20 recorded turns, replacing streaming snapshots per index; exact local credits and last usage-event time are available on hover/keyboard focus. Unknown timestamps remain unknown. States are explicit: not signed in, host offline (dimmed, last known figures), paused, stale (account data older than 30 minutes), warning from 85% and over the allowance. Hovering a bar highlights it and shows its tooltip after 150 ms (used credits, the black month-pace marker, local segments, turn bars). While a refresh or a newly selected chat is loading, the row dims and shows a thin progress bar (the Full details window shows one while a command runs). The row's text and rules come from one shared presentation model (`UsageDisplay`) also used by the Full details window.
 
 ## Phase progress
 
@@ -35,7 +53,7 @@ In an explicitly deployed **experimental** VS instance, the compact panel attemp
 | 1 - Solution and project skeleton | Complete: Debug build and VSIX packaging passed; 23 tests passed, zero failed/skipped; independent review found no Phase 1 issues |
 | 2 - End-to-end skeleton | Complete: demo tray/engine, protected pipes and experimental VSIX verified live; independent review fixes and 58-test final verification passed |
 | 3 - Feasibility proofs and resource baseline | Complete with limits (user sign-off 2026-11-10): toolkit submodule pinned at `12bbfeb` (adds `usage-breakdown`); local-accounting completeness, active-chat matching and per-turn accounting verified with limits; GitHub account usage only through an unsupported endpoint, accepted for now (supported billing API returns 404 for the tested enterprise-managed seat; a GitHub App is a noted future option); chat placement partly proven and fragile (layered design agreed); resource baseline partial (demo engine only, no battery claim). See the checklist |
-| 4 - Tracking and compact UI | Complete with limits: real readers/schedules, tray/protocol and compact integration; 286 tests, Debug build/VSIX and independent review pass; Exp runtime checks pass; live sign-in and GitHub-reported credits verified on one enterprise seat; browser step, two-account switching and other seats unverified |
+330 tests, Debug build/VSIX and independent review pass;
 | 5 - Details, packaging and final measurements | Not started |
 
 The [phase checklist](docs/PHASE_PLAN.md#progress-checklist---source-of-truth) is authoritative. Phase completion does not authorize the next phase. The Phase 3 resource baseline is partial; no low-battery-impact or universal subscription-support claim is made.
@@ -83,7 +101,7 @@ powershell -NoProfile -File .\scripts\agent\Publish-ChatHistoryCli.ps1
 
 The script publishes self-contained win-x64 into `tools\chathistory`; the tray build copies it beside the program. A missing tool produces explicit unavailable data. Current Phase 4 `usage-turns` changes exist uncommitted in both the toolkit source checkout and submodule working tree; the recorded submodule commit is still `12bbfeb`. Preserve those changes: a fresh checkout needs the reviewed toolkit change committed/pushed and the pin updated **after user approval**, before reproducible distribution. Do not silently depend on another developer checkout. Packaging remains Phase 5.
 
-VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.Vsix.vsix`. Ordinary builds do not deploy it. For development, close only your task-owned experimental instances, resolve the intended VS installation's instance ID with `vswhere -all -prerelease -format json`, then explicitly deploy to **Exp only**:
+VSIX output: `src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.vsix`. The extension version is set by hand in `source.extension.vsixmanifest` (`Identity Version`); bump it for every redeploy so VS replaces the old copy. The package starts automatically in every VS instance (there is no Exp-only gate); the usage row is injected into Copilot Chat and Tools > Copilot Usage Meter holds temporary test commands that are removed before publishing. Ordinary builds do not deploy it. For development, close only your task-owned experimental instances, resolve the intended VS installation's instance ID with `vswhere -all -prerelease -format json`, then explicitly deploy to **Exp only**:
 
 ```powershell
 $instanceId = '<the intended VS installation instanceId>'
@@ -91,7 +109,16 @@ $instanceId = '<the intended VS installation instanceId>'
 & 'C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE\devenv.exe' /RootSuffix Exp
 ```
 
-The full build must succeed first. The standalone deploy target without the packaging target fails because `TargetVsixContainer` is not initialized. Never install/open the VSIX in the main instance or terminate unrelated VS processes. Experimental deployment/runtime verification does not prove Copilot Chat integration.
+The full build must succeed first. The standalone deploy target without the packaging target fails because `TargetVsixContainer` is not initialized. If Exp does not show the extension after a build-time deploy (no Tools commands, nothing in the activity log), the deploy was not registered; install the built package the supported way instead, then refresh Exp's configuration:
+
+```powershell
+$ide = 'C:\Program Files\Microsoft Visual Studio\18\Insiders\Common7\IDE'
+& "$ide\VSIXInstaller.exe" /quiet /rootSuffix:Exp /instanceIds:<instanceId> /uninstall:CopilotUsageMeter.Panel.citsuresh
+& "$ide\VSIXInstaller.exe" /quiet /rootSuffix:Exp /instanceIds:<instanceId> .\src\CopilotUsageMeter.Panel.Vsix\bin\Debug\net48\CopilotUsageMeter.Panel.vsix
+& "$ide\devenv.exe" /RootSuffix Exp /updateconfiguration
+```
+
+Do not pass a path after `devenv /log`: VS treats it as the log file and overwrites it (it once overwrote the solution file). Never install/open the VSIX in the main instance on your own or terminate unrelated VS processes. Experimental deployment/runtime verification does not prove Copilot Chat integration.
 
 ## Continuing in a new chat
 

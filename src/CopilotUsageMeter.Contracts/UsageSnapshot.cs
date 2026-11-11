@@ -34,6 +34,8 @@ namespace CopilotUsageMeter.Contracts
         [DataMember] public string Status { get; set; } = "unavailable";
         [DataMember] public DateTimeOffset? AsOfUtc { get; set; }
         [DataMember] public CurrentChatTurnUsage[] Turns { get; set; } = Array.Empty<CurrentChatTurnUsage>();
+        // Whole-chat credits from the history tool; Turns holds only the newest 20, so this can exceed their sum. Null means unknown.
+        [DataMember] public decimal? TotalCredits { get; set; }
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
@@ -59,12 +61,14 @@ namespace CopilotUsageMeter.Contracts
 
             Array.Sort(Turns, (left, right) => left.TurnIndex.CompareTo(right.TurnIndex));
             AsOfUtc = AsOfUtc.Value.ToUniversalTime();
+            if (TotalCredits is < 0) TotalCredits = null;
         }
 
         private void ClearUsage()
         {
             if (string.Equals(Status, "available", StringComparison.Ordinal)) Status = "unavailable";
             AsOfUtc = null;
+            TotalCredits = null;
             Turns = Array.Empty<CurrentChatTurnUsage>();
         }
     }

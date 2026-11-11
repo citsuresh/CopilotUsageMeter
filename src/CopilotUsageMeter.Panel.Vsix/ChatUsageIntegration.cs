@@ -13,10 +13,8 @@ using System.Windows.Threading;
 using CopilotUsageMeter.Client;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Panel.Core;
-using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Threading;
 
 namespace CopilotUsageMeter.Panel.Vsix
@@ -27,7 +25,6 @@ namespace CopilotUsageMeter.Panel.Vsix
         private readonly CompactUsageView view;
         private readonly DispatcherTimer timer;
         private readonly IVsStatusbar statusBar;
-        private readonly WritableSettingsStore settings;
         private readonly JoinableTaskFactory tasks;
         private readonly IVsSolution? solution;
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
@@ -42,7 +39,9 @@ namespace CopilotUsageMeter.Panel.Vsix
         private DateTimeOffset repositoryChecked;
         private bool disposed;
         private int forcedTier;
-        private const string SettingsCollection = "CopilotUsageMeter";
+        private int manualRefreshes;
+        private long? awaitedRefreshCount;
+        private DateTime awaitUntil;
 
         public ChatUsageIntegration(IServiceProvider services, IVsStatusbar statusBar, JoinableTaskFactory tasks)
         {
@@ -50,13 +49,9 @@ namespace CopilotUsageMeter.Panel.Vsix
             this.statusBar = statusBar;
             this.tasks = tasks;
             solution = services.GetService(typeof(SVsSolution)) as IVsSolution;
-            settings = new ShellSettingsManager(services).GetWritableSettingsStore(SettingsScope.UserSettings);
-            if (!settings.CollectionExists(SettingsCollection)) settings.CreateCollection(SettingsCollection);
-            var expanded = settings.PropertyExists(SettingsCollection, "Expanded") && settings.GetBoolean(SettingsCollection, "Expanded");
             using (var identity = WindowsIdentity.GetCurrent())
                 client = new PipeUsageClient(UsageProtocol.PipePrefix + (identity.User?.Value ?? throw new InvalidOperationException("Windows user SID unavailable.")));
-            view = new CompactUsageView(SendCommand, expanded);
-            view.ExpansionChanged += value => settings.SetBoolean(SettingsCollection, "Expanded", value);
+            view = new CompactUsageView(SendCommand);
             client.SnapshotChanged += SnapshotChanged;
             client.StatusChanged += StatusChanged;
             timer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(2) };
@@ -113,6 +108,12 @@ namespace CopilotUsageMeter.Panel.Vsix
             }
             if (!string.Equals(nextId, activeId, StringComparison.Ordinal) || !string.Equals(nextRepository, repositoryKey, StringComparison.Ordinal))
             {
+                // The tray re-reads the newly active chat after its debounce; show loading until a read newer than this one is published (or 12 s pass).
+                if (nextId != null && !string.Equals(nextId, activeId, StringComparison.Ordinal))
+                {
+                    awaitedRefreshCount = client.Snapshot?.RefreshCount ?? 0;
+                    awaitUntil = DateTime.UtcNow.AddSeconds(12);
+                }
                 activeId = nextId;
                 repositoryKey = nextRepository;
                 SendCommand(new ProtocolMessage { Type = "SetActiveSession", ActiveSessionId = activeId, RepositoryKey = repositoryKey });
@@ -203,7 +204,13 @@ namespace CopilotUsageMeter.Panel.Vsix
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var connected = client.Status == "Connected" || client.Status == "Paused";
-            view.Update(client.Snapshot, connected, client.Status, placement + (activeId == null ? " | Active-chat identity unavailable" : " | Active-chat identity available"));
+            var notes = new List<string>();
+            if (placement.StartsWith("Degraded", StringComparison.Ordinal)) notes.Add("The usage row is shown in a fallback position because the Copilot Chat layout was not recognised.");
+            if (activeId == null) notes.Add("Active chat not detected; chat figures are unavailable.");
+            var snapshot = client.Snapshot;
+            var waiting = awaitedRefreshCount.HasValue && snapshot != null && !snapshot.IsPaused && snapshot.RefreshCount <= awaitedRefreshCount.Value && DateTime.UtcNow < awaitUntil;
+            if (!waiting) awaitedRefreshCount = null;
+            view.Update(snapshot, connected, client.Status, notes.Count == 0 ? null : string.Join(" ", notes), manualRefreshes > 0 || waiting);
             if (parent == null) statusBar.SetText("Copilot Usage Meter: " + client.Status + "; chat placement unavailable. Tools > Copilot Usage Meter.");
         }
 
@@ -216,6 +223,12 @@ namespace CopilotUsageMeter.Panel.Vsix
                 command.Type = "SetPaused";
                 command.Paused = client.Snapshot?.IsPaused != true;
             }
+            if (command.Type == "Refresh")
+            {
+                await tasks.SwitchToMainThreadAsync(lifetime.Token);
+                manualRefreshes++;
+                Render();
+            }
             try
             {
                 var reply = await client.SendAsync(command, lifetime.Token);
@@ -226,6 +239,15 @@ namespace CopilotUsageMeter.Panel.Vsix
             {
                 await tasks.SwitchToMainThreadAsync();
                 if (!disposed) statusBar.SetText("Copilot Usage Meter: tray unavailable; context will be resent on reconnect.");
+            }
+            finally
+            {
+                if (command.Type == "Refresh")
+                {
+                    await tasks.SwitchToMainThreadAsync();
+                    manualRefreshes = Math.Max(0, manualRefreshes - 1);
+                    if (!disposed) Render();
+                }
             }
         }
 

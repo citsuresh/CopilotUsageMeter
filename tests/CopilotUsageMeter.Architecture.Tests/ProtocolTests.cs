@@ -116,6 +116,27 @@ public sealed class ProtocolTests
         Assert.Equal(2, turn.TurnIndex);
         Assert.Null(turn.Credits);
         Assert.Null(turn.TimestampUtc);
+        Assert.Null(currentChat.TotalCredits);
+    }
+
+    [Theory]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"TotalCredits\":58.5,\"Turns\":[{\"TurnIndex\":0}]}", "available", 58.5)]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"TotalCredits\":-1,\"Turns\":[{\"TurnIndex\":0}]}", "available", null)]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"TotalCredits\":null,\"Turns\":[{\"TurnIndex\":0}]}", "available", null)]
+    [InlineData("{\"Status\":\"available\",\"AsOfUtc\":\"__AS_OF__\",\"TotalCredits\":58,\"Turns\":[]}", "unavailable", null)]
+    [InlineData("{\"Status\":\"available\",\"TotalCredits\":58,\"Turns\":[{\"TurnIndex\":0}]}", "unavailable", null)]
+    [InlineData("{\"Status\":\"unsupported\",\"AsOfUtc\":\"__AS_OF__\",\"TotalCredits\":58,\"Turns\":[{\"TurnIndex\":0}]}", "unsupported", null)]
+    public async Task TotalCreditsIsAdditiveAndNeverOutlivesAnUnusableChat(string currentChatJson, string expectedStatus, double? expectedTotal)
+    {
+        var asOfJson = SerializeDateTimeOffset(DateTimeOffset.Parse("2026-01-01T00:00:00Z"));
+        currentChatJson = currentChatJson.Replace("\"__AS_OF__\"", asOfJson, StringComparison.Ordinal);
+        var frame = "{\"protocol\":1,\"type\":\"Snapshot\",\"snapshot\":{\"Local\":{\"CurrentChat\":" + currentChatJson + "}}}\n";
+        using var connection = new PipeConnection(new MemoryStream(Encoding.UTF8.GetBytes(frame)));
+
+        var currentChat = (await connection.ReadAsync(CancellationToken.None))!.Snapshot!.Local.CurrentChat;
+
+        Assert.Equal(expectedStatus, currentChat.Status);
+        Assert.Equal(expectedTotal.HasValue ? (decimal)expectedTotal.Value : (decimal?)null, currentChat.TotalCredits);
     }
 
     private static string SerializeDateTimeOffset(DateTimeOffset value)

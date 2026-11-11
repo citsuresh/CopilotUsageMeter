@@ -137,6 +137,7 @@ internal sealed class TrayHost : IDisposable
         foreach (var id in server.GetActiveSessionIds())
         {
             var current = await history.ReadCurrentChatAsync(id, token).ConfigureAwait(false);
+            if (current.CurrentChat.Status == "available") current.CurrentChat.TotalCredits = current.Total?.Credits;
             charts[id] = current.CurrentChat.Status == "available" ? current.CurrentChat
                 : new CurrentChatUsage { Status = current.ErrorCode ?? "unavailable" };
         }
@@ -330,7 +331,10 @@ internal sealed class TrayHost : IDisposable
         if (!lifetime.IsCancellationRequested)
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (!lifetime.IsCancellationRequested) MessageBox.Show(message, "Copilot Usage Meter", MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (lifetime.IsCancellationRequested) return;
+                // A failure is shown as a banner in the details window instead of a blocking message box.
+                ShowWindow();
+                window?.SetFault(message);
             }));
     }
 

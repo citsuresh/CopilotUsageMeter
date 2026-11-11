@@ -41,3 +41,7 @@ Commands carry a client-generated `requestId`; `Ack`/`Error` echoes it. Client c
 - On disconnect, clients retain the last snapshot but label it stale. Pause retains values and timestamps. All clients share the one tray engine; opening another VS window must not create another data reader.
 
 Repository context and account login are command-only fields; neither is echoed in an envelope. Repository keys may label the local snapshot; chat identity never does. Per-client projection does not trigger per-client monthly or account reads. The host/client implementations and tests, not this outline alone, establish what currently works. Broad runtime/plan compatibility is not promised.
+
+## Additive: `CurrentChat.TotalCredits` (2026-11-12)
+
+`Local.CurrentChat.TotalCredits` (nullable decimal) is the whole-chat total, which is not limited to the newest 20 retained turns. Legacy payloads omit it (null, and clients fall back to summing known turn credits). A negative value deserializes to null, and it is cleared with the turns whenever the chat is unavailable. It carries no title, text or identifier; the opaque session id remains request-only.
