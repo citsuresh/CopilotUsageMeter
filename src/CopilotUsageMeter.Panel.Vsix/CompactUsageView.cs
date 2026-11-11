@@ -462,7 +462,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var button = new Button
             {
                 Width = width, Height = UsageDisplay.BarHeightFor(bar.Fraction, maxHeight, 4), Margin = new Thickness(gap / 2, 0, gap / 2, 0), Padding = new Thickness(0),
-                VerticalAlignment = VerticalAlignment.Bottom, Background = Red, BorderThickness = new Thickness(1), BorderBrush = Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Bottom, Background = Red, BorderThickness = new Thickness(0), BorderBrush = Brushes.Transparent,
                 Opacity = bar.IsNewest ? 1 : 0.5 + 0.35 * (count > 1 ? (double)index / (count - 1) : 1),
                 Template = FlatTemplate(hover: false, cornerRadius: 2)
             };
@@ -471,10 +471,12 @@ namespace CopilotUsageMeter.Panel.Vsix
             button.ToolTip = tooltip;
             ToolTipService.SetInitialShowDelay(button, TooltipDelayMs);
             var restingOpacity = button.Opacity;
-            button.MouseEnter += (_, _) => { button.Opacity = 1; button.BorderBrush = HoverEdge; };
-            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.BorderBrush = Brushes.Transparent; };
-            button.GotKeyboardFocus += (_, _) => tooltip.IsOpen = true;
-            button.LostKeyboardFocus += (_, _) => tooltip.IsOpen = false;
+            // The outline is drawn only while hovered or focused, so a resting bar uses its whole width.
+            void Edge() => button.BorderThickness = new Thickness(button.IsMouseOver || button.IsKeyboardFocused ? 1 : 0);
+            button.MouseEnter += (_, _) => { button.Opacity = 1; button.BorderBrush = HoverEdge; Edge(); };
+            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.BorderBrush = Brushes.Transparent; Edge(); };
+            button.GotKeyboardFocus += (_, _) => { tooltip.IsOpen = true; Edge(); };
+            button.LostKeyboardFocus += (_, _) => { tooltip.IsOpen = false; Edge(); };
             return button;
         }
 

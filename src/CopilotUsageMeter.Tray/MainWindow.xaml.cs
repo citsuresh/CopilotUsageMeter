@@ -258,7 +258,9 @@ public partial class MainWindow : Window
 
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });
     private async void PauseClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SetPaused", Paused = !getSnapshot().IsPaused });
-    private async void SignInClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "BeginSignIn" });
+    // Signed out: import an existing secure gh login first (as the panel does) and open the browser sign-in only when there is none. Switching always starts a new sign-in.
+    private async void SignInClicked(object sender, RoutedEventArgs e) =>
+        await ExecuteAsync(new ProtocolMessage { Type = getSnapshot().Account.Status == "signed-out" ? "SignIn" : "BeginSignIn" });
     private async void SkipClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SkipAccount" });
     private async void ConnectClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "ConnectAccount", AccountLogin = AccountLogin.Text.Trim() });
 

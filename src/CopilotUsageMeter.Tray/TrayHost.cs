@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Core;
+using CopilotUsageMeter.Panel.Core;
 using CopilotUsageMeter.Readers.ChatHistoryCli;
 using CopilotUsageMeter.Readers.GitHub;
 using CopilotUsageMeter.Signals.FileWatcher;
@@ -183,6 +184,11 @@ internal sealed class TrayHost : IDisposable
                     }
                     RequestPublication();
                     if (attempt.ErrorCode == "cli-login-not-found") return StartBrowserSignIn(request);
+                    if (attempt.ErrorCode == "multiple-cli-logins")
+                    {
+                        await Application.Current.Dispatcher.InvokeAsync(ShowWindow);
+                        return new ProtocolMessage { Type = "Ack", Message = attempt.ErrorMessage };
+                    }
                 }
                 await Application.Current.Dispatcher.InvokeAsync(ShowWindow);
                 return new ProtocolMessage { Type = "Ack" };
@@ -274,8 +280,7 @@ internal sealed class TrayHost : IDisposable
         icon.Icon = next;
         currentIcon?.Dispose();
         currentIcon = next;
-        var tooltip = "Copilot Usage Meter - " + (snapshot.IsPaused ? "Paused; " : "") + "GitHub " + accountUsage.Status + "; local " + snapshot.Local.Status;
-        icon.Text = tooltip.Length > 127 ? tooltip.Substring(0, 127) : tooltip;
+        icon.Text = UsageDisplay.TrayTooltip(snapshot, DateTimeOffset.UtcNow);
         pause.Checked = snapshot.IsPaused;
         pause.Text = snapshot.IsPaused ? "Resume updates" : "Pause updates";
         window?.RefreshSnapshot(snapshot);

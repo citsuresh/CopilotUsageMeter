@@ -239,4 +239,52 @@ public sealed class UsageDisplayTests
         Assert.Contains(display.AccountRows, r => r.Label == "Problem" && r.Value == "unsupported-billing");
         Assert.Contains(display.LocalRows, r => r.Label == "Problem" && r.Value == "history_tool_missing");
     }
+
+    private static string Tip(UsageSnapshot? snapshot) => UsageDisplay.TrayTooltip(snapshot, Now, TimeZoneInfo.Utc);
+
+    [Fact]
+    public void TrayTooltipShowsPercentAndSyncTimes()
+    {
+        var tip = Tip(Snapshot());
+        Assert.Contains("Copilot 6.3% used (6,339 of 100,000)", tip);
+        Assert.Contains("Last synced 4:46 PM · next 5:01 PM", tip);
+        Assert.DoesNotContain("Updates paused", tip);
+    }
+
+    [Fact]
+    public void TrayTooltipExplainsSignedOutAndPausedAndErrors()
+    {
+        var signedOut = Snapshot();
+        signedOut.Account = new AccountUsage { Status = "signed-out" };
+        Assert.Contains("Not signed in to GitHub", Tip(signedOut));
+        Assert.Contains("Status / Settings", Tip(signedOut));
+
+        var paused = Snapshot();
+        paused.IsPaused = true;
+        var pausedTip = Tip(paused);
+        Assert.Contains("Updates paused", pausedTip);
+        Assert.DoesNotContain("next", pausedTip);
+
+        var failed = Snapshot();
+        failed.Account.Status = "error";
+        failed.Account.ErrorCode = "github-request-timeout";
+        Assert.Contains("GitHub error: timed out", Tip(failed));
+        Assert.Contains("retry 5:01 PM", Tip(failed));
+
+        var expired = Snapshot();
+        expired.Account = new AccountUsage { Status = "signed-out", ErrorCode = "authorization-expired" };
+        Assert.Contains("sign-in expired", Tip(expired));
+        Assert.Contains("Starting", Tip(null));
+    }
+
+    [Fact]
+    public void TrayTooltipNeverExceedsTheWindowsLimitOrSplitsLines()
+    {
+        var snapshot = Snapshot(112000);
+        snapshot.IsPaused = true;
+        snapshot.Local.Status = "unavailable";
+        var tip = Tip(snapshot);
+        Assert.InRange(tip.Length, 1, UsageDisplay.TrayTooltipLimit);
+        Assert.Contains("over allowance", tip);
+    }
 }

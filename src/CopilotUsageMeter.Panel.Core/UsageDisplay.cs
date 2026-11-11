@@ -309,6 +309,71 @@ namespace CopilotUsageMeter.Panel.Core
             };
         }
 
+        public const int TrayTooltipLimit = 127;
+
+        // Tray icon text: usage percent, last and next GitHub sync, and what to do when the account is not usable.
+        public static string TrayTooltip(UsageSnapshot? snapshot, DateTimeOffset now, TimeZoneInfo? zone = null)
+        {
+            zone ??= TimeZoneInfo.Local;
+            const string title = "Copilot Usage Meter";
+            if (snapshot == null) return title + "\nStarting...";
+            var account = snapshot.Account;
+            var lines = new List<string> { title };
+            var synced = account.AsOfUtc.HasValue ? "Last synced " + Clock(account.AsOfUtc.Value, zone) : "Not synced yet";
+            var next = !snapshot.IsPaused && account.NextRefreshUtc.HasValue ? " · next " + Clock(account.NextRefreshUtc.Value, zone) : "";
+            switch (account.Status)
+            {
+                case "available" when account.IsUnlimited:
+                    lines.Add("Unlimited Copilot credits");
+                    lines.Add(synced + next);
+                    break;
+                case "available" when account.Allowance > 0 && account.Consumed.HasValue:
+                    var ratio = account.Consumed.Value / account.Allowance.Value;
+                    lines.Add("Copilot " + (ratio * 100m).ToString("0.#", CultureInfo.InvariantCulture) + "% used" + (ratio >= 1m ? " (over allowance)" : " (" + Number(account.Consumed) + " of " + Number(account.Allowance) + ")"));
+                    var stale = !snapshot.IsPaused && account.AsOfUtc.HasValue && now - account.AsOfUtc.Value > StaleAfter;
+                    lines.Add(synced + (stale ? " (stale)" : "") + next);
+                    break;
+                case "signed-out":
+                case "skipped":
+                    lines.Add(account.ErrorCode == "authorization-expired" ? "GitHub sign-in expired" : "Not signed in to GitHub");
+                    lines.Add("Open Status / Settings to sign in");
+                    break;
+                case "rate-limited":
+                    lines.Add("GitHub is limiting requests");
+                    lines.Add(synced + (next.Length > 0 ? next.Replace("next", "retry") : ""));
+                    break;
+                case "error":
+                    lines.Add("GitHub error: " + ErrorSummary(account.ErrorCode));
+                    lines.Add(synced + (next.Length > 0 ? next.Replace("next", "retry") : ""));
+                    break;
+                default:
+                    lines.Add("GitHub credits unavailable");
+                    lines.Add(synced + next);
+                    break;
+            }
+            if (snapshot.IsPaused) lines.Add("Updates paused");
+            if (snapshot.Local.Status != "available") lines.Add("Local history unavailable");
+            // Drop the least important lines first so the 127-character limit never cuts a line in half.
+            while (lines.Count > 2 && string.Join("\n", lines).Length > TrayTooltipLimit) lines.RemoveAt(lines.Count - 1);
+            var text = string.Join("\n", lines);
+            return text.Length > TrayTooltipLimit ? text.Substring(0, TrayTooltipLimit) : text;
+        }
+
+        private static string ErrorSummary(string? code)
+        {
+            switch (code)
+            {
+                case "github-request-failed":
+                case "github-http-failed": return "request failed";
+                case "github-request-timeout": return "timed out";
+                case "secure-storage-failed": return "credential storage";
+                case "profile-mismatch": return "account mismatch";
+                case "invalid-response": return "unexpected response";
+                case "invalid-login": return "invalid login";
+                default: return "see Status";
+            }
+        }
+
         private static string AccountStatus(string status)
         {
             switch (status)
