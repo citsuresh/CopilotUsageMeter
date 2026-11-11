@@ -51,6 +51,7 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 Exp-only injection/reinjection, explicit preferred/top/status tiers; `CompactUsageView` is an adaptive one-line row (wide/medium/narrow) with an anchored popup, icon toolbar and inline Log out confirm
 | Panel.Vsix | `RepositoryContextReader` | `src\CopilotUsageMeter.Panel.Vsix\RepositoryContextReader.cs` | Read solution Git origin locally; send only normalized public owner/repo, not paths |
 | Panel.Core | `UsageDisplay` | `src\CopilotUsageMeter.Panel.Core\UsageDisplay.cs` | Shared presentation model for the row, popup and Full details window: levels (85% warning, over, stale after 30 minutes), segment arithmetic, bar tooltips, labelled detail rows; no UI types |
+| Panel.Core | `ProductVersion` | `src\CopilotUsageMeter.Panel.Core\ProductVersion.cs` | Formats an assembly version for display (strips build metadata and a trailing .0); the shared `Directory.Build.props` version feeds the tray title and the popup label |
 | Panel.Core | `CompactUsagePresentation`, `RecordedRepositoryKey`
 | Panel.Core | `ActiveChatIdentity` | `src\CopilotUsageMeter.Panel.Core\ActiveChatIdentity.cs` | Bounded approved identity-member/Session/Router bridge reads; validate opaque GUID without reading content or persisting values |
 | Core | `TrackingUsageState`, `LocalRecordedRepositoryMap` | `src\CopilotUsageMeter.Core\` | Detached global monthly/account values and ephemeral per-connection chart/repository projection |
