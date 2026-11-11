@@ -32,6 +32,7 @@ public partial class MainWindow : Window
     private readonly Func<UsageSnapshot> getSnapshot;
     private readonly Func<IReadOnlyList<string>> listLogins;
     private readonly Func<string, Task<AccountRemoval>> removeAccount;
+    private readonly Action openAlerts;
     private string? pendingRemoval;
     private bool removing;
     private bool? chooserOpenedSignedOut;
@@ -39,8 +40,9 @@ public partial class MainWindow : Window
     private UsageDisplay display = UsageDisplay.Create(null, true, DateTimeOffset.UtcNow);
     private string signature = "";
 
-    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins, Func<string, Task<AccountRemoval>> removeAccount)
+    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins, Func<string, Task<AccountRemoval>> removeAccount, Action openAlerts)
     {
+        this.openAlerts = openAlerts;
         this.getSnapshot = getSnapshot;
         this.send = send;
         this.listLogins = listLogins;
@@ -424,6 +426,7 @@ public partial class MainWindow : Window
     }
 
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });
+    private void AlertsClicked(object sender, RoutedEventArgs e) => openAlerts();
     private async void PauseClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SetPaused", Paused = !getSnapshot().IsPaused });
     // Signed out: import an existing secure gh login first (as the panel does) and open the browser sign-in only when there is none. Signed in: list saved accounts plus "Add a new account".
     private async void SignInClicked(object sender, RoutedEventArgs e) => await SwitchOrSignInAsync();

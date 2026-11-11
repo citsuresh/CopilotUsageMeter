@@ -22,6 +22,7 @@ public partial class App : Application
         base.OnStartup(e);
         log = new FileDiagnosticsSink(FileDiagnosticsSink.DefaultDirectory());
         Diagnostics.Sink = log;
+        NotificationIdentity.Register();
         InstallGlobalHandlers();
         try
         {

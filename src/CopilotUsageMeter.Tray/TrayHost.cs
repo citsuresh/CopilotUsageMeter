@@ -48,6 +48,12 @@ internal sealed class TrayHost : IDisposable
     private readonly Forms.ToolStripMenuItem pause;
     private Icon? currentIcon;
     private MainWindow? window;
+    private AlertSettingsWindow? alertSettingsWindow;
+    private AlertWindow? alertWindow;
+    private readonly ThresholdAlertService alerts;
+    private readonly HealthAlertService health;
+    private bool healthBalloonShown;
+    private readonly System.Windows.Threading.Dispatcher dispatcher;
     private bool disposed;
     private bool localAttemptFailed;
     private int utcMonth = DateTimeOffset.UtcNow.Year * 12 + DateTimeOffset.UtcNow.Month;
@@ -61,6 +67,13 @@ internal sealed class TrayHost : IDisposable
         account = new GitHubAccountReader(api, new WindowsAccountCredentialStore(), clock);
         accountRefresh = new AccountRefreshCoordinator(account, clock);
         var uiDispatcher = Application.Current.Dispatcher;
+        dispatcher = uiDispatcher;
+        var dataRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CopilotUsageMeter");
+        alerts = new ThresholdAlertService(new AlertSettingsStore(Path.Combine(dataRoot, "alerts.json")),
+            new AlertStateStore(Path.Combine(dataRoot, "alert-state.json")), PresentAlert);
+        try { alerts.Load(); }
+        catch (Exception exception) { Diagnostics.Error("alerts", "load-failed", exception); }
+        health = new HealthAlertService(() => alerts.Settings.NotifyProblems, PresentHealth);
         signInFlow = new GitHubSignInFlow(new GitHubCliSignIn(new GitHubCliProcessLauncher()), action => { _ = uiDispatcher.InvokeAsync(action); },
             () => new GitHubSignInWindow(), ConnectSignedInAccountAsync, ShowAccountChoices, StartVisibleSignIn);
         var cliLogout = new GitHubCliLogout();
@@ -78,11 +91,12 @@ internal sealed class TrayHost : IDisposable
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 4096, 4096, security),
             state.GetSnapshot, ProcessAsync, projectContext: state.ProjectContext);
         server.ContextsChanged += ContextsChanged;
-        server.Faulted += message => QueueFault(message);
+        server.Faulted += message => { QueueFault(message); ReportHealth(health.OnFault); };
         server.Recovered += QueueFaultCleared;
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Status / Settings...", null, (_, _) => ShowWindow());
         menu.Items.Add("Refresh now", null, (_, _) => RunCommand(new ProtocolMessage { Type = "Refresh" }));
+        menu.Items.Add("Usage alerts...", null, (_, _) => ShowAlertSettings());
         pause = new Forms.ToolStripMenuItem("Pause updates", null,
             (_, _) => RunCommand(new ProtocolMessage { Type = "SetPaused", Paused = !state.GetSnapshot().IsPaused }));
         menu.Items.Add(pause);
@@ -90,8 +104,13 @@ internal sealed class TrayHost : IDisposable
         menu.Items.Add("Exit", null, async (_, _) => await exit());
         icon = new Forms.NotifyIcon { ContextMenuStrip = menu };
         icon.DoubleClick += (_, _) => ShowWindow();
-        UpdatePresentation(state.GetSnapshot());
+        // A problem notification opens Full details, where the sign-in and diagnostics are; threshold alerts only inform.
+        icon.BalloonTipClicked += (_, _) => { if (healthBalloonShown) ShowWindow(); };
+        // Windows may keep the first icon an app registers as the picture on its notifications, so register the plain ring, not the "no data" slash that the first snapshot would give.
+        currentIcon = DrawIcon(paused: false, available: true, fraction: 0f);
+        icon.Icon = currentIcon;
         icon.Visible = true;
+        UpdatePresentation(state.GetSnapshot());
     }
 
     public void Start()
@@ -107,7 +126,7 @@ internal sealed class TrayHost : IDisposable
     {
         if (window == null)
         {
-            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token));
+            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token), ShowAlertSettings);
             window.Closed += (_, _) => window = null;
         }
         window.Show();
@@ -115,11 +134,93 @@ internal sealed class TrayHost : IDisposable
         ForegroundWindow.Bring(window);
     }
 
+    public void ShowAlertSettings()
+    {
+        try
+        {
+            if (alertSettingsWindow == null)
+            {
+                alertSettingsWindow = new AlertSettingsWindow(alerts.Settings, alerts.Update, alerts.SendTest);
+                alertSettingsWindow.Closed += (_, _) => alertSettingsWindow = null;
+            }
+            alertSettingsWindow.Show();
+            if (alertSettingsWindow.WindowState == WindowState.Minimized) alertSettingsWindow.WindowState = WindowState.Normal;
+            ForegroundWindow.Bring(alertSettingsWindow);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            Diagnostics.Error("alerts", "settings-window-failed", exception);
+            QueueFault("The alert settings could not be opened.");
+        }
+    }
+
+    // Alert text is fixed wording plus numbers; it is built here from the alert, never from chat or account text.
+    private void PresentAlert(ThresholdAlert alert)
+    {
+        _ = dispatcher.InvokeAsync(() =>
+        {
+            if (disposed) return;
+            try
+            {
+                var title = ThresholdAlertText.Title(alert);
+                var body = ThresholdAlertText.Body(alert);
+                if (alert.Channel == AlertChannel.MessageWindow)
+                {
+                    alertWindow?.Close();
+                    alertWindow = new AlertWindow(title, body);
+                    alertWindow.Closed += (_, _) => alertWindow = null;
+                    alertWindow.Show();
+                }
+                else
+                {
+                    icon.BalloonTipTitle = title;
+                    icon.BalloonTipText = body;
+                    icon.BalloonTipIcon = Forms.ToolTipIcon.Info;
+                    healthBalloonShown = false;
+                    icon.ShowBalloonTip(10000);
+                }
+            }
+            catch (Exception exception)
+            {
+                Diagnostics.Error("alerts", "present-failed", exception);
+            }
+        });
+    }
+
     private async Task RunAccountAsync()
     {
         await account.RestoreAsync().ConfigureAwait(false);
         AccountChanged(this, EventArgs.Empty);
+        ReportHealth(() => health.OnAccount(accountRefresh.Current, accountRefresh.ReadSequence, launch: true));
         await accountRefresh.RunAsync(lifetime.Token).ConfigureAwait(false);
+    }
+
+    // Fixed wording per condition, shown as a warning balloon; it is never built from account, chat or exception text.
+    private void PresentHealth(HealthAlert alert)
+    {
+        _ = dispatcher.InvokeAsync(() =>
+        {
+            if (disposed) return;
+            try
+            {
+                icon.BalloonTipTitle = HealthAlertText.Title(alert.Condition);
+                icon.BalloonTipText = HealthAlertText.Body(alert.Condition);
+                icon.BalloonTipIcon = Forms.ToolTipIcon.Warning;
+                healthBalloonShown = true;
+                icon.ShowBalloonTip(10000);
+            }
+            catch (Exception exception)
+            {
+                Diagnostics.Error("health_alerts", "present-failed", exception);
+            }
+        });
+    }
+
+    // Problem notifications are a courtesy: a failure while deciding or showing one is logged and never reaches the caller.
+    private static void ReportHealth(Action report)
+    {
+        try { report(); }
+        catch (Exception exception) { Diagnostics.Error("health_alerts", "evaluate-failed", exception); }
     }
 
     private void DatabaseChanged(object? sender, EventArgs args)
@@ -132,6 +233,9 @@ internal sealed class TrayHost : IDisposable
     {
         SyncAccountRefreshing();
         state.UpdateAccount(accountRefresh.Current.Usage);
+        try { alerts.OnAccount(accountRefresh.Current.Usage); }
+        catch (Exception exception) { Diagnostics.Error("alerts", "evaluate-failed", exception); }
+        ReportHealth(() => health.OnAccount(accountRefresh.Current, accountRefresh.ReadSequence, launch: false));
         RequestPublication();
     }
 
@@ -173,6 +277,11 @@ internal sealed class TrayHost : IDisposable
     {
         SetRefreshActivity("local", true);
         try { await ReadLocalCoreAsync(token).ConfigureAwait(false); }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            ReportHealth(() => health.OnLocal("error", "local_refresh_failed"));
+            throw;
+        }
         finally { SetRefreshActivity("local", false); }
     }
 
@@ -182,6 +291,8 @@ internal sealed class TrayHost : IDisposable
         var monthly = await history.ReadAsync(request, token).ConfigureAwait(false);
         var failed = LocalHistoryErrorCodes.IsRetryableFailure(monthly.Status, monthly.ErrorCode);
         Volatile.Write(ref localAttemptFailed, failed);
+        // Every completed read counts, including the failures whose figures are kept for now, so the tray's own retry threshold does not delay the notification.
+        ReportHealth(() => health.OnLocal(monthly.Status, monthly.ErrorCode));
         // Keep the last good figures until the failure has repeated; the scheduler retries on its own meanwhile.
         if (failed && local.ConsecutiveFailures + 1 < LocalRefreshScheduler.NotifyAfterFailures
             && state.GetSnapshot().Local.Status == "available") return;
@@ -457,6 +568,7 @@ internal sealed class TrayHost : IDisposable
                 Diagnostics.Error("tray.worker", "worker_failed." + name, exception);
                 // Only the first failure raises the banner; later restarts are logged so the window is not re-raised each time.
                 if (!announced) QueueFault(restart ? BackgroundFaultMessage : "Tracking failed. Check source availability and restart the tray.");
+                if (!announced) ReportHealth(health.OnFault);
                 announced = true;
                 if (!restart) return;
             }
@@ -495,6 +607,8 @@ internal sealed class TrayHost : IDisposable
         await Task.WhenAll(server.StopAsync(), local.StopAsync(), changes.StopAsync());
         await Task.WhenAll(workers);
         window?.Close();
+        alertSettingsWindow?.Close();
+        alertWindow?.Close();
         Dispose();
     }
 

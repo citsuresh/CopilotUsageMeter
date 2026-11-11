@@ -100,6 +100,9 @@
                 <Button x:Name="SwitchButton" Click="SignInClicked" Padding="12,6" Margin="0,0,8,4" AutomationProperties.Name="Switch GitHub account">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" /><TextBlock x:Name="SwitchLabel" Text="Switch account" /></StackPanel>
                 </Button>
+                <Button x:Name="AlertsButton" Click="AlertsClicked" Padding="12,6" Margin="0,0,8,4" AutomationProperties.Name="Usage alerts">
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7ED;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" /><TextBlock Text="Alerts…" /></StackPanel>
+                </Button>
                 <Button x:Name="LogOutButton" Click="LogOutClicked" Padding="12,6" Margin="0,0,8,4" AutomationProperties.Name="Log out of GitHub">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" /><TextBlock Text="Log out…" /></StackPanel>
                 </Button>

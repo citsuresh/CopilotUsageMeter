@@ -14,7 +14,7 @@ namespace CopilotUsageMeter.Core
         private Task<AccountReadResult>? flight;
         private AccountReadResult current;
         private DateTimeOffset? lastSuccess, lastActivity, lastManual, retryAt, firstDue, lastPublishedNextSync;
-        private int failures, generation;
+        private int failures, generation, readSequence;
         private bool paused, disposed, running;
 
         public AccountRefreshCoordinator(IAccountReader reader, IAccountClock clock)
@@ -43,6 +43,8 @@ namespace CopilotUsageMeter.Core
         public DateTimeOffset? NextSyncUtc { get { lock (gate) return NextDue(); } }
         public bool IsPaused { get { lock (gate) return paused; } }
         public bool IsRefreshing { get { lock (gate) return flight != null; } }
+        // Counts completed reads, so a host can tell a new result from a republished one.
+        public int ReadSequence { get { lock (gate) return readSequence; } }
         public event EventHandler? StateChanged;
 
         public void NotifyDatabaseActivity()
@@ -203,6 +205,7 @@ namespace CopilotUsageMeter.Core
                     return;
                 }
                 current = result.Copy();
+                readSequence++;
                 flight = null;
                 firstDue = null;
                 if (result.Status == "available")

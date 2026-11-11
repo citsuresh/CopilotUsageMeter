@@ -28,6 +28,9 @@ namespace CopilotUsageMeter.Panel.Vsix
         private readonly JoinableTaskFactory tasks;
         private readonly IVsSolution? solution;
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
+        private readonly ExtensionNoticeTracker notices = new ExtensionNoticeTracker();
+        private readonly InfoBarPresenter infoBars;
+        private bool layoutUnrecognised;
         private System.Windows.Controls.Panel? parent;
         private FrameworkElement? anchor;
         private Grid? fallbackGrid;
@@ -58,6 +61,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             using (var identity = WindowsIdentity.GetCurrent())
                 client = new PipeUsageClient(UsageProtocol.PipePrefix + (identity.User?.Value ?? throw new InvalidOperationException("Windows user SID unavailable.")));
             view = new CompactUsageView(SendCommand);
+            infoBars = new InfoBarPresenter(services, notices.Dismissed);
             client.SnapshotChanged += SnapshotChanged;
             client.StatusChanged += StatusChanged;
             timer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(2) };
@@ -192,11 +196,37 @@ namespace CopilotUsageMeter.Panel.Vsix
                 SendCommand(new ProtocolMessage { Type = "SetActiveSession", ActiveSessionId = activeId, RepositoryKey = repositoryKey });
             }
             Render();
+            EvaluateNotices();
+        }
+
+        // Never throws: a failure here must not stop the usage row from updating.
+        private void EvaluateNotices()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                // The session list has no conversation (and no working-set anchor), so a missing anchor only counts as an unrecognised layout while a chat is open.
+                var layoutProblem = layoutUnrecognised && activeId != null;
+                foreach (var change in notices.Evaluate(client.Status, layoutProblem, DateTimeOffset.UtcNow))
+                {
+                    if (change.Action == NoticeAction.Close) infoBars.Close(change.Notice);
+                    else if (!infoBars.Show(change.Notice))
+                    {
+                        notices.ShowFailed(change.Notice, DateTimeOffset.UtcNow);
+                        statusBar.SetText(ExtensionNoticeText.Message(change.Notice));
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Diagnostics.Error("vsix.integration", "notices_failed", exception);
+            }
         }
 
         private void Attach()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            layoutUnrecognised = false;
             FrameworkElement? workingSet = null;
             Grid? paneGrid = null;
             var count = 0;
@@ -230,6 +260,8 @@ namespace CopilotUsageMeter.Panel.Vsix
                 Grid.SetColumnSpan(view, Math.Max(1, paneGrid.ColumnDefinitions.Count));
                 paneGrid.Children.Add(view);
                 placement = "Degraded: top-of-chat fallback (internal Copilot integration)";
+                // The chat pane was found but its usual anchor was not. A forced fallback from the Tools menu is deliberate, so it is not reported.
+                layoutUnrecognised = forcedTier == 0;
                 return;
             }
             anchor = workingSet ?? (FrameworkElement?)paneGrid;
@@ -377,6 +409,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             activeId = null;
             repositoryKey = null;
             lifetime.Cancel();
+            infoBars.Dispose();
             Detach();
         }
     }

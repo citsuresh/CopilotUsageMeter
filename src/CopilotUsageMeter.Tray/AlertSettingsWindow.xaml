@@ -1,0 +1,31 @@
+<Window x:Class="CopilotUsageMeter.Tray.AlertSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Usage alerts" Width="440" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+        Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}">
+    <StackPanel Margin="24,20,24,20">
+        <TextBlock Text="Usage alerts" FontSize="20" FontWeight="SemiBold" />
+        <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,6,0,0"
+                   Text="Alert when GitHub-reported account usage crosses a level. Each level alerts once a month, and a level you add at or below your current usage does not alert. Local credits are never used." />
+        <CheckBox x:Name="EnabledBox" Content="Enable usage alerts" Margin="0,14,0,0" AutomationProperties.Name="Enable usage alerts" />
+        <TextBlock Text="Levels (percent of the monthly allowance)" FontWeight="SemiBold" Margin="0,14,0,4" />
+        <StackPanel x:Name="LevelRows" />
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBox x:Name="NewLevelBox" Width="60" MaxLength="3" VerticalContentAlignment="Center" AutomationProperties.Name="New level percent" />
+            <TextBlock Text="%" VerticalAlignment="Center" Margin="4,0,8,0" />
+            <Button x:Name="AddButton" Content="Add level" Click="AddClicked" Padding="12,4" AutomationProperties.Name="Add level" />
+        </StackPanel>
+        <TextBlock x:Name="ErrorText" Foreground="#D13438" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed" AutomationProperties.Name="Alert settings problem" />
+        <TextBlock x:Name="StatusText" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed" AutomationProperties.Name="Alert settings status" />
+        <TextBlock Opacity="0.6" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0"
+                   Text="Notifications use the Windows notification area and may be hidden by Focus Assist. The message window appears above other windows without taking focus." />
+        <DockPanel Margin="0,16,0,0" LastChildFill="False">
+            <Button Content="Test notification" Click="TestNotificationClicked" Padding="12,4" Margin="0,0,8,0" DockPanel.Dock="Left" AutomationProperties.Name="Test notification" />
+            <Button Content="Test message" Click="TestMessageClicked" Padding="12,4" DockPanel.Dock="Left" AutomationProperties.Name="Test message window" />
+            <Button Content="Close" Click="CloseClicked" Padding="12,4" DockPanel.Dock="Right" IsCancel="True" AutomationProperties.Name="Close" />
+            <Button x:Name="SaveButton" Content="Save" Click="SaveClicked" Padding="12,4" Margin="0,0,8,0" DockPanel.Dock="Right" IsDefault="True" AutomationProperties.Name="Save alert settings" />
+        </DockPanel>
+    </StackPanel>
+</Window>
