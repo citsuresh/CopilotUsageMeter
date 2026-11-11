@@ -45,6 +45,7 @@ internal sealed class TrayHost : IDisposable
     private Icon? currentIcon;
     private MainWindow? window;
     private bool disposed;
+    private bool localAttemptFailed;
     private int utcMonth = DateTimeOffset.UtcNow.Year * 12 + DateTimeOffset.UtcNow.Month;
 
     public TrayHost(SecurityIdentifier user, Func<Task> exit)
@@ -55,7 +56,7 @@ internal sealed class TrayHost : IDisposable
         changes = new LocalStoreChangeSignal(root, clock);
         account = new GitHubAccountReader(api, new WindowsAccountCredentialStore(), clock);
         accountRefresh = new AccountRefreshCoordinator(account, clock);
-        local = new LocalRefreshScheduler(refreshSignal, clock, ReadLocalAsync);
+        local = new LocalRefreshScheduler(refreshSignal, clock, ReadLocalAsync, () => Volatile.Read(ref localAttemptFailed));
         changes.Changed += DatabaseChanged;
         accountRefresh.StateChanged += AccountChanged;
         var security = new PipeSecurity();
@@ -69,6 +70,7 @@ internal sealed class TrayHost : IDisposable
             state.GetSnapshot, ProcessAsync, projectContext: state.ProjectContext);
         server.ContextsChanged += ContextsChanged;
         server.Faulted += QueueFault;
+        server.Recovered += QueueFaultCleared;
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Status / Settings...", null, (_, _) => ShowWindow());
         menu.Items.Add("Refresh now", null, (_, _) => RunCommand(new ProtocolMessage { Type = "Refresh" }));
@@ -134,6 +136,11 @@ internal sealed class TrayHost : IDisposable
     {
         var request = new LocalHistoryRequest(DateTimeOffset.UtcNow, includeDays: false);
         var monthly = await history.ReadAsync(request, token).ConfigureAwait(false);
+        var failed = LocalHistoryErrorCodes.IsRetryableFailure(monthly.Status, monthly.ErrorCode);
+        Volatile.Write(ref localAttemptFailed, failed);
+        // Keep the last good figures until the failure has repeated; the scheduler retries on its own meanwhile.
+        if (failed && local.ConsecutiveFailures + 1 < LocalRefreshScheduler.NotifyAfterFailures
+            && state.GetSnapshot().Local.Status == "available") return;
         var charts = new Dictionary<string, CurrentChatUsage>(StringComparer.Ordinal);
         foreach (var id in server.GetActiveSessionIds())
         {
@@ -329,6 +336,12 @@ internal sealed class TrayHost : IDisposable
         {
             QueueFault("Tracking failed. Check source availability and restart the tray.");
         }
+    }
+
+    private void QueueFaultCleared(string message)
+    {
+        if (!lifetime.IsCancellationRequested)
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => window?.ClearFault(message)));
     }
 
     private void QueueFault(string message)

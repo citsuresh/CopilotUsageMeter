@@ -57,6 +57,13 @@ public partial class MainWindow : Window
         FaultBanner.Visibility = Visibility.Visible;
     }
 
+    // Clears the banner only if it still shows the failure that has since recovered.
+    internal void ClearFault(string message)
+    {
+        if (FaultText.Text != message) return;
+        FaultBanner.Visibility = Visibility.Collapsed;
+    }
+
     internal void RefreshSnapshot(UsageSnapshot snapshot)
     {
         display = UsageDisplay.Create(snapshot, true, DateTimeOffset.UtcNow);

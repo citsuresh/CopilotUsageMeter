@@ -157,6 +157,12 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Reconciliations: account data older than 30 minutes is shown stale; a down tray cannot report its own fault, so no host-problem protocol field (the offline row is a client-side state); the tray shows runtime faults as a banner; the "Start host" action stays in Phase 5 (needs an install location). The 85% and 30-minute thresholds are defaults, not user-confirmed values.
 - Additive `CurrentChatUsage.TotalCredits` carries the whole-chat total the toolkit already returns; it is cleared whenever a chat is unusable.
 
+## 2026-11-11 - Automatic recovery for local refresh and the pipe listener (user-authorised)
+
+- Decision: a failed local refresh retries by itself (5 s, 15 s, 45 s, then every 5 min) instead of waiting for the next database event; the user is told only after 3 consecutive failures and the last good figures stay visible meanwhile. Informational codes (nothing recorded yet) and permanent codes (history tool missing/misconfigured) are not retried. The pipe listener restarts itself after any non-cancellation failure (1, 2, 4, 8, 16 s, then 30 s), reports a fault only at the 3rd consecutive failure and clears that banner when it recovers.
+- Rationale: the 60 s file-watcher reconciliation only signals when metadata or the error code changes, so a transient CLI/database failure could leave stale local data indefinitely; a listener fault previously required restarting the tray. GitHub retry (15 s doubling to 15 min) and the client reconnect loop already existed and are unchanged.
+- Not verified live; the retry schedule and the notify-after-3 threshold are defaults, not user-confirmed values.
+
 ## 2026-11-11 - VSIX starts in every instance; probe commands stay temporarily
 - Decision: the Exp-only gate in `UsagePackage` is removed so the user can test in the main VS. This supersedes the earlier note that the probe/Recheck commands stay only because they are Exp-only: the four Tools-menu test commands remain for now at the user's direction and MUST be removed before publishing (Phase 5). The manifest description now describes the real behaviour. Agent-run runtime tests remain restricted to Exp; the user installs into the main instance themselves.
 - Rationale: the main-instance install otherwise did nothing. The user accepted the temporary test commands during development.

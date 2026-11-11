@@ -323,7 +323,7 @@ namespace CopilotUsageMeter.Panel.Core
         private static DisplayProblem? LocalProblemFor(LocalUsage local)
         {
             var code = local.ErrorCode;
-            if (code == null || code == "history_not_recorded" || code == "history_no_turns" || code == "history_session_unavailable") return null;
+            if (code == null || LocalHistoryErrorCodes.IsInformational(code)) return null;
             string title, detail;
             switch (code)
             {

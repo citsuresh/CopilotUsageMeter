@@ -38,18 +38,25 @@ namespace CopilotUsageMeter.Transport.Pipes
         private readonly Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext;
 
         public event Action<string>? Faulted;
+        // Raised with the earlier fault message once the listener accepts a connection again.
+        public event Action<string>? Recovered;
         public event Action? ContextsChanged;
+        public const int ListenerFaultNotifyAfter = 3;
+        public const string ListenerFaultMessage = "Pipe listener failed; retrying automatically. Restart the tray if this persists.";
+        private readonly Func<int, TimeSpan> listenerRetryDelay;
 
         public UsagePipeServer(Func<NamedPipeServerStream> createPipe, Func<UsageSnapshot> getSnapshot,
             Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> handleCommand,
             Func<UsageSnapshot, string?, UsageSnapshot>? projectSnapshot = null,
-            Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext = null)
+            Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext = null,
+            Func<int, TimeSpan>? listenerRetryDelay = null)
         {
             this.createPipe = createPipe;
             this.getSnapshot = getSnapshot;
             this.handleCommand = handleCommand;
             this.projectSnapshot = projectSnapshot;
             this.projectContext = projectContext;
+            this.listenerRetryDelay = listenerRetryDelay ?? DefaultListenerRetryDelay;
         }
 
         public string[] GetActiveSessionIds() => sessions.Values
@@ -63,11 +70,14 @@ namespace CopilotUsageMeter.Transport.Pipes
 
         private async Task ListenAsync()
         {
-            try
+            var failures = 0;
+            while (!lifetime.IsCancellationRequested)
             {
-                while (!lifetime.IsCancellationRequested)
+                var slotHeld = false;
+                try
                 {
                     await slots.WaitAsync(lifetime.Token).ConfigureAwait(false);
+                    slotHeld = true;
                     var pipe = createPipe();
                     try
                     {
@@ -75,6 +85,9 @@ namespace CopilotUsageMeter.Transport.Pipes
                             await pipe.WaitForConnectionAsync(lifetime.Token).ConfigureAwait(false);
                     }
                     catch { pipe.Dispose(); throw; }
+                    if (failures >= ListenerFaultNotifyAfter) Recovered?.Invoke(ListenerFaultMessage);
+                    failures = 0;
+                    slotHeld = false;
                     int id = Interlocked.Increment(ref nextSession);
                     var task = ServeAsync(id, pipe);
                     workers[id] = task;
@@ -85,15 +98,24 @@ namespace CopilotUsageMeter.Transport.Pipes
                         if (completed.IsFaulted) Faulted?.Invoke("Pipe session failed unexpectedly.");
                     }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
                 }
-            }
-            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
-            catch (ObjectDisposedException) when (lifetime.IsCancellationRequested) { }
-            catch (IOException) when (lifetime.IsCancellationRequested) { }
-            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
-            {
-                Faulted?.Invoke("Pipe listener failed. Exit and restart the tray.");
+                catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { return; }
+                catch (ObjectDisposedException) when (lifetime.IsCancellationRequested) { return; }
+                catch (Exception) when (lifetime.IsCancellationRequested) { return; }
+                catch (Exception)
+                {
+                    if (slotHeld) slots.Release();
+                    failures++;
+                    // The listener recreates the pipe on its own; the user is told only if it keeps failing.
+                    if (failures == ListenerFaultNotifyAfter) Faulted?.Invoke(ListenerFaultMessage);
+                    try { await Task.Delay(listenerRetryDelay(failures), lifetime.Token).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { return; }
+                }
             }
         }
+
+        // 1 s, 2 s, 4 s, 8 s, 16 s, then every 30 s.
+        public static TimeSpan DefaultListenerRetryDelay(int failures) =>
+            TimeSpan.FromSeconds(Math.Min(30, Math.Pow(2, Math.Max(0, Math.Min(failures, 10) - 1))));
 
         private async Task ServeAsync(int id, NamedPipeServerStream pipe)
         {
