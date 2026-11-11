@@ -21,8 +21,11 @@ public partial class MainWindow : Window
     private static readonly Brush Red = Solid(0xD1, 0x34, 0x38);
     private static readonly Brush LightBlue = Solid(0x8F, 0xB4, 0xF0);
     private static readonly Brush Grey = Solid(0x8A, 0x8A, 0x8A);
+    private static readonly Brush AmberMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xE8, 0x89, 0x0C));
+    private static readonly Brush RedMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xD1, 0x34, 0x38));
     private static readonly Brush TickEdge = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
     private static readonly Brush HoverEdge = Solid(0xFF, 0xFF, 0xFF);
+    private static readonly Brush BarHover = Solid(0xB7, 0x1C, 0x1C);
     private const int TooltipDelayMs = 150;
     private static readonly Brush Track = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
 
@@ -39,6 +42,7 @@ public partial class MainWindow : Window
         this.send = send;
         this.listLogins = listLogins;
         InitializeComponent();
+        VersionText.Text = "v" + ProductVersion.Of(typeof(MainWindow).Assembly);
         // Keep the window, including its button row, above the taskbar on short screens.
         var area = SystemParameters.WorkArea;
         MaxHeight = area.Height;
@@ -57,7 +61,7 @@ public partial class MainWindow : Window
     {
         display = UsageDisplay.Create(snapshot, true, DateTimeOffset.UtcNow);
         StatusText.Text = display.IsPaused ? "Paused" : "Running";
-        StatusChip.Background = display.IsPaused ? Grey : Blue;
+        StatusChip.Background = display.IsPaused ? Orange : Blue;
         PauseLabel.Text = display.IsPaused ? "Resume updates" : "Pause updates";
         PauseGlyph.Text = display.IsPaused ? "\uE768" : "\uE769";
         AutomationProperties.SetName(PauseButton, PauseLabel.Text);
@@ -77,7 +81,7 @@ public partial class MainWindow : Window
         // Rebuilding every second would drop focus and tooltips, so redraw only when something visible changed.
         var next = string.Join("|", new object?[]
         {
-            display.Level, display.IsStale, display.UsedFraction, display.PaceFraction, display.GitHubTitle, display.GitHubSummary, display.PaceText,
+            display.Level, display.IsStale, display.Severity, display.ProblemTooltip, display.UsedFraction, display.PaceFraction, display.GitHubTitle, display.GitHubSummary, display.PaceText,
             display.ScheduleText, display.StateNote, display.LocalAvailable, display.LocalTotalText, display.LocalNote, display.ChatText,
             display.BarsSummary, string.Join(",", display.Segments.Select(s => s.Label + s.Text)),
             string.Join(",", display.Bars.Select(b => b.Tooltip + b.Fraction)),
@@ -99,12 +103,17 @@ public partial class MainWindow : Window
         GitHubHost.Children.Add(Heading(display.GitHubTitle));
         if (display.Level == GitHubLevel.SignedOut)
         {
-            GitHubHost.Children.Add(Text("Not signed in", bold: true, margin: new Thickness(0, 4, 0, 0)));
-            GitHubHost.Children.Add(Text("Sign in to see account credits. Local tracking works without signing in.", muted: true));
+            if (display.AccountProblem != null) GitHubHost.Children.Add(ProblemBlock(display.AccountProblem, 15));
+            else
+            {
+                GitHubHost.Children.Add(Text("Not signed in", bold: true, margin: new Thickness(0, 4, 0, 0)));
+                GitHubHost.Children.Add(Text("Sign in to see account credits. Local tracking works without signing in.", muted: true));
+            }
             return;
         }
         GitHubHost.Children.Add(Meter());
-        GitHubHost.Children.Add(Text(display.GitHubSummary, bold: true, size: 15));
+        if (display.AccountProblem != null) GitHubHost.Children.Add(ProblemBlock(display.AccountProblem, 15));
+        else GitHubHost.Children.Add(Text(display.GitHubSummary, bold: true, size: 15));
         if (display.PaceText.Length > 0) GitHubHost.Children.Add(Text(display.PaceText, muted: true));
         if (display.ScheduleText.Length > 0) GitHubHost.Children.Add(Text(display.ScheduleText, muted: true));
         if (display.StateNote.Length > 0)
@@ -121,7 +130,8 @@ public partial class MainWindow : Window
         if (!display.LocalAvailable)
         {
             LocalHost.Children.Add(Text("unavailable", bold: true, margin: new Thickness(0, 4, 0, 0)));
-            LocalHost.Children.Add(Text(display.LocalNote, muted: true));
+            if (display.LocalProblem != null) LocalHost.Children.Add(ProblemBlock(display.LocalProblem, 12));
+            else LocalHost.Children.Add(Text(display.LocalNote, muted: true));
             return;
         }
         var summary = display.LocalTotalText + ": " + string.Join(", ", display.Segments.Select(s => s.Label + " " + s.Text));
@@ -150,6 +160,28 @@ public partial class MainWindow : Window
         if (!display.HasChat) chips.Children.Add(Text("No active chat", muted: true));
         LocalHost.Children.Add(chips);
         LocalHost.Children.Add(Text(display.LocalNote, muted: true));
+        if (display.LocalProblem != null) LocalHost.Children.Add(ProblemBlock(display.LocalProblem, 12));
+    }
+
+    // Amber for a warning, red for an error: a "!" badge and short title, then the explanation and the error code for support.
+    private static FrameworkElement ProblemBlock(DisplayProblem problem, double titleSize)
+    {
+        var color = problem.Severity == ProblemSeverity.Error ? Red : Orange;
+        var panel = new StackPanel { Margin = new Thickness(0, 2, 0, 2) };
+        var header = new StackPanel { Orientation = Orientation.Horizontal };
+        var badge = new Border
+        {
+            Width = 16, Height = 16, CornerRadius = new CornerRadius(8), Background = color, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center,
+            Child = new TextBlock { Text = "!", Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+            ToolTip = problem.Title + "\n" + problem.Detail + (problem.Code != null ? "\nError code: " + problem.Code : "")
+        };
+        AutomationProperties.SetName(badge, problem.Title);
+        header.Children.Add(badge);
+        header.Children.Add(Text(problem.Title, bold: true, size: titleSize, foreground: color));
+        panel.Children.Add(header);
+        panel.Children.Add(Text(problem.Detail, muted: true));
+        if (problem.Code != null) panel.Children.Add(Text("Error code: " + problem.Code, muted: true, size: 11));
+        return panel;
     }
 
     private void BuildChart()
@@ -169,8 +201,8 @@ public partial class MainWindow : Window
             var item = new Border { Width = 14, Height = UsageDisplay.BarHeightFor(bar.Fraction, 62, 4), Margin = new Thickness(1, 0, 1, 0), Background = Red, Opacity = opacity, VerticalAlignment = VerticalAlignment.Bottom, Focusable = true, ToolTip = bar.Tooltip };
             AutomationProperties.SetName(item, bar.Tooltip);
             ToolTipService.SetInitialShowDelay(item, TooltipDelayMs);
-            item.MouseEnter += (_, _) => { item.Opacity = 1; item.BorderBrush = HoverEdge; item.BorderThickness = new Thickness(1); };
-            item.MouseLeave += (_, _) => { item.Opacity = opacity; item.BorderBrush = null; item.BorderThickness = new Thickness(0); };
+            item.MouseEnter += (_, _) => { item.Opacity = 1; item.Background = BarHover; };
+            item.MouseLeave += (_, _) => { item.Opacity = opacity; item.Background = Red; };
             strip.Children.Add(item);
         }
         ChartHost.Children.Add(strip);
@@ -183,7 +215,10 @@ public partial class MainWindow : Window
         AutomationProperties.SetName(grid, "GitHub credits " + display.GitHubSummary);
         if (!display.UsedFraction.HasValue)
         {
-            grid.Children.Add(new Border { BorderBrush = Grey, BorderThickness = new Thickness(1) });
+            var problem = display.AccountProblem;
+            var error = problem?.Severity == ProblemSeverity.Error;
+            if (problem != null) grid.Background = error ? RedMeter : AmberMeter;
+            grid.Children.Add(new Border { BorderBrush = problem == null ? Grey : error ? Red : Orange, BorderThickness = new Thickness(1) });
             return grid;
         }
         var color = display.Level == GitHubLevel.Over ? Red : display.Level == GitHubLevel.Warning ? Orange : Blue;
@@ -292,17 +327,14 @@ public partial class MainWindow : Window
             };
             AccountChoiceButtons.Children.Add(button);
         }
-        if (!signedOut)
+        var add = new Button { Content = "Add a new account\u2026", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 8, 4) };
+        AutomationProperties.SetName(add, "Add a new GitHub account");
+        add.Click += async (_, _) =>
         {
-            var add = new Button { Content = "Add a new account…", Padding = new Thickness(12, 6, 12, 6), Margin = new Thickness(0, 0, 8, 4) };
-            AutomationProperties.SetName(add, "Add a new GitHub account");
-            add.Click += async (_, _) =>
-            {
-                HideAccountChoices();
-                await ExecuteAsync(new ProtocolMessage { Type = "BeginSignIn" });
-            };
-            AccountChoiceButtons.Children.Add(add);
-        }
+            HideAccountChoices();
+            await ExecuteAsync(new ProtocolMessage { Type = "BeginSignIn" });
+        };
+        AccountChoiceButtons.Children.Add(add);
         chooserOpenedSignedOut = signedOut;
         AccountChoices.Visibility = Visibility.Visible;
     }

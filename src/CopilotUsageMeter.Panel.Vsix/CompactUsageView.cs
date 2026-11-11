@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using CopilotUsageMeter.Client;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Panel.Core;
 
@@ -20,20 +21,34 @@ namespace CopilotUsageMeter.Panel.Vsix
         private static readonly Brush LightBlue = Solid(0x8F, 0xB4, 0xF0);
         private static readonly Brush Grey = Solid(0x8A, 0x8A, 0x8A);
         private static readonly Brush Track = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
+        // Translucent so the same tint reads on light and dark themes; the card keeps showing through.
+        private static readonly Brush AmberTint = new SolidColorBrush(Color.FromArgb(0x38, 0xE8, 0x89, 0x0C));
+        private const string PausedTooltip = "Updates are paused. Choose Resume updates in the popup, the ... menu or the tray menu to continue.";
+        private static readonly string ExtensionVersion = ProductVersion.Of(typeof(CompactUsageView).Assembly);
+        private bool mismatch;
+        private static readonly Brush PausedTint = new SolidColorBrush(Color.FromArgb(0x30, 0x80, 0x80, 0x80));
+        private static readonly Brush RedTint = new SolidColorBrush(Color.FromArgb(0x30, 0xD1, 0x34, 0x38));
+        private static readonly Brush AmberMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xE8, 0x89, 0x0C));
+        private static readonly Brush RedMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xD1, 0x34, 0x38));
         private static readonly Brush Hover = new SolidColorBrush(Color.FromArgb(0x30, 0x80, 0x80, 0x80));
         private static readonly Brush FocusRing = Solid(0x80, 0x80, 0x80);
         private static readonly Brush TickEdge = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
         private static readonly Brush HoverEdge = Solid(0xFF, 0xFF, 0xFF);
+        private static readonly Brush BarHover = Solid(0xB7, 0x1C, 0x1C);
         private static readonly FontFamily IconFont = new FontFamily("Segoe MDL2 Assets");
         private const double RowGap = 8, ChevronSize = 9;
         private const int TooltipDelayMs = 150;
         // Estimated widths of the fixed row parts, including chevron and menu; the bar strip gets whatever remains.
-        private const double WideFixedWidth = 566, MediumFixedWidth = 337;
+        private const double WideFixedWidth = 594, MediumFixedWidth = 365;
 
         private enum Tier { Wide, Medium, Narrow }
 
         private readonly Action<ProtocolMessage> send;
-        private readonly Grid root = new Grid { Margin = new Thickness(4, 2, 4, 2) };
+        private readonly Grid root = new Grid { Margin = new Thickness(6, 3, 6, 3) };
+        // The row is a card like the Total changes panel: themed text-box fill and border, tinted amber or red when there is a problem.
+        private readonly Border card = new Border { BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(3), Margin = new Thickness(1) };
+        // Fills the card inside its border so the problem tint reaches the edges.
+        private readonly Border tintLayer = new Border { CornerRadius = new CornerRadius(2) };
         private readonly StackPanel content = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         private readonly Button chevron;
         private readonly Button menu;
@@ -76,13 +91,14 @@ namespace CopilotUsageMeter.Panel.Vsix
             Grid.SetColumnSpan(rowProgress, 3);
             AutomationProperties.SetName(rowProgress, "Refreshing Copilot usage");
             root.Children.Add(rowProgress);
-            popupHost.SetResourceReference(Border.BackgroundProperty, Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowBackgroundBrushKey);
-            popupHost.SetResourceReference(Border.BorderBrushProperty, Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowBorderBrushKey);
+            popupHost.SetResourceReference(Border.BackgroundProperty, Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBackgroundBrushKey);
+            popupHost.SetResourceReference(Border.BorderBrushProperty, Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBorderBrushKey);
+            popupHost.CornerRadius = new CornerRadius(4);
             popupHost.PreviewKeyDown += CloseOnEscape;
             popup = new Popup
             {
                 Child = popupHost, PlacementTarget = this, Placement = PlacementMode.Bottom,
-                StaysOpen = false, AllowsTransparency = false
+                StaysOpen = false, AllowsTransparency = true
             };
             popup.Closed += (_, _) =>
             {
@@ -93,7 +109,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             };
             root.Children.Add(popup);
             SizeChanged += (_, _) => Rebuild(force: false);
-            Content = root;
+            card.SetResourceReference(Border.BackgroundProperty, Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBackgroundBrushKey);
+            tintLayer.Child = root;
+            card.Child = tintLayer;
+            Content = card;
             Rebuild(force: true);
         }
 
@@ -102,7 +121,8 @@ namespace CopilotUsageMeter.Panel.Vsix
             this.connected = connected;
             this.busy = busy && connected;
             this.placementNote = placementNote;
-            display = UsageDisplay.Create(snapshot, connected, DateTimeOffset.UtcNow);
+            mismatch = !connected && connectionStatus == PipeUsageClient.VersionMismatchStatus;
+            display = UsageDisplay.Create(snapshot, connected, DateTimeOffset.UtcNow, versionMismatch: mismatch);
             Rebuild(force: false);
         }
 
@@ -116,6 +136,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (!force && next == signature) return;
             signature = next;
             Opacity = connected ? 1 : 0.6;
+            ApplySeverity();
             content.Opacity = busy ? 0.6 : 1;
             rowProgress.IsIndeterminate = busy;
             rowProgress.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
@@ -125,9 +146,21 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (popup.IsOpen) BuildPopup();
         }
 
+        private ProblemSeverity? RowSeverity() =>
+            !connected ? ProblemSeverity.Error : display.Severity ?? (display.IsStale ? ProblemSeverity.Warning : (ProblemSeverity?)null);
+
+        private void ApplySeverity()
+        {
+            var severity = RowSeverity();
+            // Paused only shows when nothing is wrong: a problem tint always wins.
+            tintLayer.Background = severity == null ? (display.IsPaused ? PausedTint : null) : severity == ProblemSeverity.Error ? RedTint : AmberTint;
+            if (severity == null) card.SetResourceReference(Border.BorderBrushProperty, Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBorderBrushKey);
+            else card.BorderBrush = severity == ProblemSeverity.Error ? Red : Orange;
+        }
+
         private string Signature(Tier tier, int barCount) => string.Join("|", new object?[]
         {
-            tier, barCount, connected, busy, display.Level, display.IsStale, display.IsPaused, display.HasChat,
+            tier, barCount, connected, mismatch, busy, display.Level, display.IsStale, display.IsPaused, display.HasChat, display.Severity, display.ProblemTooltip,
             display.UsedFraction?.ToString("0.###"), display.PaceFraction?.ToString("0.###"), display.GitHubHeadline, display.PercentText,
             display.PaceText, display.ScheduleText, display.StateNote, display.LocalTotalText, display.LocalNote, display.ChatText,
             display.BarsSummary, display.LastText, placementNote, confirmingLogOut, popup.IsOpen,
@@ -168,9 +201,17 @@ namespace CopilotUsageMeter.Panel.Vsix
                 text.ToolTip = display.GitHubSummary + (display.StateNote.Length > 0 ? " · " + display.StateNote : "");
                 content.Children.Add(text);
             }
+            var rowSeverity = RowSeverity();
+            var showPaused = connected && display.IsPaused;
+            if (rowSeverity != null || showPaused)
+            {
+                var tip = !connected ? (mismatch ? UsageDisplay.VersionMismatchTitle + ". " + UsageDisplay.VersionMismatchDetail(ExtensionVersion) : "Usage tray is not running. Start Copilot Usage Meter from the Windows tray or Start menu. Figures are not updating.") : display.HasProblem ? display.ProblemTooltip : display.IsStale ? display.StateNote : "";
+                if (showPaused) tip = (tip.Length > 0 ? tip + "\n" : "") + PausedTooltip;
+                content.Children.Add(ProblemBadge(rowSeverity == ProblemSeverity.Error ? Red : Orange, tip, new Thickness(RowGap, 0, 0, 0)));
+            }
             if (!connected)
             {
-                content.Children.Add(Label("Usage host offline", muted: true, margin: new Thickness(RowGap, 0, 0, 0)));
+                content.Children.Add(Label(UsageDisplay.NotConnectedNote(mismatch), muted: true, margin: new Thickness(RowGap, 0, 0, 0)));
                 return;
             }
             if (display.IsStale) content.Children.Add(Label(display.StateNote, muted: true, margin: new Thickness(RowGap, 0, 0, 0)));
@@ -249,6 +290,11 @@ namespace CopilotUsageMeter.Panel.Vsix
             cancelButton = null;
             var width = Math.Max(200, Math.Min(420, ActualWidth));
             var stack = new StackPanel { Width = width, Margin = new Thickness(12) };
+            var versionLabel = Label("Copilot Usage Meter v" + ExtensionVersion, muted: true, size: 10);
+            versionLabel.HorizontalAlignment = HorizontalAlignment.Right;
+            versionLabel.Margin = new Thickness(0, 0, 0, 2);
+            AutomationProperties.SetName(versionLabel, "Extension version");
+            stack.Children.Add(versionLabel);
             // Reserved height, so the popup does not jump when a refresh starts or ends.
             stack.Children.Add(new ProgressBar
             {
@@ -257,8 +303,8 @@ namespace CopilotUsageMeter.Panel.Vsix
             });
             if (!connected)
             {
-                stack.Children.Add(Label("USAGE HOST OFFLINE", bold: true, size: 11, foreground: Red));
-                stack.Children.Add(Label("Copilot Usage Meter is not running, so figures are not updating. Start it from the Windows tray or Start menu. Last known figures are shown dimmed.", muted: true, wrap: true, margin: new Thickness(0, 2, 0, 8)));
+                stack.Children.Add(Label(mismatch ? UsageDisplay.VersionMismatchHeading : "USAGE TRAY NOT RUNNING", bold: true, size: 11, foreground: Red));
+                stack.Children.Add(Label(mismatch ? UsageDisplay.VersionMismatchDetail(ExtensionVersion) : "The Copilot Usage Meter tray app is not running or cannot be reached, so figures are not updating. Start it from the Windows tray or Start menu. Last known figures are shown dimmed.", muted: true, wrap: true, margin: new Thickness(0, 2, 0, 8)));
             }
             var body = new StackPanel { Opacity = connected ? 1 : 0.55 };
             AddGitHub(body, width - 24);
@@ -282,6 +328,11 @@ namespace CopilotUsageMeter.Panel.Vsix
             host.Children.Add(WithRefresh(Label(display.GitHubTitle, muted: true, bold: true, size: 11), display.Level == GitHubLevel.SignedOut));
             if (display.Level == GitHubLevel.SignedOut)
             {
+                if (display.AccountProblem != null && connected)
+                {
+                    host.Children.Add(ProblemBlock(display.AccountProblem, new Thickness(0, 4, 0, 0)));
+                    return;
+                }
                 host.Children.Add(Label("Not signed in", bold: true, margin: new Thickness(0, 4, 0, 0)));
                 host.Children.Add(Label("Sign in to see account credits. Local tracking works without signing in.", muted: true, wrap: true));
                 return;
@@ -290,7 +341,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             meter.Margin = new Thickness(0, 6, 0, 4);
             host.Children.Add(meter);
             var hasSchedule = display.ScheduleText.Length > 0;
-            host.Children.Add(WithRefresh(Label(display.GitHubSummary, bold: true, wrap: true), !hasSchedule));
+            if (display.AccountProblem != null && connected)
+                host.Children.Add(ProblemBlock(display.AccountProblem, new Thickness(0, 0, 0, 2)));
+            else
+                host.Children.Add(WithRefresh(Label(display.GitHubSummary, bold: true, wrap: true), !hasSchedule));
             if (display.PaceText.Length > 0) host.Children.Add(Label(display.PaceText, muted: true));
             if (hasSchedule) host.Children.Add(WithRefresh(Label(display.ScheduleText, muted: true, wrap: true), true));
             if (display.StateNote.Length > 0 && connected)
@@ -306,7 +360,8 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (!display.LocalAvailable)
             {
                 host.Children.Add(Label("unavailable", bold: true));
-                host.Children.Add(Label(display.LocalNote, muted: true, wrap: true));
+                if (display.LocalProblem != null && connected) host.Children.Add(ProblemBlock(display.LocalProblem, new Thickness(0, 2, 0, 0)));
+                else host.Children.Add(Label(display.LocalNote, muted: true, wrap: true));
                 return;
             }
             var pill = Pill(display, 0, 10);
@@ -318,6 +373,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (!display.HasChat) chips.Children.Add(Label("No active chat", muted: true, margin: new Thickness(0, 0, 10, 0)));
             host.Children.Add(chips);
             host.Children.Add(Label(display.LocalNote, muted: true, wrap: true));
+            if (display.LocalProblem != null && connected) host.Children.Add(ProblemBlock(display.LocalProblem, new Thickness(0, 6, 0, 0)));
         }
 
         private void AddChart(StackPanel host, double availableWidth)
@@ -394,7 +450,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             else
             {
                 grid.Background = Brushes.Transparent;
-                grid.Children.Add(new Border { BorderBrush = Grey, BorderThickness = new Thickness(1) });
+                var problem = display.IsConnected ? display.AccountProblem : null;
+                var error = problem?.Severity == ProblemSeverity.Error;
+                if (problem != null) grid.Background = error ? RedMeter : AmberMeter;
+                grid.Children.Add(new Border { BorderBrush = problem == null ? Grey : error ? Red : Orange, BorderThickness = new Thickness(1) });
             }
             return grid;
         }
@@ -446,6 +505,33 @@ namespace CopilotUsageMeter.Panel.Vsix
             return panel;
         }
 
+        private static FrameworkElement ProblemBadge(Brush color, string tooltip, Thickness margin, double size = 14)
+        {
+            var badge = new Border
+            {
+                Width = size, Height = size, CornerRadius = new CornerRadius(size / 2), Background = color, Margin = margin, VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = "!", Foreground = Brushes.White, FontSize = size - 4, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                ToolTip = tooltip
+            };
+            ToolTipService.SetInitialShowDelay(badge, TooltipDelayMs);
+            AutomationProperties.SetName(badge, tooltip.Replace("\n", " "));
+            return badge;
+        }
+
+        // Icon and short title on one line, then the explanation and the error code for support.
+        private static FrameworkElement ProblemBlock(DisplayProblem problem, Thickness margin)
+        {
+            var color = problem.Severity == ProblemSeverity.Error ? Red : Orange;
+            var panel = new StackPanel { Margin = margin };
+            var header = new StackPanel { Orientation = Orientation.Horizontal };
+            header.Children.Add(ProblemBadge(color, problem.Title, new Thickness(0, 0, 6, 0)));
+            header.Children.Add(Label(problem.Title, bold: true, wrap: true, foreground: color));
+            panel.Children.Add(header);
+            panel.Children.Add(Label(problem.Detail, muted: true, wrap: true, margin: new Thickness(0, 2, 0, 0)));
+            if (problem.Code != null) panel.Children.Add(Label("Error code: " + problem.Code, muted: true, size: 11, margin: new Thickness(0, 2, 0, 0)));
+            return panel;
+        }
+
         private static FrameworkElement Badge()
         {
             var badge = new Border
@@ -471,10 +557,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             button.ToolTip = tooltip;
             ToolTipService.SetInitialShowDelay(button, TooltipDelayMs);
             var restingOpacity = button.Opacity;
-            // The outline is drawn only while hovered or focused, so a resting bar uses its whole width.
-            void Edge() => button.BorderThickness = new Thickness(button.IsMouseOver || button.IsKeyboardFocused ? 1 : 0);
-            button.MouseEnter += (_, _) => { button.Opacity = 1; button.BorderBrush = HoverEdge; Edge(); };
-            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.BorderBrush = Brushes.Transparent; Edge(); };
+            // Hover darkens the fill at full opacity instead of adding an outline, so the bar keeps its size; the outline is for keyboard focus only.
+            void Edge() => button.BorderThickness = new Thickness(button.IsKeyboardFocused ? 1 : 0);
+            button.MouseEnter += (_, _) => { button.Opacity = 1; button.Background = BarHover; Edge(); };
+            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.Background = Red; Edge(); };
             button.GotKeyboardFocus += (_, _) => { tooltip.IsOpen = true; Edge(); };
             button.LostKeyboardFocus += (_, _) => { tooltip.IsOpen = false; Edge(); };
             return button;

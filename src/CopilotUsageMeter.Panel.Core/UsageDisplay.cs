@@ -17,6 +17,34 @@ namespace CopilotUsageMeter.Panel.Core
         public string Value { get; }
     }
 
+    // A user-visible problem: a short title for the icon and row, a fuller explanation for the popup, and the machine code for support.
+    public enum ProblemSeverity { Warning, Error }
+
+    public sealed class DisplayProblem
+    {
+        // Errors need the user to act; everything else may recover on its own or does not stop tracking.
+        private static readonly HashSet<string> ErrorCodes = new HashSet<string>
+        {
+            "secure-storage-failed", "profile-mismatch", "invalid-login", "invalid-response",
+            "history_tool_missing", "history_invalid_configuration", "history_invalid_data", "history_output_limit"
+        };
+
+        public DisplayProblem(string scope, string title, string detail, string? code)
+        {
+            Scope = scope;
+            Title = title;
+            Detail = detail;
+            Code = code;
+            Severity = code != null && ErrorCodes.Contains(code) ? ProblemSeverity.Error : ProblemSeverity.Warning;
+        }
+
+        public ProblemSeverity Severity { get; }
+        public string Scope { get; }
+        public string Title { get; }
+        public string Detail { get; }
+        public string? Code { get; }
+    }
+
     public sealed class LocalSegment
     {
         public LocalSegmentKind Kind { get; set; }
@@ -58,11 +86,32 @@ namespace CopilotUsageMeter.Panel.Core
         public string ScheduleText { get; private set; } = "";
         public string StateNote { get; private set; } = "";
 
+        // Set only while the host is reachable. The account problem replaces the meter figures; the local one explains a missing or partial local total.
+        public DisplayProblem? AccountProblem { get; private set; }
+        public DisplayProblem? LocalProblem { get; private set; }
+        public bool HasProblem => AccountProblem != null || LocalProblem != null;
+        public ProblemSeverity? Severity =>
+            !HasProblem ? (ProblemSeverity?)null
+            : AccountProblem?.Severity == ProblemSeverity.Error || LocalProblem?.Severity == ProblemSeverity.Error ? ProblemSeverity.Error
+            : ProblemSeverity.Warning;
+        public string ProblemTooltip { get; private set; } = "";
+
         public string LocalTitle { get; private set; } = "LOCAL · THIS MACHINE";
         public bool LocalAvailable { get; private set; }
         public string LocalTotalText { get; private set; } = "unavailable";
         public string LocalNote { get; private set; } = "Local figures are not added to the GitHub total.";
         public LocalSegment[] Segments { get; private set; } = Array.Empty<LocalSegment>();
+
+        public bool IsVersionMismatch { get; private set; }
+
+        public const string VersionMismatchLabel = "Update needed";
+        public const string VersionMismatchHeading = "EXTENSION AND TRAY VERSIONS DO NOT MATCH";
+        public const string VersionMismatchTitle = "Extension and tray versions do not match";
+
+        public static string VersionMismatchDetail(string extensionVersion) =>
+            "This extension" + (extensionVersion.Length > 0 ? " (v" + extensionVersion + ")" : "") + " and the Copilot Usage Meter tray app speak different protocol versions, so figures are not updating. Update both to the same release, then reopen this window.";
+
+        public static string NotConnectedNote(bool versionMismatch) => versionMismatch ? VersionMismatchLabel : "Usage tray not running";
 
         public bool HasChat { get; private set; }
         public string ChatText { get; private set; } = "No active chat";
@@ -105,13 +154,13 @@ namespace CopilotUsageMeter.Panel.Core
         public static string Credits(decimal? value, string unknown = "unavailable") =>
             value.HasValue ? value.Value.ToString("#,##0.#", CultureInfo.InvariantCulture) : unknown;
 
-        public static UsageDisplay Create(UsageSnapshot? snapshot, bool connected, DateTimeOffset now, TimeZoneInfo? zone = null)
+        public static UsageDisplay Create(UsageSnapshot? snapshot, bool connected, DateTimeOffset now, TimeZoneInfo? zone = null, bool versionMismatch = false)
         {
             zone ??= TimeZoneInfo.Local;
-            var result = new UsageDisplay { IsConnected = connected };
+            var result = new UsageDisplay { IsConnected = connected, IsVersionMismatch = versionMismatch && !connected };
             if (snapshot == null)
             {
-                result.StateNote = connected ? "Waiting for the first usage update" : "Usage host offline";
+                result.StateNote = connected ? "Waiting for the first usage update" : NotConnectedNote(result.IsVersionMismatch);
                 result.AccessibleSummary = "Copilot usage: " + result.StateNote;
                 return result;
             }
@@ -119,6 +168,7 @@ namespace CopilotUsageMeter.Panel.Core
             result.BuildAccount(snapshot.Account, connected, now, zone);
             result.BuildLocal(snapshot.Local, snapshot.Account);
             result.BuildChat(snapshot.Local, zone);
+            result.BuildProblems(snapshot, connected, zone);
             result.BuildRows(snapshot, zone);
             result.AccessibleSummary = "Copilot usage: GitHub " + result.GitHubSummary
                 + (result.HasChat ? "; " + result.ChatText : "") + (result.StateNote.Length > 0 ? "; " + result.StateNote : "");
@@ -128,7 +178,7 @@ namespace CopilotUsageMeter.Panel.Core
         private void BuildAccount(AccountUsage account, bool connected, DateTimeOffset now, TimeZoneInfo zone)
         {
             var period = PeriodStart(account.ResetUtc);
-            GitHubTitle = "GITHUB ACCOUNT" + (period.HasValue ? " · " + MonthName(period.Value) : "");
+            GitHubTitle = "GITHUB ACCOUNT" + (string.IsNullOrEmpty(account.Login) ? "" : " · @" + account.Login) + (period.HasValue ? " · " + MonthName(period.Value) : "");
             if (account.ResetUtc.HasValue && period.HasValue)
             {
                 var span = (account.ResetUtc.Value - period.Value).TotalSeconds;
@@ -174,7 +224,7 @@ namespace CopilotUsageMeter.Panel.Core
             ScheduleText = string.Join(" · ", parts);
             if (!connected)
             {
-                StateNote = "Usage host offline";
+                StateNote = NotConnectedNote(IsVersionMismatch);
             }
             else if (!IsPaused && account.Status == "available" && account.AsOfUtc.HasValue && now - account.AsOfUtc.Value > StaleAfter)
             {
@@ -185,6 +235,132 @@ namespace CopilotUsageMeter.Panel.Core
             {
                 StateNote = "Updates paused";
             }
+        }
+
+        // Anything that stops the account or local figures from being real numbers is a problem. Signed out, skipped and "not synced yet" are not.
+        private void BuildProblems(UsageSnapshot snapshot, bool connected, TimeZoneInfo zone)
+        {
+            if (!connected) return;
+            AccountProblem = AccountProblemFor(snapshot.Account, zone);
+            LocalProblem = LocalProblemFor(snapshot.Local);
+            if (AccountProblem != null) GitHubHeadline = GitHubSummary = AccountProblem.Title;
+            var lines = new List<string>();
+            foreach (var problem in new[] { AccountProblem, LocalProblem })
+            {
+                if (problem == null) continue;
+                lines.Add(problem.Scope + ": " + problem.Title + "\n" + problem.Detail + (problem.Code != null ? "\nError code: " + problem.Code : ""));
+            }
+            ProblemTooltip = string.Join("\n\n", lines);
+        }
+
+        private static DisplayProblem? AccountProblemFor(AccountUsage account, TimeZoneInfo zone)
+        {
+            var status = account.Status;
+            if (status == "signed-out")
+            {
+                var signedOutDetail = account.ErrorCode == "authorization-expired"
+                    ? "GitHub rejected the saved sign-in, so it was removed. Sign in again to see account credits. Local tracking continues."
+                    : "Sign in to see account credits. Local tracking works without signing in.";
+                return new DisplayProblem("GitHub", "Not signed in", signedOutDetail, account.ErrorCode);
+            }
+            if (status != "error" && status != "rate-limited" && status != "unavailable") return null;
+            var code = account.ErrorCode;
+            if (status == "unavailable" && (code == null || code == "not-synced")) return null;
+            var who = string.IsNullOrEmpty(account.Login) ? "this account" : "@" + account.Login;
+            const string retry = " Use Refresh to try again now.";
+            string title, detail;
+            switch (code)
+            {
+                case "github-rate-limited":
+                    title = "GitHub is limiting requests";
+                    detail = "GitHub temporarily limited account requests." + (account.NextRefreshUtc.HasValue ? " The next attempt is at " + Clock(account.NextRefreshUtc.Value, zone) + "." : " Requests retry automatically.");
+                    break;
+                case "github-request-timeout":
+                    title = "GitHub request timed out";
+                    detail = "GitHub did not answer in time. Requests retry automatically." + retry;
+                    break;
+                case "github-request-failed":
+                case "github-http-failed":
+                    title = "GitHub request failed";
+                    detail = "GitHub could not be reached or rejected the request. Requests retry automatically." + retry;
+                    break;
+                case "quota-unavailable":
+                    title = "No usage figures for " + who;
+                    detail = "GitHub returned no Copilot allowance for " + who + ". The account may have no Copilot subscription, or the sign-in may lack permission. Local usage is still tracked.";
+                    break;
+                case "unsupported-plan":
+                    title = "Plan not supported";
+                    detail = "GitHub does not expose a premium-interaction quota for the plan of " + who + ". Local usage is still tracked.";
+                    break;
+                case "unsupported-billing":
+                    title = "Billing format not supported";
+                    detail = "GitHub reports usage for " + who + " in a billing format this app cannot read. Local usage is still tracked.";
+                    break;
+                case "secure-storage-failed":
+                    title = "Credential storage failed";
+                    detail = "The saved GitHub credential could not be read or written. Sign out and sign in again.";
+                    break;
+                case "profile-mismatch":
+                    title = "Account mismatch";
+                    detail = "The credential belongs to a different GitHub account than the one selected. Sign in again.";
+                    break;
+                case "invalid-response":
+                    title = "Unexpected GitHub response";
+                    detail = "GitHub returned data this app does not understand." + retry;
+                    break;
+                case "invalid-login":
+                    title = "Invalid GitHub login";
+                    detail = "The account name is not a valid GitHub login. Choose a saved account or sign in again.";
+                    break;
+                default:
+                    title = status == "rate-limited" ? "GitHub is limiting requests" : status == "error" ? "GitHub problem" : "GitHub usage unavailable";
+                    detail = "GitHub account usage could not be read." + retry;
+                    break;
+            }
+            return new DisplayProblem("GitHub", title, detail, code);
+        }
+
+        private static DisplayProblem? LocalProblemFor(LocalUsage local)
+        {
+            var code = local.ErrorCode;
+            if (code == null || code == "history_not_recorded" || code == "history_no_turns" || code == "history_session_unavailable") return null;
+            string title, detail;
+            switch (code)
+            {
+                case "history_tool_missing":
+                    title = "Chat history tool not found";
+                    detail = "The Copilot chat history tool is missing, so local usage cannot be read.";
+                    break;
+                case "history_invalid_configuration":
+                    title = "Chat history tool misconfigured";
+                    detail = "The chat history tool is not set up correctly, so local usage cannot be read.";
+                    break;
+                case "history_invalid_data":
+                case "history_output_limit":
+                    title = "Unreadable local history";
+                    detail = "The chat history tool returned data this app could not use. Local figures may be missing.";
+                    break;
+                case "history_process_failed":
+                case "history_command_failed":
+                case "local_refresh_failed":
+                case "local_refresh_faulted":
+                    title = "Local refresh failed";
+                    detail = "Reading local chat history failed. It retries on the next change or refresh.";
+                    break;
+                case "history_watch_unavailable":
+                case "history_watch_error":
+                case "history_watch_faulted":
+                case "history_watch_metadata_failed":
+                case "history_watch_directory_unavailable":
+                    title = "Local history is not being watched";
+                    detail = "Changes to local chat history may not be noticed automatically. Use Refresh to update.";
+                    break;
+                default:
+                    title = "Local tracking problem";
+                    detail = "Local usage could not be fully read.";
+                    break;
+            }
+            return new DisplayProblem("Local", title, detail, code);
         }
 
         private void BuildLocal(LocalUsage local, AccountUsage account)
@@ -262,7 +438,7 @@ namespace CopilotUsageMeter.Panel.Core
                     + (turn.TimestampUtc.HasValue ? " · " + Day(turn.TimestampUtc.Value, zone) + ", " + Clock(turn.TimestampUtc.Value, zone) : "")
             }).ToArray();
             var total = ChatTotal(chat);
-            ChatText = "Chat " + Credits(total);
+            ChatText = "This chat " + Credits(total);
             BarsCaption = "LAST " + turns.Length.ToString(CultureInfo.InvariantCulture) + " TURNS";
             var last = turns[turns.Length - 1].Credits;
             LastText = "last " + Credits(last, "n/a");
@@ -286,7 +462,7 @@ namespace CopilotUsageMeter.Panel.Core
                 new DisplayRow("Next sync", IsPaused ? "Paused" : account.NextRefreshUtc.HasValue ? Clock(account.NextRefreshUtc.Value, zone) : "not scheduled"),
                 new DisplayRow("Source", account.Source ?? "Account source unavailable (GitHub, all machines)")
             };
-            if (account.ErrorCode != null) accountRows.Add(new DisplayRow("Problem", account.ErrorCode));
+            if (account.ErrorCode != null) accountRows.Add(new DisplayRow("Problem", AccountProblem != null ? AccountProblem.Title + " (" + account.ErrorCode + ")" : account.ErrorCode));
             AccountRows = accountRows.ToArray();
             var localRows = new List<DisplayRow>
             {
@@ -299,7 +475,7 @@ namespace CopilotUsageMeter.Panel.Core
                     : "unavailable"),
                 new DisplayRow("As of", local.AsOfUtc.HasValue ? Day(local.AsOfUtc.Value, zone) + ", " + Clock(local.AsOfUtc.Value, zone) : "unknown")
             };
-            if (local.ErrorCode != null) localRows.Add(new DisplayRow("Problem", local.ErrorCode));
+            if (local.ErrorCode != null) localRows.Add(new DisplayRow("Problem", LocalProblem != null ? LocalProblem.Title + " (" + local.ErrorCode + ")" : local.ErrorCode));
             LocalRows = localRows.ToArray();
             DiagnosticRows = new[]
             {
@@ -347,7 +523,8 @@ namespace CopilotUsageMeter.Panel.Core
                     lines.Add(synced + (next.Length > 0 ? next.Replace("next", "retry") : ""));
                     break;
                 default:
-                    lines.Add("GitHub credits unavailable");
+                    var problem = AccountProblemFor(account, zone);
+                    lines.Add(problem != null ? "GitHub: " + problem.Title : "GitHub credits unavailable");
                     lines.Add(synced + next);
                     break;
             }

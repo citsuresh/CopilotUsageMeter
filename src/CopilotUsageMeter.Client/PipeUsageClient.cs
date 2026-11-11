@@ -28,9 +28,20 @@ namespace CopilotUsageMeter.Client
         public event Action<UsageSnapshot>? SnapshotChanged;
         public event Action<string>? StatusChanged;
         public UsageSnapshot? Snapshot { get; private set; }
+        public const string VersionMismatchStatus = "Version mismatch: update tray and extension";
+        private readonly TimeSpan mismatchRetryDelay;
         public string Status { get; private set; } = "Disconnected";
 
-        public PipeUsageClient(string pipeName) => this.pipeName = pipeName;
+        private sealed class VersionMismatchException : IOException
+        {
+            public VersionMismatchException() : base("Tray and extension protocol versions differ.") { }
+        }
+
+        public PipeUsageClient(string pipeName, TimeSpan? mismatchRetryDelay = null)
+        {
+            this.pipeName = pipeName;
+            this.mismatchRetryDelay = mismatchRetryDelay ?? TimeSpan.FromSeconds(10);
+        }
 
         public void Start()
         {
@@ -49,9 +60,10 @@ namespace CopilotUsageMeter.Client
             int retrySeconds = 1;
             while (!lifetime.IsCancellationRequested)
             {
+                TimeSpan? delayOverride = null;
                 try
                 {
-                    SetStatus("Connecting");
+                    if (Status != VersionMismatchStatus) SetStatus("Connecting");
                     using (var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
                     using (lifetime.Token.Register(() => pipe.Dispose()))
                     {
@@ -67,11 +79,10 @@ namespace CopilotUsageMeter.Client
                                     ack = await active.ReadAsync(handshake.Token).ConfigureAwait(false);
                             }
                             if (ack?.Type == "Error" && ack.Code == "version_mismatch")
-                            {
-                                SetStatus("Version mismatch: update tray and extension");
-                                return;
-                            }
-                            if (ack?.Type != "HelloAck" || ack.Protocol != UsageProtocol.Version)
+                                throw new VersionMismatchException();
+                            if (ack?.Type == "HelloAck" && ack.Protocol != UsageProtocol.Version)
+                                throw new VersionMismatchException();
+                            if (ack?.Type != "HelloAck")
                                 throw new InvalidDataException("Invalid tray handshake.");
                             sequence = 0;
                             hostInstance = "";
@@ -81,7 +92,7 @@ namespace CopilotUsageMeter.Client
                                 var message = await active.ReadAsync(lifetime.Token).ConfigureAwait(false);
                                 if (message == null) throw new EndOfStreamException("Tray disconnected.");
                                 if (message.Protocol != UsageProtocol.Version)
-                                    throw new InvalidDataException("Unexpected protocol version.");
+                                    throw new VersionMismatchException();
                                 if (message.Type == "Snapshot" || message.Type == "Update")
                                 {
                                     var snapshot = message.Snapshot;
@@ -119,7 +130,14 @@ namespace CopilotUsageMeter.Client
                     || exception is UnauthorizedAccessException || exception is ObjectDisposedException || exception is OperationCanceledException)
                 {
                     if (!lifetime.IsCancellationRequested)
-                        SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached values are stale");
+                    {
+                        if (exception is VersionMismatchException)
+                        {
+                            SetStatus(VersionMismatchStatus);
+                            delayOverride = mismatchRetryDelay;
+                        }
+                        else SetStatus(exception is InvalidDataException ? "Protocol error - reconnecting" : "Tray unavailable - cached values are stale");
+                    }
                 }
                 finally
                 {
@@ -128,7 +146,7 @@ namespace CopilotUsageMeter.Client
                         if (pending.TryRemove(request.Key, out var completion))
                             completion.TrySetException(new IOException("Tray disconnected before command acknowledgement."));
                 }
-                try { await Task.Delay(TimeSpan.FromSeconds(retrySeconds), lifetime.Token).ConfigureAwait(false); }
+                try { await Task.Delay(delayOverride ?? TimeSpan.FromSeconds(retrySeconds), lifetime.Token).ConfigureAwait(false); }
                 catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { break; }
                 retrySeconds = Math.Min(10, retrySeconds * 2);
             }

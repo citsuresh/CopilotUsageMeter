@@ -326,6 +326,32 @@ public sealed class ProtocolTests
         await server.StopAsync();
     }
 
+    [Fact]
+    public async Task VersionMismatchIsReportedAndRetried()
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        var name = "CopilotUsageMeter.Test." + Guid.NewGuid().ToString("N");
+        using var client = new PipeUsageClient(name, TimeSpan.FromMilliseconds(200));
+        var statuses = new List<string>();
+        client.StatusChanged += status => { lock (statuses) statuses.Add(status); };
+        client.Start();
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            using var peer = new NamedPipeServerStream(name, PipeDirection.InOut, 16, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            await peer.WaitForConnectionAsync(timeout.Token);
+            using var wire = new PipeConnection(peer);
+            var hello = (await wire.ReadAsync(timeout.Token))!;
+            await wire.WriteAsync(UsagePipeServer.Error(hello, "version_mismatch", "Update the tray and extension."), timeout.Token);
+        }
+        while (client.Status != PipeUsageClient.VersionMismatchStatus) await Task.Delay(20, timeout.Token);
+        await client.StopAsync();
+        lock (statuses)
+        {
+            Assert.Contains(PipeUsageClient.VersionMismatchStatus, statuses);
+            Assert.DoesNotContain("Protocol error - reconnecting", statuses);
+        }
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

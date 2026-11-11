@@ -50,10 +50,18 @@ public sealed class UsageDisplayTests
         var display = Create(Snapshot());
         Assert.Equal("6,339 / 100,000", display.GitHubHeadline);
         Assert.Equal("6,339 of 100,000 (6.3%)", display.GitHubSummary);
-        Assert.Equal("GITHUB ACCOUNT · NOVEMBER", display.GitHubTitle);
+        Assert.Equal("GITHUB ACCOUNT · @octo · NOVEMBER", display.GitHubTitle);
         Assert.Equal("Resets 1 Dec 2026 · Synced 4:46 PM · Next 5:01 PM", display.ScheduleText);
         Assert.Equal("Month 39% elapsed", display.PaceText);
         Assert.DoesNotContain(display.AccountRows.Concat(display.LocalRows), row => row.Value.Contains("0000000") || row.Value.Contains("revision"));
+    }
+
+    [Fact]
+    public void AccountHeadingNamesTheLoginOnlyWhenKnown()
+    {
+        var snapshot = Snapshot();
+        snapshot.Account.Login = null;
+        Assert.Equal("GITHUB ACCOUNT · NOVEMBER", Create(snapshot).GitHubTitle);
     }
 
     [Fact]
@@ -66,7 +74,7 @@ public sealed class UsageDisplayTests
         Assert.Equal(2688m, display.Segments.Sum(s => s.Credits));
         Assert.Contains("includes this chat", display.LocalNote);
         Assert.Contains("not added to the GitHub total", display.LocalNote);
-        Assert.Equal("Chat 58", display.ChatText);
+        Assert.Equal("This chat 58", display.ChatText);
     }
 
     [Fact]
@@ -76,9 +84,9 @@ public sealed class UsageDisplayTests
         snapshot.Local.CurrentChat.TotalCredits = 900;
         var display = Create(snapshot);
         Assert.Equal(20, display.Bars.Length);
-        Assert.Equal("Chat 900", display.ChatText);
+        Assert.Equal("This chat 900", display.ChatText);
         snapshot.Local.CurrentChat.TotalCredits = null;
-        Assert.Equal("Chat " + Enumerable.Range(1, 25).Sum(), Create(snapshot).ChatText);
+        Assert.Equal("This chat " + Enumerable.Range(1, 25).Sum(), Create(snapshot).ChatText);
     }
 
     [Fact]
@@ -135,6 +143,99 @@ public sealed class UsageDisplayTests
         Assert.Equal(GitHubLevel.SignedOut, Create(snapshot).Level);
     }
 
+    [Theory]
+    [InlineData("unavailable", "quota-unavailable", ProblemSeverity.Warning, "No usage figures for @octo")]
+    [InlineData("unavailable", "unsupported-plan", ProblemSeverity.Warning, "Plan not supported")]
+    [InlineData("error", "github-request-timeout", ProblemSeverity.Warning, "GitHub request timed out")]
+    [InlineData("error", "github-request-failed", ProblemSeverity.Warning, "GitHub request failed")]
+    [InlineData("rate-limited", "github-rate-limited", ProblemSeverity.Warning, "GitHub is limiting requests")]
+    [InlineData("error", "secure-storage-failed", ProblemSeverity.Error, "Credential storage failed")]
+    [InlineData("error", "profile-mismatch", ProblemSeverity.Error, "Account mismatch")]
+    public void AccountProblemsShowTitleSeverityAndCode(string status, string code, ProblemSeverity severity, string title)
+    {
+        var snapshot = Snapshot();
+        snapshot.Account.Status = status;
+        snapshot.Account.ErrorCode = code;
+        snapshot.Account.Consumed = null;
+        snapshot.Account.Allowance = null;
+        var display = Create(snapshot);
+        Assert.NotNull(display.AccountProblem);
+        Assert.Equal(title, display.AccountProblem!.Title);
+        Assert.Equal(severity, display.AccountProblem.Severity);
+        Assert.Equal(code, display.AccountProblem.Code);
+        Assert.Equal(title, display.GitHubHeadline);
+        Assert.Equal(severity, display.Severity);
+        Assert.Contains("Error code: " + code, display.ProblemTooltip);
+    }
+
+    [Fact]
+    public void SkippedAndNotSyncedAreNotProblems()
+    {
+        foreach (var (status, code) in new[] { ("skipped", null), ("unavailable", "not-synced"), ("unavailable", null) })
+        {
+            var snapshot = Snapshot();
+            snapshot.Account.Status = status;
+            snapshot.Account.ErrorCode = code;
+            var display = Create(snapshot);
+            Assert.False(display.HasProblem);
+            Assert.Null(display.Severity);
+            Assert.Equal("", display.ProblemTooltip);
+        }
+    }
+
+    [Theory]
+    [InlineData(null, "Sign in to see account credits.")]
+    [InlineData("authorization-expired", "GitHub rejected the saved sign-in")]
+    public void SignedOutIsAnAmberWarningThatKeepsTheSignInState(string? code, string detail)
+    {
+        var snapshot = Snapshot();
+        snapshot.Account.Status = "signed-out";
+        snapshot.Account.ErrorCode = code;
+        var display = Create(snapshot);
+        Assert.Equal(GitHubLevel.SignedOut, display.Level);
+        Assert.Equal(ProblemSeverity.Warning, display.Severity);
+        Assert.Equal("Not signed in", display.AccountProblem!.Title);
+        Assert.Equal(code, display.AccountProblem.Code);
+        Assert.Contains(detail, display.AccountProblem.Detail);
+        Assert.Contains("Not signed in", display.ProblemTooltip);
+    }
+
+    [Fact]
+    public void ProblemsAreNotShownWhileOffline()
+    {
+        var snapshot = Snapshot();
+        snapshot.Account.Status = "error";
+        snapshot.Account.ErrorCode = "github-request-failed";
+        Assert.False(Create(snapshot, connected: false).HasProblem);
+    }
+
+    [Fact]
+    public void LocalProblemsMapToSeverityAndIgnoreInformationalCodes()
+    {
+        var snapshot = Snapshot();
+        snapshot.Local.ErrorCode = "history_tool_missing";
+        var display = Create(snapshot);
+        Assert.Equal("Local", display.LocalProblem!.Scope);
+        Assert.Equal(ProblemSeverity.Error, display.Severity);
+        Assert.Null(display.AccountProblem);
+        snapshot.Local.ErrorCode = "history_watch_error";
+        Assert.Equal(ProblemSeverity.Warning, Create(snapshot).Severity);
+        foreach (var informational in new[] { "history_not_recorded", "history_no_turns", "history_session_unavailable" })
+        {
+            snapshot.Local.ErrorCode = informational;
+            Assert.False(Create(snapshot).HasProblem);
+        }
+    }
+
+    [Fact]
+    public void TrayTooltipNamesTheAccountProblem()
+    {
+        var snapshot = Snapshot();
+        snapshot.Account.Status = "unavailable";
+        snapshot.Account.ErrorCode = "quota-unavailable";
+        Assert.Contains("GitHub: No usage figures for @octo", Tip(snapshot));
+    }
+
     [Fact]
     public void StaleOfflineAndPausedStatesAreDistinct()
     {
@@ -143,7 +244,7 @@ public sealed class UsageDisplayTests
         Assert.True(stale.IsStale);
         Assert.Equal("Stale since 4:20 PM", stale.StateNote);
         var offline = Create(Snapshot(), connected: false);
-        Assert.Equal("Usage host offline", offline.StateNote);
+        Assert.Equal("Usage tray not running", offline.StateNote);
         Assert.False(offline.IsConnected);
         var pausedSnapshot = Snapshot(asOf: Now.AddMinutes(-31));
         pausedSnapshot.IsPaused = true;
@@ -151,7 +252,20 @@ public sealed class UsageDisplayTests
         Assert.False(paused.IsStale);
         Assert.Equal("Updates paused", paused.StateNote);
         Assert.Contains("Paused", paused.ScheduleText);
-        Assert.Equal("Usage host offline", Create(null, false).StateNote);
+        Assert.Equal("Usage tray not running", Create(null, false).StateNote);
+    }
+
+    [Fact]
+    public void VersionMismatchHasItsOwnWordingOnlyWhenOffline()
+    {
+        var mismatch = UsageDisplay.Create(null, false, Now, TimeZoneInfo.Utc, versionMismatch: true);
+        Assert.True(mismatch.IsVersionMismatch);
+        Assert.Equal("Update needed", mismatch.StateNote);
+        Assert.Equal("Update needed", UsageDisplay.Create(Snapshot(), false, Now, TimeZoneInfo.Utc, versionMismatch: true).StateNote);
+        Assert.False(UsageDisplay.Create(Snapshot(), true, Now, TimeZoneInfo.Utc, versionMismatch: true).IsVersionMismatch);
+        Assert.False(Create(null, false).IsVersionMismatch);
+        Assert.Contains("v1.2.3", UsageDisplay.VersionMismatchDetail("1.2.3"));
+        Assert.DoesNotContain("(v", UsageDisplay.VersionMismatchDetail(""));
     }
 
     [Theory]
@@ -237,7 +351,7 @@ public sealed class UsageDisplayTests
         snapshot.Local.ErrorCode = "history_tool_missing";
         var display = Create(snapshot);
         Assert.Contains(display.AccountRows, r => r.Label == "Problem" && r.Value == "unsupported-billing");
-        Assert.Contains(display.LocalRows, r => r.Label == "Problem" && r.Value == "history_tool_missing");
+        Assert.Contains(display.LocalRows, r => r.Label == "Problem" && r.Value == "Chat history tool not found (history_tool_missing)");
     }
 
     private static string Tip(UsageSnapshot? snapshot) => UsageDisplay.TrayTooltip(snapshot, Now, TimeZoneInfo.Utc);
