@@ -30,6 +30,13 @@ namespace CopilotUsageMeter.Client
         public UsageSnapshot? Snapshot { get; private set; }
         public const string VersionMismatchStatus = "Version mismatch: update tray and extension";
         private readonly TimeSpan mismatchRetryDelay;
+        private readonly TimeSpan heartbeatTimeout;
+        private readonly TimeSpan commandTimeout;
+        private readonly TimeSpan refreshTimeout;
+        // Refresh may wait on the history CLI (15 s) and GitHub (30 s), so it gets longer than other commands.
+        public static readonly TimeSpan DefaultHeartbeatTimeout = TimeSpan.FromSeconds(45);
+        public static readonly TimeSpan DefaultCommandTimeout = TimeSpan.FromSeconds(10);
+        public static readonly TimeSpan DefaultRefreshTimeout = TimeSpan.FromSeconds(45);
         public string Status { get; private set; } = "Disconnected";
 
         private sealed class VersionMismatchException : IOException
@@ -37,10 +44,14 @@ namespace CopilotUsageMeter.Client
             public VersionMismatchException() : base("Tray and extension protocol versions differ.") { }
         }
 
-        public PipeUsageClient(string pipeName, TimeSpan? mismatchRetryDelay = null)
+        public PipeUsageClient(string pipeName, TimeSpan? mismatchRetryDelay = null, TimeSpan? heartbeatTimeout = null,
+            TimeSpan? commandTimeout = null, TimeSpan? refreshTimeout = null)
         {
             this.pipeName = pipeName;
             this.mismatchRetryDelay = mismatchRetryDelay ?? TimeSpan.FromSeconds(10);
+            this.heartbeatTimeout = heartbeatTimeout ?? DefaultHeartbeatTimeout;
+            this.commandTimeout = commandTimeout ?? DefaultCommandTimeout;
+            this.refreshTimeout = refreshTimeout ?? DefaultRefreshTimeout;
         }
 
         public void Start()
@@ -87,12 +98,27 @@ namespace CopilotUsageMeter.Client
                             sequence = 0;
                             hostInstance = "";
                             await SubscribeAsync(active, promote: true).ConfigureAwait(false);
+                            // The watchdog arms only once this tray has sent a heartbeat, so an older tray that sends none is not dropped.
+                            var heartbeatSeen = false;
                             while (!lifetime.IsCancellationRequested)
                             {
-                                var message = await active.ReadAsync(lifetime.Token).ConfigureAwait(false);
+                                ProtocolMessage? message;
+                                if (!heartbeatSeen) message = await active.ReadAsync(lifetime.Token).ConfigureAwait(false);
+                                else
+                                    using (var watchdog = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token))
+                                    {
+                                        watchdog.CancelAfter(heartbeatTimeout);
+                                        using (watchdog.Token.Register(() => pipe.Dispose()))
+                                            message = await active.ReadAsync(watchdog.Token).ConfigureAwait(false);
+                                    }
                                 if (message == null) throw new EndOfStreamException("Tray disconnected.");
                                 if (message.Protocol != UsageProtocol.Version)
                                     throw new VersionMismatchException();
+                                if (message.Type == "Heartbeat")
+                                {
+                                    heartbeatSeen = true;
+                                    continue;
+                                }
                                 if (message.Type == "Snapshot" || message.Type == "Update")
                                 {
                                     var snapshot = message.Snapshot;
@@ -120,7 +146,8 @@ namespace CopilotUsageMeter.Client
                                 }
                                 else if (message.RequestId != null && pending.TryRemove(message.RequestId, out var completion))
                                     completion.TrySetResult(message);
-                                else if (message.Type == "Error")
+                                // An error for a request that already timed out is not a protocol failure.
+                                else if (message.Type == "Error" && message.RequestId == null)
                                     throw new InvalidDataException(message.Message ?? "Tray protocol error.");
                             }
                         }
@@ -199,7 +226,7 @@ namespace CopilotUsageMeter.Client
             pending[requestId] = completion;
             using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token))
             {
-                timeout.CancelAfter(TimeSpan.FromSeconds(10));
+                timeout.CancelAfter(command.Type == "Refresh" ? refreshTimeout : commandTimeout);
                 using (timeout.Token.Register(() => completion.TrySetCanceled()))
                 {
                     try
@@ -211,7 +238,10 @@ namespace CopilotUsageMeter.Client
                         if (reply.Type != "Ack" && reply.Type != "Error") throw new InvalidDataException("Invalid command response.");
                         return reply;
                     }
-
+                    catch (OperationCanceledException) when (timeout.IsCancellationRequested && !cancellationToken.IsCancellationRequested && !lifetime.IsCancellationRequested)
+                    {
+                        throw new CommandTimeoutException(command.Type);
+                    }
                     catch (ObjectDisposedException exception)
                     {
                         throw new IOException("Tray disconnected before command acknowledgement.", exception);

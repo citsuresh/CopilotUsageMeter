@@ -235,6 +235,11 @@ namespace CopilotUsageMeter.Panel.Vsix
                 await tasks.SwitchToMainThreadAsync(lifetime.Token);
                 if (reply.Type == "Error") statusBar.SetText(reply.Message ?? "Copilot Usage Meter command rejected.");
             }
+            catch (CommandTimeoutException) when (command.Type == "Refresh")
+            {
+                await tasks.SwitchToMainThreadAsync();
+                if (!disposed) statusBar.SetText("Copilot Usage Meter: refresh is taking longer than usual; values update when it finishes.");
+            }
             catch (Exception exception) when (exception is IOException || exception is OperationCanceledException)
             {
                 await tasks.SwitchToMainThreadAsync();

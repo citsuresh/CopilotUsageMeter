@@ -90,6 +90,10 @@ namespace CopilotUsageMeter.Panel.Core
                 var response = await client.SendAsync(command, CancellationToken.None);
                 notice = response.Type == "Error" ? response.Message ?? "Demo command was rejected." : "Demo command acknowledged.";
             }
+            catch (CommandTimeoutException) when (command.Type == "Refresh")
+            {
+                notice = "Refresh is taking longer than usual; values update when it finishes.";
+            }
             catch (Exception exception) when (exception is InvalidDataException || exception is IOException || exception is OperationCanceledException)
             {
                 notice = "Command not acknowledged; check connection/state before retrying.";

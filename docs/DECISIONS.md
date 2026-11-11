@@ -163,6 +163,12 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Rationale: the 60 s file-watcher reconciliation only signals when metadata or the error code changes, so a transient CLI/database failure could leave stale local data indefinitely; a listener fault previously required restarting the tray. GitHub retry (15 s doubling to 15 min) and the client reconnect loop already existed and are unchanged.
 - Not verified live; the retry schedule and the notify-after-3 threshold are defaults, not user-confirmed values.
 
+## 2026-11-11 - Busy-tray handling: heartbeat, command queue and Refresh timeout (user-authorised)
+
+- Decision: the tray sends a `Heartbeat` every 15 s to subscribed clients; a client that has seen one drops the connection after 45 s of silence and reconnects. Commands on a connection run through an ordered queue (16 at most, then a `busy` error) instead of blocking the read loop. `Refresh` gets a 45 s client timeout (other commands 10 s), and a Refresh timeout is shown as "taking longer than usual", not as a failure.
+- Rationale: a busy or stuck tray previously froze every request on that connection, and a client that stopped hearing from the tray never noticed. The values (15/45 s, queue of 16, 45 s Refresh) are defaults, not user-confirmed. Not verified live.
+- Deferred: cancelling commands the client abandoned (needs a cancel message or a handler timeout).
+
 ## 2026-11-11 - VSIX starts in every instance; probe commands stay temporarily
 - Decision: the Exp-only gate in `UsagePackage` is removed so the user can test in the main VS. This supersedes the earlier note that the probe/Recheck commands stay only because they are Exp-only: the four Tools-menu test commands remain for now at the user's direction and MUST be removed before publishing (Phase 5). The manifest description now describes the real behaviour. Agent-run runtime tests remain restricted to Exp; the user installs into the main instance themselves.
 - Rationale: the main-instance install otherwise did nothing. The user accepted the temporary test commands during development.

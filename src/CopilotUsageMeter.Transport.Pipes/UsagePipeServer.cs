@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -16,12 +17,16 @@ namespace CopilotUsageMeter.Transport.Pipes
         {
             public readonly PipeConnection Connection;
             public readonly SemaphoreSlim Gate = new SemaphoreSlim(1, 1);
-            public bool Subscribed;
+            public volatile bool Subscribed;
             public long Sequence;
             public long Revision;
             public string? ActiveSessionId;
             public string? RepositoryKey;
             public long ContextVersion;
+            // Commands run one at a time in arrival order; the lock guards the queue, the running flag and Closed.
+            public readonly Queue<ProtocolMessage> Commands = new Queue<ProtocolMessage>();
+            public bool CommandsRunning;
+            public bool Closed;
             public Session(PipeConnection connection) => Connection = connection;
         }
 
@@ -31,6 +36,8 @@ namespace CopilotUsageMeter.Transport.Pipes
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         private readonly ConcurrentDictionary<int, Session> sessions = new ConcurrentDictionary<int, Session>();
         private readonly ConcurrentDictionary<int, Task> workers = new ConcurrentDictionary<int, Task>();
+        // Command runners outlive their session's read loop, so shutdown waits for them separately.
+        private readonly ConcurrentDictionary<Task, byte> commandRuns = new ConcurrentDictionary<Task, byte>();
         private readonly SemaphoreSlim slots = new SemaphoreSlim(16, 16);
         private Task? listener;
         private int nextSession;
@@ -44,13 +51,18 @@ namespace CopilotUsageMeter.Transport.Pipes
         public const int ListenerFaultNotifyAfter = 3;
         public const string ListenerFaultMessage = "Pipe listener failed; retrying automatically. Restart the tray if this persists.";
         private readonly Func<int, TimeSpan> listenerRetryDelay;
+        public const int MaxQueuedCommands = 16;
+        public static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromSeconds(15);
+        private readonly TimeSpan heartbeatInterval;
 
         public UsagePipeServer(Func<NamedPipeServerStream> createPipe, Func<UsageSnapshot> getSnapshot,
             Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> handleCommand,
             Func<UsageSnapshot, string?, UsageSnapshot>? projectSnapshot = null,
             Func<UsageSnapshot, string?, string?, UsageSnapshot>? projectContext = null,
-            Func<int, TimeSpan>? listenerRetryDelay = null)
+            Func<int, TimeSpan>? listenerRetryDelay = null,
+            TimeSpan? heartbeatInterval = null)
         {
+            this.heartbeatInterval = heartbeatInterval ?? DefaultHeartbeatInterval;
             this.createPipe = createPipe;
             this.getSnapshot = getSnapshot;
             this.handleCommand = handleCommand;
@@ -124,6 +136,8 @@ namespace CopilotUsageMeter.Transport.Pipes
             {
                 var session = new Session(connection);
                 sessions[id] = session;
+                var sessionLifetime = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+                var heartbeat = HeartbeatAsync(session, sessionLifetime.Token);
                 try
                 {
                     ProtocolMessage? hello;
@@ -188,12 +202,8 @@ namespace CopilotUsageMeter.Transport.Pipes
                         }
                         else if (!session.Subscribed)
                             await connection.WriteAsync(Error(request, "subscription_required", "Subscribe before issuing commands."), lifetime.Token).ConfigureAwait(false);
-                        else
-                        {
-                            var reply = await handleCommand(request, lifetime.Token).ConfigureAwait(false);
-                            reply.RequestId = request.RequestId;
-                            await connection.WriteAsync(reply, lifetime.Token).ConfigureAwait(false);
-                        }
+                        else if (!TryEnqueueCommand(session, request))
+                            await connection.WriteAsync(Error(request, "busy", "The tray is busy with earlier commands; try again shortly."), lifetime.Token).ConfigureAwait(false);
                     }
                 }
                 catch (InvalidDataException)
@@ -205,14 +215,106 @@ namespace CopilotUsageMeter.Transport.Pipes
                 catch (OperationCanceledException) { }
                 catch (ObjectDisposedException)
                 {
-                    if (!lifetime.IsCancellationRequested) Faulted?.Invoke("Pipe session closed or handshake timed out.");
+                    if (!lifetime.IsCancellationRequested && !IsClosedByCommands(session)) Faulted?.Invoke("Pipe session closed or handshake timed out.");
                 }
                 finally
                 {
+                    CloseCommands(session);
+                    sessionLifetime.Cancel();
+                    await heartbeat.ConfigureAwait(false);
+                    sessionLifetime.Dispose();
                     sessions.TryRemove(id, out _);
                     ContextsChanged?.Invoke();
                 }
             }
+        }
+
+        private static bool IsClosedByCommands(Session session)
+        {
+            lock (session.Commands) return session.Closed;
+        }
+
+        private static void CloseCommands(Session session)
+        {
+            lock (session.Commands)
+            {
+                session.Closed = true;
+                session.Commands.Clear();
+            }
+        }
+
+        private bool TryEnqueueCommand(Session session, ProtocolMessage request)
+        {
+            lock (session.Commands)
+            {
+                if (session.Closed || session.Commands.Count >= MaxQueuedCommands) return false;
+                session.Commands.Enqueue(request);
+                if (session.CommandsRunning) return true;
+                session.CommandsRunning = true;
+            }
+            var run = Task.Run(() => RunCommandsAsync(session));
+            commandRuns[run] = 0;
+            _ = run.ContinueWith(finished => commandRuns.TryRemove(finished, out _), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            return true;
+        }
+
+        // Runs queued commands one at a time so a slow command never blocks the read loop, and replies keep request order.
+        private async Task RunCommandsAsync(Session session)
+        {
+            while (true)
+            {
+                ProtocolMessage request;
+                lock (session.Commands)
+                {
+                    if (session.Closed || session.Commands.Count == 0)
+                    {
+                        session.Commands.Clear();
+                        session.CommandsRunning = false;
+                        return;
+                    }
+                    request = session.Commands.Dequeue();
+                }
+                try
+                {
+                    var reply = await handleCommand(request, lifetime.Token).ConfigureAwait(false);
+                    reply.RequestId = request.RequestId;
+                    await session.Connection.WriteAsync(reply, lifetime.Token).ConfigureAwait(false);
+                }
+                catch (Exception exception) when (exception is IOException || exception is OperationCanceledException || exception is ObjectDisposedException)
+                {
+                    // The client left, a reply write timed out, or the server is stopping; end the session.
+                    CloseCommands(session);
+                    session.Connection.Dispose();
+                }
+                catch (Exception)
+                {
+                    CloseCommands(session);
+                    session.Connection.Dispose();
+                    Faulted?.Invoke("Pipe session failed unexpectedly.");
+                }
+            }
+        }
+
+        // Proves to the client that the pipe and the tray's thread pool are alive; it does not prove the UI thread is responsive.
+        private async Task HeartbeatAsync(Session session, CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(heartbeatInterval, token).ConfigureAwait(false);
+                    if (!session.Subscribed) continue;
+                    await session.Connection.WriteAsync(new ProtocolMessage { Type = "Heartbeat" }, token).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                session.Connection.Dispose();
+                Faulted?.Invoke("Disconnected a slow pipe client.");
+            }
+            catch (OperationCanceledException) { }
+            catch (IOException) { session.Connection.Dispose(); }
+            catch (ObjectDisposedException) { }
         }
 
         private async Task SendSnapshotAsync(Session session, UsageSnapshot snapshot, string type, CancellationToken token)
@@ -261,6 +363,8 @@ namespace CopilotUsageMeter.Transport.Pipes
             if (listener != null) await listener.ConfigureAwait(false);
             try { await Task.WhenAll(workers.Values.ToArray()).ConfigureAwait(false); }
             catch (OperationCanceledException) { /* Workers were stopped by shutdown. */ }
+            try { await Task.WhenAll(commandRuns.Keys.ToArray()).ConfigureAwait(false); }
+            catch (OperationCanceledException) { /* Command handlers were stopped by shutdown. */ }
         }
 
         public void Dispose()
