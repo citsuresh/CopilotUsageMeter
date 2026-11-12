@@ -58,9 +58,11 @@ namespace CopilotUsageMeter.Panel.Vsix
             this.statusBar = statusBar;
             this.tasks = tasks;
             solution = services.GetService(typeof(SVsSolution)) as IVsSolution;
+            var priorityCommands = services.GetService(typeof(SVsRegisterPriorityCommandTarget)) as IVsRegisterPriorityCommandTarget
+                ?? throw new InvalidOperationException("Visual Studio priority command service is unavailable.");
             using (var identity = WindowsIdentity.GetCurrent())
                 client = new PipeUsageClient(UsageProtocol.PipePrefix + (identity.User?.Value ?? throw new InvalidOperationException("Windows user SID unavailable.")));
-            view = new CompactUsageView(SendCommand);
+            view = new CompactUsageView(SendCommand, priorityCommands, exception => ReportFault("popup_escape_failed", exception));
             infoBars = new InfoBarPresenter(services, notices.Dismissed);
             client.SnapshotChanged += SnapshotChanged;
             client.StatusChanged += StatusChanged;

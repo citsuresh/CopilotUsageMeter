@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
@@ -11,6 +12,11 @@ using CopilotUsageMeter.Client;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Panel.Core;
 using CopilotUsageMeter.Presentation;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 
 namespace CopilotUsageMeter.Panel.Vsix
 {
@@ -60,6 +66,10 @@ namespace CopilotUsageMeter.Panel.Vsix
         private readonly Button chevron;
         private readonly Button menu;
         private readonly Popup popup;
+        private readonly IVsRegisterPriorityCommandTarget priorityCommands;
+        private readonly EscapeCommandTarget escapeTarget;
+        private readonly Action<Exception> reportFault;
+        private uint escapeCookie;
         private readonly Border popupHost = new Border { BorderThickness = new Thickness(1), Focusable = true };
         private UsageDisplay display = UsageDisplay.Create(null, false, DateTimeOffset.UtcNow);
         private bool connected;
@@ -75,9 +85,11 @@ namespace CopilotUsageMeter.Panel.Vsix
             Foreground = Blue, IsHitTestVisible = false, Visibility = Visibility.Collapsed
         };
 
-        public CompactUsageView(Action<ProtocolMessage> send)
+        public CompactUsageView(Action<ProtocolMessage> send, IVsRegisterPriorityCommandTarget priorityCommands, Action<Exception> reportFault)
         {
             this.send = send;
+            this.priorityCommands = priorityCommands;
+            this.reportFault = reportFault;
             Name = "CopilotUsageMeterPanel";
             SetResourceReference(BackgroundProperty, Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowBackgroundBrushKey);
             SetResourceReference(ForegroundProperty, Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
@@ -107,8 +119,16 @@ namespace CopilotUsageMeter.Panel.Vsix
                 Child = popupHost, PlacementTarget = this, Placement = PlacementMode.Bottom,
                 StaysOpen = false, AllowsTransparency = true
             };
+            escapeTarget = new EscapeCommandTarget(() => popup.IsOpen, DismissPopup);
+            popup.Opened += (_, _) =>
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                RegisterEscapeTarget();
+            };
             popup.Closed += (_, _) =>
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                UnregisterEscapeTarget();
                 closedAt = DateTime.UtcNow;
                 confirmingLogOut = false;
                 chevron.Content = Icon("\uE70D", ChevronSize);
@@ -128,6 +148,9 @@ namespace CopilotUsageMeter.Panel.Vsix
             };
             Unloaded += (_, _) =>
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                popup.IsOpen = false;
+                UnregisterEscapeTarget();
                 Microsoft.VisualStudio.PlatformUI.VSColorTheme.ThemeChanged -= ThemeChanged;
                 SystemParameters.StaticPropertyChanged -= SystemThemeChanged;
             };
@@ -315,8 +338,82 @@ namespace CopilotUsageMeter.Panel.Vsix
         private void CloseOnEscape(object sender, KeyEventArgs args)
         {
             if (args.Key != Key.Escape || !popup.IsOpen) return;
-            popup.IsOpen = false;
             args.Handled = true;
+            DismissPopup();
+        }
+
+        private void DismissPopup()
+        {
+            popup.IsOpen = false;
+            chevron.Focus();
+        }
+
+        private void RegisterEscapeTarget()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (escapeCookie != 0) return;
+            try
+            {
+                // VS can consume Escape before WPF sees it. Intercept only while this popup is open.
+                ErrorHandler.ThrowOnFailure(priorityCommands.RegisterPriorityCommandTarget(0, escapeTarget, out escapeCookie));
+            }
+            catch (COMException exception)
+            {
+                popup.IsOpen = false;
+                reportFault(exception);
+            }
+        }
+
+        private void UnregisterEscapeTarget()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (escapeCookie == 0) return;
+            try
+            {
+                ErrorHandler.ThrowOnFailure(priorityCommands.UnregisterPriorityCommandTarget(escapeCookie));
+                escapeCookie = 0;
+            }
+            catch (COMException exception)
+            {
+                reportFault(exception);
+            }
+        }
+
+        private sealed class EscapeCommandTarget : IOleCommandTarget
+        {
+            private readonly Func<bool> isOpen;
+            private readonly Action dismiss;
+
+            public EscapeCommandTarget(Func<bool> isOpen, Action dismiss)
+            {
+                this.isOpen = isOpen;
+                this.dismiss = dismiss;
+            }
+
+            public int QueryStatus(ref Guid group, uint count, OLECMD[] commands, IntPtr text)
+            {
+                if (!isOpen() || (group != VSConstants.GUID_VSStandardCommandSet97 && group != VSConstants.VSStd2K))
+                    return (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+                var supported = false;
+                for (var index = 0; index < count; index++)
+                {
+                    var escape = IsEscape(group, commands[index].cmdID);
+                    commands[index].cmdf = escape ? (uint)(OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED) : 0;
+                    supported |= escape;
+                }
+                return supported ? VSConstants.S_OK : (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+            }
+
+            public int Exec(ref Guid group, uint id, uint options, IntPtr input, IntPtr output)
+            {
+                if (!isOpen() || !IsEscape(group, id)) return (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+                dismiss();
+                return VSConstants.S_OK;
+            }
+
+            private static bool IsEscape(Guid group, uint id) =>
+                (group == VSConstants.GUID_VSStandardCommandSet97 && id == (uint)VSConstants.VSStd97CmdID.Escape) ||
+                (group == VSConstants.VSStd2K && id == (uint)VSConstants.VSStd2KCmdID.CANCEL);
         }
 
         private void OpenMenu()
