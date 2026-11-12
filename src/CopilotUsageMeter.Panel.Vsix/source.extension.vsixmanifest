@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="CopilotUsageMeter.Panel.citsuresh" Version="0.1.19" Language="en-US" Publisher="citsuresh" />
+    <Identity Id="CopilotUsageMeter.Panel.citsuresh" Version="0.1.20" Language="en-US" Publisher="citsuresh" />
     <DisplayName>Copilot Usage Meter</DisplayName>
     <Description xml:space="preserve">Shows Copilot credit usage in the Copilot Chat window: GitHub-reported account usage and this machine's local per-turn usage. Requires the Copilot Usage Meter tray app; development build.</Description>
   </Metadata>

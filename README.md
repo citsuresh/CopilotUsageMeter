@@ -133,7 +133,7 @@ Do not pass a path after `devenv /log`: VS treats it as the log file and overwri
 
 The VS row/popup and tray Full details window use host-theme text for warning headings and links, without dimming readable text. Badge glyphs select black or white by sRGB contrast: black on amber is 8.01:1, previously white at 2.62:1. High contrast uses system colours, opaque charts and no problem tints. Flat VS buttons and turn bars have a 2 px keyboard-focus outline; tray turn bars also expose their tooltip on keyboard focus. Open views redraw on theme changes; subscriptions detach on unload/close.
 
-Tray and non-deploying VSIX builds passed; all 599 tests passed. Ten new contrast cases include 4,096 RGB samples meeting 4.5:1. These changes have not been deployed to the debugged tray or Exp instance. Live theme/DPI/screen-reader checks remain open; no blanket custom-theme compliance is claimed.
+Tray and VSIX builds passed; all 599 tests passed before deployment. Ten new contrast cases include 4,096 RGB samples meeting 4.5:1. Version 0.1.20 is installed in Exp; UI Automation confirmed the row and popup controls and popup open/close. Eight product-version tests passed after the version bump. The updated Release tray is now running without the debugger, with Full details open for testing. Live theme/DPI/screen-reader checks remain open; the UI Automation smoke check does not verify visual contrast or blanket custom-theme compliance.
 
 ## Logging and failure handling
 
