@@ -151,11 +151,28 @@ internal sealed class TrayHost : IDisposable
         }
     }
 
+    // Position and size are kept only for this tray run; nothing is written to disk.
+    private WindowPlacement? detailsPlacement;
+
+    private static WindowPlacement CapturePlacement(Window target)
+    {
+        var bounds = target.WindowState == WindowState.Normal ? new Rect(target.Left, target.Top, target.ActualWidth, target.ActualHeight) : target.RestoreBounds;
+        return new WindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
+    }
+
     public void ShowWindow()
     {
         if (window == null)
         {
             window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token), ShowAlertSettings);
+            if (detailsPlacement is { IsUsable: true } placement)
+            {
+                var area = SystemParameters.WorkArea;
+                var fitted = placement.Fit(area.Left, area.Top, area.Right, area.Bottom, window.MinWidth, window.MinHeight);
+                window.WindowStartupLocation = WindowStartupLocation.Manual;
+                (window.Left, window.Top, window.Width, window.Height) = (fitted.Left, fitted.Top, fitted.Width, fitted.Height);
+            }
+            window.Closing += (_, _) => detailsPlacement = CapturePlacement(window);
             window.Closed += (_, _) => window = null;
         }
         window.Show();

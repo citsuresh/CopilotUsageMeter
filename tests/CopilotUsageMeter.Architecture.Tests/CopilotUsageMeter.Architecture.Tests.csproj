@@ -25,6 +25,7 @@
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\ThresholdAlertService.cs" Link="Tray\ThresholdAlertService.cs" />
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\HealthAlertService.cs" Link="Tray\HealthAlertService.cs" />
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\StartWithWindows.cs" Link="Tray\StartWithWindows.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\WindowPlacement.cs" Link="Tray\WindowPlacement.cs" />
   </ItemGroup>
 
   <ItemGroup>
