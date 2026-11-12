@@ -216,3 +216,10 @@ Solution, project graph, architecture guards, WPF entry scaffold and real VSIX p
 - Decision: no setting. The extension cannot read the tray's `alerts.json` without crossing the tray/extension privacy boundary, and these notices describe the extension's own state, so they are always on.
 - Rationale: the 20-second delay avoids notices when Visual Studio starts before the tray or the tray restarts; the cool-down avoids a flapping connection producing repeated infobars.
 - Given up: when Copilot Chat is not open the extension cannot tell that from a changed layout, so a layout change that hides every anchor is reported only through the status bar; the infobar has no action button because the extension does not know where the tray is installed; a tray-icon marker for network problems is still not built.
+
+## 2026-11-12 - Theme text and high-contrast policy (Phase 5)
+
+- Decision: warning headings and links use host-theme text, not amber/blue text on arbitrary surfaces. Badges keep semantic fills but choose black/white glyphs by sRGB contrast. Readable text is no longer dimmed when offline/busy; explicit state messages and progress indicators remain. Normal chart fills may still dim for stale data.
+- Decision: Windows high contrast uses system colours with opaque charts and no problem tints; keyboard focus has an explicit 2 px outline. Static theme subscriptions are scoped to a loaded VS view or open tray details window. `UsageTheme` is compiled into both WPF hosts through a source link, not into shared libraries; only the numeric contrast calculation lives in Panel.Core.
+- Rationale: white on amber was 2.62:1. Selecting black raises it to 8.01:1, while inherited/dynamic host text avoids prescribing a warning/link colour that fails on a custom background. Labels and tooltips continue to identify states when high contrast collapses semantic colours.
+- Limits: live theme/DPI/screen-reader acceptance remains separate; no main-instance installation, runtime deployment, installer/startup changes, commits or pushes are part of this increment.

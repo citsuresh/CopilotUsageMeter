@@ -5,22 +5,30 @@ using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Documents;
 using System.Windows.Media;
 using CopilotUsageMeter.Client;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Panel.Core;
+using CopilotUsageMeter.Presentation;
 
 namespace CopilotUsageMeter.Panel.Vsix
 {
     // One-line usage row plus an anchored popup. All figures come from UsageDisplay; this class only draws them.
     internal sealed class CompactUsageView : UserControl
     {
-        private static readonly Brush Blue = Solid(0x2F, 0x6F, 0xDE);
-        private static readonly Brush Orange = Solid(0xE8, 0x89, 0x0C);
-        private static readonly Brush Red = Solid(0xD1, 0x34, 0x38);
-        private static readonly Brush LightBlue = Solid(0x8F, 0xB4, 0xF0);
-        private static readonly Brush Grey = Solid(0x8A, 0x8A, 0x8A);
-        private static readonly Brush Track = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
+        private static Brush Blue => UsageTheme.Fill(BlueFill);
+        private static Brush Orange => UsageTheme.Fill(OrangeFill);
+        private static Brush Red => UsageTheme.Fill(RedFill);
+        private static Brush LightBlue => UsageTheme.HighContrast ? SystemColors.WindowTextBrush : LightBlueFill;
+        private static Brush Grey => UsageTheme.Edge(GreyFill);
+        private static Brush Track => UsageTheme.Track(TrackFill);
+        private static readonly Brush BlueFill = Solid(0x2F, 0x6F, 0xDE);
+        private static readonly Brush OrangeFill = Solid(0xE8, 0x89, 0x0C);
+        private static readonly Brush RedFill = Solid(0xD1, 0x34, 0x38);
+        private static readonly Brush LightBlueFill = Solid(0x8F, 0xB4, 0xF0);
+        private static readonly Brush GreyFill = Solid(0x8A, 0x8A, 0x8A);
+        private static readonly Brush TrackFill = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
         // Translucent so the same tint reads on light and dark themes; the card keeps showing through.
         private static readonly Brush AmberTint = new SolidColorBrush(Color.FromArgb(0x38, 0xE8, 0x89, 0x0C));
         private const string PausedTooltip = "Updates are paused. Choose Resume updates in the popup, the ... menu or the tray menu to continue.";
@@ -31,7 +39,6 @@ namespace CopilotUsageMeter.Panel.Vsix
         private static readonly Brush AmberMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xE8, 0x89, 0x0C));
         private static readonly Brush RedMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xD1, 0x34, 0x38));
         private static readonly Brush Hover = new SolidColorBrush(Color.FromArgb(0x30, 0x80, 0x80, 0x80));
-        private static readonly Brush FocusRing = Solid(0x80, 0x80, 0x80);
         private static readonly Brush TickEdge = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
         private static readonly Brush HoverEdge = Solid(0xFF, 0xFF, 0xFF);
         private static readonly Brush BarHover = Solid(0xB7, 0x1C, 0x1C);
@@ -113,6 +120,53 @@ namespace CopilotUsageMeter.Panel.Vsix
             tintLayer.Child = root;
             card.Child = tintLayer;
             Content = card;
+            Loaded += (_, _) =>
+            {
+                Microsoft.VisualStudio.PlatformUI.VSColorTheme.ThemeChanged += ThemeChanged;
+                SystemParameters.StaticPropertyChanged += SystemThemeChanged;
+                RefreshTheme();
+            };
+            Unloaded += (_, _) =>
+            {
+                Microsoft.VisualStudio.PlatformUI.VSColorTheme.ThemeChanged -= ThemeChanged;
+                SystemParameters.StaticPropertyChanged -= SystemThemeChanged;
+            };
+            Rebuild(force: true);
+        }
+
+        private void ThemeChanged(Microsoft.VisualStudio.PlatformUI.ThemeChangedEventArgs args) => RefreshTheme();
+
+        private void SystemThemeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args) => RefreshTheme();
+
+        private void RefreshTheme()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                _ = Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    try
+                    {
+                        await Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        RefreshTheme();
+                    }
+                    catch (Exception exception)
+                    {
+                        Diagnostics.Error("vsix.theme", "theme_refresh_failed", exception);
+                    }
+                });
+                return;
+            }
+            if (!IsLoaded) return;
+            chevron.Template = FlatTemplate(hover: true);
+            menu.Template = FlatTemplate(hover: true);
+            chevron.SetResourceReference(Control.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
+            menu.SetResourceReference(Control.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
+            rowProgress.Foreground = Blue;
+            popupHost.SetResourceReference(Border.BorderBrushProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBorderBrushKey);
+            popupHost.SetResourceReference(TextElement.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
+            popupHost.SetResourceReference(Border.BackgroundProperty, UsageTheme.HighContrast ? SystemColors.WindowBrushKey : Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBackgroundBrushKey);
+            card.SetResourceReference(Border.BackgroundProperty, UsageTheme.HighContrast ? SystemColors.WindowBrushKey : Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBackgroundBrushKey);
+            SetResourceReference(ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
             Rebuild(force: true);
         }
 
@@ -135,9 +189,9 @@ namespace CopilotUsageMeter.Panel.Vsix
             var next = Signature(tier, barCount) + "|" + BarSlot(tier, barCount);
             if (!force && next == signature) return;
             signature = next;
-            Opacity = connected ? 1 : 0.6;
+            Opacity = 1;
             ApplySeverity();
-            content.Opacity = busy ? 0.6 : 1;
+            content.Opacity = 1;
             rowProgress.IsIndeterminate = busy;
             rowProgress.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
             AutomationProperties.SetName(this, display.AccessibleSummary);
@@ -153,9 +207,9 @@ namespace CopilotUsageMeter.Panel.Vsix
         {
             var severity = RowSeverity();
             // Paused only shows when nothing is wrong: a problem tint always wins.
-            tintLayer.Background = severity == null ? (display.IsPaused ? PausedTint : null) : severity == ProblemSeverity.Error ? RedTint : AmberTint;
-            if (severity == null) card.SetResourceReference(Border.BorderBrushProperty, Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBorderBrushKey);
-            else card.BorderBrush = severity == ProblemSeverity.Error ? Red : Orange;
+            tintLayer.Background = UsageTheme.HighContrast ? null : severity == null ? (display.IsPaused ? PausedTint : null) : severity == ProblemSeverity.Error ? RedTint : AmberTint;
+            if (severity == null) card.SetResourceReference(Border.BorderBrushProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBorderBrushKey);
+            else card.BorderBrush = UsageTheme.Edge(severity == ProblemSeverity.Error ? Red : Orange);
         }
 
         private string Signature(Tier tier, int barCount) => string.Join("|", new object?[]
@@ -303,10 +357,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             });
             if (!connected)
             {
-                stack.Children.Add(Label(mismatch ? UsageDisplay.VersionMismatchHeading : "USAGE TRAY NOT RUNNING", bold: true, size: 11, foreground: Red));
+                stack.Children.Add(Label(mismatch ? UsageDisplay.VersionMismatchHeading : "USAGE TRAY NOT RUNNING", bold: true, size: 11));
                 stack.Children.Add(Label(mismatch ? UsageDisplay.VersionMismatchDetail(ExtensionVersion) : "The Copilot Usage Meter tray app is not running or cannot be reached, so figures are not updating. Start it from the Windows tray or Start menu. Last known figures are shown dimmed.", muted: true, wrap: true, margin: new Thickness(0, 2, 0, 8)));
             }
-            var body = new StackPanel { Opacity = connected ? 1 : 0.55 };
+            var body = new StackPanel();
             AddGitHub(body, width - 24);
             AddLocal(body);
             AddChart(body, width - 24);
@@ -349,8 +403,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (hasSchedule) host.Children.Add(WithRefresh(Label(display.ScheduleText, muted: true, wrap: true), true));
             if (display.StateNote.Length > 0 && connected)
             {
-                var color = display.Level == GitHubLevel.Over ? Red : display.IsStale || display.Level == GitHubLevel.Warning ? Orange : null;
-                host.Children.Add(Label(display.StateNote, bold: true, wrap: true, foreground: color));
+                host.Children.Add(Label(display.StateNote, bold: true, wrap: true));
             }
         }
 
@@ -431,13 +484,13 @@ namespace CopilotUsageMeter.Panel.Vsix
             if (display.UsedFraction.HasValue)
             {
                 var color = !display.IsConnected ? Grey : display.Level == GitHubLevel.Over ? Red : display.Level == GitHubLevel.Warning ? Orange : Blue;
-                var used = new Border { Background = color, Opacity = display.IsStale || !display.IsConnected ? 0.55 : 1, ToolTip = "Used this month: " + display.GitHubSummary };
+                var used = new Border { Background = color, Opacity = UsageTheme.Opacity(display.IsStale || !display.IsConnected ? 0.55 : 1), ToolTip = "Used this month: " + display.GitHubSummary };
                 grid.Children.Add(SplitColumns(display.UsedFraction.Value, used, HorizontalAlignment.Stretch));
                 Highlight(used);
                 if (display.PaceFraction.HasValue)
                 {
                     // Black marker with a faint light edge stays visible on dark themes and on blue, orange and red fills.
-                    var tick = new Border { Width = 5, Background = Brushes.Black, BorderBrush = TickEdge, BorderThickness = new Thickness(1) };
+                    var tick = new Border { Width = 5, Background = UsageTheme.HighContrast ? SystemColors.WindowTextBrush : Brushes.Black, BorderBrush = UsageTheme.HighContrast ? SystemColors.WindowBrush : TickEdge, BorderThickness = new Thickness(1) };
                     // A wider transparent hit area makes the thin marker easy to hover.
                     var hit = new Border { Width = 11, Background = Brushes.Transparent, Child = tick, ToolTip = display.PaceText + " (marker shows how far through the month you are)" };
                     grid.Children.Add(SplitColumns(display.PaceFraction.Value, hit, HorizontalAlignment.Right));
@@ -452,7 +505,7 @@ namespace CopilotUsageMeter.Panel.Vsix
                 grid.Background = Brushes.Transparent;
                 var problem = display.IsConnected ? display.AccountProblem : null;
                 var error = problem?.Severity == ProblemSeverity.Error;
-                if (problem != null) grid.Background = error ? RedMeter : AmberMeter;
+                if (problem != null) grid.Background = UsageTheme.Track(error ? RedMeter : AmberMeter);
                 grid.Children.Add(new Border { BorderBrush = problem == null ? Grey : error ? Red : Orange, BorderThickness = new Thickness(1) });
             }
             return grid;
@@ -479,7 +532,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             foreach (var segment in display.Segments)
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength((double)segment.Credits, GridUnitType.Star) });
-                var border = new Border { Background = SegmentBrush(segment.Kind), Opacity = display.IsConnected ? 1 : 0.55, ToolTip = segment.Label + ": " + segment.Text + " credits (local, this machine)" };
+                var border = new Border { Background = SegmentBrush(segment.Kind), Opacity = UsageTheme.Opacity(display.IsConnected ? 1 : 0.55), ToolTip = segment.Label + ": " + segment.Text + " credits (local, this machine)" };
                 Grid.SetColumn(border, index++);
                 Highlight(border);
                 grid.Children.Add(border);
@@ -510,7 +563,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var badge = new Border
             {
                 Width = size, Height = size, CornerRadius = new CornerRadius(size / 2), Background = color, Margin = margin, VerticalAlignment = VerticalAlignment.Center,
-                Child = new TextBlock { Text = "!", Foreground = Brushes.White, FontSize = size - 4, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                Child = new TextBlock { Text = "!", Foreground = UsageTheme.TextOn(color), FontSize = size - 4, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
                 ToolTip = tooltip
             };
             ToolTipService.SetInitialShowDelay(badge, TooltipDelayMs);
@@ -525,7 +578,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var panel = new StackPanel { Margin = margin };
             var header = new StackPanel { Orientation = Orientation.Horizontal };
             header.Children.Add(ProblemBadge(color, problem.Title, new Thickness(0, 0, 6, 0)));
-            header.Children.Add(Label(problem.Title, bold: true, wrap: true, foreground: color));
+            header.Children.Add(Label(problem.Title, bold: true, wrap: true));
             panel.Children.Add(header);
             panel.Children.Add(Label(problem.Detail, muted: true, wrap: true, margin: new Thickness(0, 2, 0, 0)));
             if (problem.Code != null) panel.Children.Add(Label("Error code: " + problem.Code, muted: true, size: 11, margin: new Thickness(0, 2, 0, 0)));
@@ -537,7 +590,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             var badge = new Border
             {
                 Width = 12, Height = 12, CornerRadius = new CornerRadius(6), Background = Red, Margin = new Thickness(0, 0, 4, 0), VerticalAlignment = VerticalAlignment.Center,
-                Child = new TextBlock { Text = "!", Foreground = Brushes.White, FontSize = 9, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center }
+                Child = new TextBlock { Text = "!", Foreground = UsageTheme.TextOn(Red), FontSize = 9, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center }
             };
             AutomationProperties.SetName(badge, "Over the allowance");
             return badge;
@@ -549,7 +602,7 @@ namespace CopilotUsageMeter.Panel.Vsix
             {
                 Width = width, Height = UsageDisplay.BarHeightFor(bar.Fraction, maxHeight, 4), Margin = new Thickness(gap / 2, 0, gap / 2, 0), Padding = new Thickness(0),
                 VerticalAlignment = VerticalAlignment.Bottom, Background = Red, BorderThickness = new Thickness(0), BorderBrush = Brushes.Transparent,
-                Opacity = bar.IsNewest ? 1 : 0.5 + 0.35 * (count > 1 ? (double)index / (count - 1) : 1),
+                Opacity = UsageTheme.Opacity(bar.IsNewest ? 1 : 0.5 + 0.35 * (count > 1 ? (double)index / (count - 1) : 1)),
                 Template = FlatTemplate(hover: false, cornerRadius: 2)
             };
             AutomationProperties.SetName(button, bar.Tooltip);
@@ -558,11 +611,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             ToolTipService.SetInitialShowDelay(button, TooltipDelayMs);
             var restingOpacity = button.Opacity;
             // Hover darkens the fill at full opacity instead of adding an outline, so the bar keeps its size; the outline is for keyboard focus only.
-            void Edge() => button.BorderThickness = new Thickness(button.IsKeyboardFocused ? 1 : 0);
-            button.MouseEnter += (_, _) => { button.Opacity = 1; button.Background = BarHover; Edge(); };
-            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.Background = Red; Edge(); };
-            button.GotKeyboardFocus += (_, _) => { tooltip.IsOpen = true; Edge(); };
-            button.LostKeyboardFocus += (_, _) => { tooltip.IsOpen = false; Edge(); };
+            button.MouseEnter += (_, _) => { button.Opacity = 1; button.Background = UsageTheme.Fill(BarHover); };
+            button.MouseLeave += (_, _) => { button.Opacity = restingOpacity; button.Background = Red; };
+            button.GotKeyboardFocus += (_, _) => tooltip.IsOpen = true;
+            button.LostKeyboardFocus += (_, _) => tooltip.IsOpen = false;
             return button;
         }
 
@@ -605,6 +657,7 @@ namespace CopilotUsageMeter.Panel.Vsix
                 Content = Icon(glyph, size), Padding = new Thickness(padding), Margin = new Thickness(0, 0, 2, 0), Background = Brushes.Transparent,
                 BorderThickness = new Thickness(1), BorderBrush = Brushes.Transparent, ToolTip = tooltip, Template = FlatTemplate(hover: true)
             };
+            button.SetResourceReference(Control.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
             AutomationProperties.SetName(button, name);
             return button;
         }
@@ -615,11 +668,12 @@ namespace CopilotUsageMeter.Panel.Vsix
         {
             var button = new Button
             {
-                Content = new TextBlock { Text = text, TextDecorations = TextDecorations.Underline, Foreground = Blue }, Padding = new Thickness(4, 2, 4, 2),
+                Content = new TextBlock { Text = text, TextDecorations = TextDecorations.Underline }, Padding = new Thickness(4, 2, 4, 2),
                 Margin = new Thickness(4, 0, 0, 0), Background = Brushes.Transparent, BorderThickness = new Thickness(1), BorderBrush = Brushes.Transparent,
                 Cursor = Cursors.Hand, Template = FlatTemplate(hover: false)
             };
             AutomationProperties.SetName(button, text.TrimEnd('…'));
+            button.SetResourceReference(Control.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
             button.Click += (_, _) => click();
             return button;
         }
@@ -628,10 +682,12 @@ namespace CopilotUsageMeter.Panel.Vsix
         {
             var label = new TextBlock { Text = text };
             var button = new Button { Content = label, Padding = new Thickness(12, 4, 12, 4), Margin = new Thickness(0, 0, 8, 0), BorderThickness = new Thickness(1), BorderBrush = Grey };
+            button.SetResourceReference(Control.BackgroundProperty, UsageTheme.HighContrast ? SystemColors.WindowBrushKey : Microsoft.VisualStudio.PlatformUI.CommonControlsColors.TextBoxBackgroundBrushKey);
+            button.SetResourceReference(Control.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
             if (background != null)
             {
                 button.Background = background;
-                label.Foreground = Brushes.White;
+                label.Foreground = UsageTheme.TextOn(background);
             }
             AutomationProperties.SetName(button, text);
             button.Click += (_, _) => click();
@@ -652,12 +708,14 @@ namespace CopilotUsageMeter.Panel.Vsix
             border.AppendChild(presenter);
             var template = new ControlTemplate(typeof(Button)) { VisualTree = border };
             var focus = new Trigger { Property = UIElement.IsKeyboardFocusedProperty, Value = true };
-            focus.Setters.Add(new Setter(Border.BorderBrushProperty, FocusRing, "bd"));
+            focus.Setters.Add(new Setter(Border.BorderBrushProperty, new DynamicResourceExtension(UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey), "bd"));
+            focus.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(2), "bd"));
             template.Triggers.Add(focus);
             if (hover)
             {
                 var over = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
-                over.Setters.Add(new Setter(Border.BackgroundProperty, Hover, "bd"));
+                over.Setters.Add(new Setter(Border.BackgroundProperty, UsageTheme.HighContrast ? SystemColors.HighlightBrush : Hover, "bd"));
+                if (UsageTheme.HighContrast) over.Setters.Add(new Setter(Control.ForegroundProperty, SystemColors.HighlightTextBrush));
                 template.Triggers.Add(over);
             }
             var disabled = new Trigger { Property = UIElement.IsEnabledProperty, Value = false };
@@ -672,9 +730,10 @@ namespace CopilotUsageMeter.Panel.Vsix
             {
                 Text = text, FontSize = size, VerticalAlignment = VerticalAlignment.Center, Margin = margin ?? new Thickness(0, 1, 0, 1),
                 FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, TextWrapping = wrap ? TextWrapping.Wrap : TextWrapping.NoWrap,
-                TextTrimming = wrap ? TextTrimming.None : TextTrimming.CharacterEllipsis, Opacity = muted ? 0.7 : 1
+                TextTrimming = wrap ? TextTrimming.None : TextTrimming.CharacterEllipsis
             };
             if (foreground != null) block.Foreground = foreground;
+            else block.SetResourceReference(TextBlock.ForegroundProperty, UsageTheme.HighContrast ? SystemColors.WindowTextBrushKey : Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowTextBrushKey);
             return block;
         }
 

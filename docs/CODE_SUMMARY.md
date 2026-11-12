@@ -46,6 +46,8 @@ Architecture.Tests references all eight shared libraries and reads project/solut
 | Tray | `TrayIconPainter` | `src\CopilotUsageMeter.Tray\TrayIconPainter.cs` | Draws the usage ring (thin track, thick arc) for the tray icon |
 | Tray | `StartWithWindows` | `src\CopilotUsageMeter.Tray\StartWithWindows.cs` | HKCU Run-value toggle for the "Start with Windows" menu item (linked into the tests; key path injectable) |
 | Tray | `WindowPlacement` | `src\CopilotUsageMeter.Tray\WindowPlacement.cs` | UI-free window position/size with `Fit` into a work area; the Full details window remembers it in memory between close and reopen |
+| Tray / Panel.Vsix | `UsageTheme` | `src\CopilotUsageMeter.Tray\UsageTheme.cs` (linked into VSIX) | Host-only WPF high-contrast brushes, opacity policy and contrasting badge text; no WPF types in shared libraries |
+| Panel.Core | `ColorContrast` | `src\CopilotUsageMeter.Panel.Core\ColorContrast.cs` | UI-free sRGB luminance and higher-contrast black/white text selection |
 | Tray | `NotificationIdentity` | `src\CopilotUsageMeter.Tray\NotificationIdentity.cs` | Sets the process AppUserModelID and its HKCU display name/icon so notifications show the app name and ring icon |
 | Tray | `GitHubAccountRemoval` | `src\CopilotUsageMeter.Tray\GitHubAccountRemoval.cs` | UI-free removal of a saved gh login (one at a time); signs the tray out when the removed login is the connected one |
 | Tray | `GitHubSignInFlow`, `GitHubSignInWindow` | `src\CopilotUsageMeter.Tray\GitHubSignInFlow.cs`, `GitHubSignInWindow.xaml(.cs)` | UI-free sign-in state machine (linked into the tests) and the WPF dialog that shows the one-time code, with fallback to a visible console |

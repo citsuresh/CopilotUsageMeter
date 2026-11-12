@@ -10,24 +10,31 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using CopilotUsageMeter.Contracts;
 using CopilotUsageMeter.Panel.Core;
+using CopilotUsageMeter.Presentation;
 
 namespace CopilotUsageMeter.Tray;
 
 // Full details window. All text and rules come from UsageDisplay; this class only draws them.
 public partial class MainWindow : Window
 {
-    private static readonly Brush Blue = Solid(0x2F, 0x6F, 0xDE);
-    private static readonly Brush Orange = Solid(0xE8, 0x89, 0x0C);
-    private static readonly Brush Red = Solid(0xD1, 0x34, 0x38);
-    private static readonly Brush LightBlue = Solid(0x8F, 0xB4, 0xF0);
-    private static readonly Brush Grey = Solid(0x8A, 0x8A, 0x8A);
+    private static Brush Blue => UsageTheme.Fill(BlueFill);
+    private static Brush Orange => UsageTheme.Fill(OrangeFill);
+    private static Brush Red => UsageTheme.Fill(RedFill);
+    private static Brush LightBlue => UsageTheme.HighContrast ? SystemColors.WindowTextBrush : LightBlueFill;
+    private static Brush Grey => UsageTheme.Edge(GreyFill);
+    private static readonly Brush BlueFill = Solid(0x2F, 0x6F, 0xDE);
+    private static readonly Brush OrangeFill = Solid(0xE8, 0x89, 0x0C);
+    private static readonly Brush RedFill = Solid(0xD1, 0x34, 0x38);
+    private static readonly Brush LightBlueFill = Solid(0x8F, 0xB4, 0xF0);
+    private static readonly Brush GreyFill = Solid(0x8A, 0x8A, 0x8A);
     private static readonly Brush AmberMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xE8, 0x89, 0x0C));
     private static readonly Brush RedMeter = new SolidColorBrush(Color.FromArgb(0x59, 0xD1, 0x34, 0x38));
     private static readonly Brush TickEdge = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
     private static readonly Brush HoverEdge = Solid(0xFF, 0xFF, 0xFF);
     private static readonly Brush BarHover = Solid(0xB7, 0x1C, 0x1C);
     private const int TooltipDelayMs = 150;
-    private static readonly Brush Track = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
+    private static Brush Track => UsageTheme.Track(TrackFill);
+    private static readonly Brush TrackFill = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80));
 
     private readonly Func<UsageSnapshot> getSnapshot;
     private readonly Func<IReadOnlyList<string>> listLogins;
@@ -54,6 +61,16 @@ public partial class MainWindow : Window
         MaxHeight = area.Height;
         Height = Math.Min(Height, area.Height - 40);
         Loaded += (_, _) => { if (Top + ActualHeight > area.Bottom) Top = Math.Max(area.Top, area.Bottom - ActualHeight); };
+        Loaded += (_, _) => SystemParameters.StaticPropertyChanged += ThemeChanged;
+        Closed += (_, _) => SystemParameters.StaticPropertyChanged -= ThemeChanged;
+        RefreshSnapshot(getSnapshot());
+    }
+
+    private void ThemeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(new Action(() => ThemeChanged(sender, args))); return; }
+        if (!IsLoaded) return;
+        signature = "";
         RefreshSnapshot(getSnapshot());
     }
 
@@ -77,6 +94,10 @@ public partial class MainWindow : Window
         UpdateBusyBar();
         StatusText.Text = display.IsPaused ? "Paused" : "Running";
         StatusChip.Background = display.IsPaused ? Orange : Blue;
+        StatusText.Foreground = UsageTheme.TextOn(StatusChip.Background);
+        BusyBar.Foreground = Blue;
+        FaultBanner.Background = Red;
+        FaultText.Foreground = UsageTheme.TextOn(Red);
         PauseLabel.Text = display.IsPaused ? "Resume updates" : "Pause updates";
         PauseGlyph.Text = display.IsPaused ? "\uE768" : "\uE769";
         AutomationProperties.SetName(PauseButton, PauseLabel.Text);
@@ -133,8 +154,7 @@ public partial class MainWindow : Window
         if (display.ScheduleText.Length > 0) GitHubHost.Children.Add(Text(display.ScheduleText, muted: true));
         if (display.StateNote.Length > 0)
         {
-            var color = display.Level == GitHubLevel.Over ? Red : display.IsStale || display.Level == GitHubLevel.Warning ? Orange : null;
-            GitHubHost.Children.Add(Text(display.StateNote, bold: true, foreground: color));
+            GitHubHost.Children.Add(Text(display.StateNote, bold: true));
         }
     }
 
@@ -187,12 +207,12 @@ public partial class MainWindow : Window
         var badge = new Border
         {
             Width = 16, Height = 16, CornerRadius = new CornerRadius(8), Background = color, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center,
-            Child = new TextBlock { Text = "!", Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+            Child = new TextBlock { Text = "!", Foreground = UsageTheme.TextOn(color), FontSize = 11, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
             ToolTip = problem.Title + "\n" + problem.Detail + (problem.Code != null ? "\nError code: " + problem.Code : "")
         };
         AutomationProperties.SetName(badge, problem.Title);
         header.Children.Add(badge);
-        header.Children.Add(Text(problem.Title, bold: true, size: titleSize, foreground: color));
+        header.Children.Add(Text(problem.Title, bold: true, size: titleSize));
         panel.Children.Add(header);
         panel.Children.Add(Text(problem.Detail, muted: true));
         if (problem.Code != null) panel.Children.Add(Text("Error code: " + problem.Code, muted: true, size: 11));
@@ -212,12 +232,26 @@ public partial class MainWindow : Window
         for (var index = 0; index < display.Bars.Length; index++)
         {
             var bar = display.Bars[index];
-            var opacity = bar.IsNewest ? 1 : 0.35 + 0.5 * (display.Bars.Length > 1 ? (double)index / (display.Bars.Length - 1) : 1);
+            var opacity = UsageTheme.Opacity(bar.IsNewest ? 1 : 0.35 + 0.5 * (display.Bars.Length > 1 ? (double)index / (display.Bars.Length - 1) : 1));
             var item = new Border { Width = 14, Height = UsageDisplay.BarHeightFor(bar.Fraction, 62, 4), Margin = new Thickness(1, 0, 1, 0), Background = Red, Opacity = opacity, VerticalAlignment = VerticalAlignment.Bottom, Focusable = true, ToolTip = bar.Tooltip };
             AutomationProperties.SetName(item, bar.Tooltip);
             ToolTipService.SetInitialShowDelay(item, TooltipDelayMs);
-            item.MouseEnter += (_, _) => { item.Opacity = 1; item.Background = BarHover; };
+            item.MouseEnter += (_, _) => { item.Opacity = 1; item.Background = UsageTheme.Fill(BarHover); };
             item.MouseLeave += (_, _) => { item.Opacity = opacity; item.Background = Red; };
+            item.GotKeyboardFocus += (_, _) =>
+            {
+                item.BorderBrush = SystemColors.WindowTextBrush;
+                item.BorderThickness = new Thickness(2);
+                item.Opacity = 1;
+                var tooltip = new ToolTip { Content = bar.Tooltip, IsOpen = true, PlacementTarget = item };
+                item.ToolTip = tooltip;
+            };
+            item.LostKeyboardFocus += (_, _) =>
+            {
+                if (item.ToolTip is ToolTip tooltip) tooltip.IsOpen = false;
+                item.BorderThickness = new Thickness(0);
+                item.Opacity = opacity;
+            };
             strip.Children.Add(item);
         }
         ChartHost.Children.Add(strip);
@@ -232,18 +266,18 @@ public partial class MainWindow : Window
         {
             var problem = display.AccountProblem;
             var error = problem?.Severity == ProblemSeverity.Error;
-            if (problem != null) grid.Background = error ? RedMeter : AmberMeter;
+            if (problem != null) grid.Background = UsageTheme.Track(error ? RedMeter : AmberMeter);
             grid.Children.Add(new Border { BorderBrush = problem == null ? Grey : error ? Red : Orange, BorderThickness = new Thickness(1) });
             return grid;
         }
         var color = display.Level == GitHubLevel.Over ? Red : display.Level == GitHubLevel.Warning ? Orange : Blue;
-        var used = new Border { Background = color, Opacity = display.IsStale ? 0.55 : 1, ToolTip = "Used this month: " + display.GitHubSummary };
+        var used = new Border { Background = color, Opacity = UsageTheme.Opacity(display.IsStale ? 0.55 : 1), ToolTip = "Used this month: " + display.GitHubSummary };
         Highlight(used);
         grid.Children.Add(Split(display.UsedFraction.Value, used, HorizontalAlignment.Stretch));
         if (display.PaceFraction.HasValue)
         {
             // Black marker with a faint light edge; the wider transparent hit area makes it easy to hover.
-            var tick = new Border { Width = 5, Background = Brushes.Black, BorderBrush = TickEdge, BorderThickness = new Thickness(1) };
+            var tick = new Border { Width = 5, Background = UsageTheme.HighContrast ? SystemColors.WindowTextBrush : Brushes.Black, BorderBrush = UsageTheme.HighContrast ? SystemColors.WindowBrush : TickEdge, BorderThickness = new Thickness(1) };
             var hit = new Border { Width = 11, Background = Brushes.Transparent, Child = tick, Margin = new Thickness(0, 0, -5.5, 0), ToolTip = display.PaceText + " (marker shows how far through the month you are)" };
             grid.Children.Add(Split(display.PaceFraction.Value, hit, HorizontalAlignment.Right));
             hit.MouseEnter += (_, _) => tick.BorderBrush = HoverEdge;
@@ -298,7 +332,7 @@ public partial class MainWindow : Window
         var block = new TextBlock
         {
             Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap, Margin = margin ?? new Thickness(0, 1, 0, 1),
-            FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, Opacity = muted ? 0.7 : 1
+            FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal
         };
         if (foreground != null) block.Foreground = foreground;
         return block;

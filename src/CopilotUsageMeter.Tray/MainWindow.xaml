@@ -19,7 +19,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Copilot Usage Meter" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <TextBlock x:Name="VersionText" FontSize="12" Opacity="0.6" Margin="8,4,0,0" VerticalAlignment="Center" AutomationProperties.Name="Tray version" />
+                <TextBlock x:Name="VersionText" FontSize="12" Margin="8,4,0,0" VerticalAlignment="Center" AutomationProperties.Name="Tray version" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="PauseButton" Click="PauseClicked" Padding="8,2" Margin="0,0,8,0" FontSize="12" AutomationProperties.Name="Pause updates">
@@ -59,7 +59,7 @@
                 </Expander>
                 <Expander Header="Connect a GitHub account" Margin="0,6,0,0" AutomationProperties.Name="Connect a GitHub account">
                     <StackPanel Margin="0,6,0,0">
-                        <TextBlock TextWrapping="Wrap" Opacity="0.7"
+                        <TextBlock TextWrapping="Wrap"
                                    Text="Browser sign-in connects automatically when GitHub CLI finishes. To connect manually, leave the login blank to use the single signed-in GitHub CLI login, or enter a login (never a token). Only Windows Credential Manager storage is accepted. Connecting switches this app's account; local history is not reassigned." />
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBox x:Name="AccountLogin" Width="230" MaxLength="39" VerticalContentAlignment="Center" AutomationProperties.Name="GitHub login" />
@@ -79,18 +79,18 @@
             <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed" AutomationProperties.Name="Last command result" />
             <StackPanel x:Name="RemoveAccountConfirm" Visibility="Collapsed" Margin="0,0,0,8">
                 <TextBlock x:Name="RemoveAccountTitle" FontWeight="SemiBold" TextWrapping="Wrap" />
-                <TextBlock x:Name="RemoveAccountDetail" Opacity="0.7" TextWrapping="Wrap" />
+                <TextBlock x:Name="RemoveAccountDetail" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                     <Button Content="Cancel" Click="CancelRemoveAccountClicked" Padding="12,4" Margin="0,0,8,0" />
-                    <Button x:Name="ConfirmRemoveAccountButton" Content="Remove" Click="ConfirmRemoveAccountClicked" Padding="12,4" Background="#D13438" Foreground="White" />
+                    <Button x:Name="ConfirmRemoveAccountButton" Content="Remove" Click="ConfirmRemoveAccountClicked" Padding="12,4" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
                 </StackPanel>
             </StackPanel>
             <StackPanel x:Name="LogOutConfirm" Visibility="Collapsed" Margin="0,0,0,8">
                 <TextBlock Text="Log out of GitHub?" FontWeight="SemiBold" />
-                <TextBlock Text="Local tracking continues. You can sign in again anytime." Opacity="0.7" />
+                <TextBlock Text="Local tracking continues. You can sign in again anytime." />
                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                     <Button Content="Cancel" Click="CancelLogOutClicked" Padding="12,4" Margin="0,0,8,0" />
-                    <Button Content="Log out" Click="ConfirmLogOutClicked" Padding="12,4" Background="#D13438" Foreground="White" />
+                    <Button Content="Log out" Click="ConfirmLogOutClicked" Padding="12,4" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
                 </StackPanel>
             </StackPanel>
             <WrapPanel x:Name="Toolbar">
@@ -107,7 +107,7 @@
                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" /><TextBlock Text="Log out…" /></StackPanel>
                 </Button>
             </WrapPanel>
-            <TextBlock Opacity="0.6" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
+            <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
                        Text="Closing this window keeps tracking. Exit from the tray menu stops it. Local history is never uploaded. GitHub sign-in is optional; local history is not attributed to the signed-in account." />
         </StackPanel>
     </Grid>
