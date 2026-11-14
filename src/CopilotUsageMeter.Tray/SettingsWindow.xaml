@@ -1,0 +1,58 @@
+<Window x:Class="CopilotUsageMeter.Tray.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Copilot Usage Meter settings" Width="460" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+        Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}">
+    <StackPanel Margin="24,20,24,20">
+        <TextBlock Text="Settings" FontSize="20" FontWeight="SemiBold" />
+        <TextBlock TextWrapping="Wrap" Opacity="0.75" Margin="0,6,0,0"
+                   Text="These are kept on this computer only and are never uploaded. Changes take effect when you press Apply or Save." />
+
+        <TextBlock Text="Startup" FontWeight="SemiBold" Margin="0,16,0,4" />
+        <CheckBox x:Name="StartupBox" Content="Start with Windows" AutomationProperties.Name="Start with Windows" />
+
+        <TextBlock Text="Default details filters" FontWeight="SemiBold" Margin="0,16,0,4" />
+        <TextBlock TextWrapping="Wrap" Opacity="0.75" Text="Used when the Full details window is opened. Repository and model filters are never remembered." />
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBlock Text="Range (UTC days)" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="RangeBox" Width="150" AutomationProperties.Name="Default date range">
+                <ComboBoxItem Content="Last 7 days" />
+                <ComboBoxItem Content="Last 30 days" />
+                <ComboBoxItem Content="Last 90 days" />
+                <ComboBoxItem Content="This month" />
+                <ComboBoxItem Content="Last month" />
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBlock Text="Group by" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <CheckBox x:Name="DayBox" Content="Day" Margin="0,0,12,0" VerticalAlignment="Center" AutomationProperties.Name="Default group by day" />
+            <CheckBox x:Name="RepositoryBox" Content="Repository" Margin="0,0,12,0" VerticalAlignment="Center" AutomationProperties.Name="Default group by repository" />
+            <CheckBox x:Name="ModelBox" Content="Model" VerticalAlignment="Center" AutomationProperties.Name="Default group by model" />
+        </StackPanel>
+
+        <TextBlock Text="Refresh schedule (fixed)" FontWeight="SemiBold" Margin="0,16,0,4" />
+        <TextBlock x:Name="ScheduleText" TextWrapping="Wrap" Opacity="0.85" AutomationProperties.Name="Refresh schedule" />
+
+        <TextBlock Text="Alerts" FontWeight="SemiBold" Margin="0,16,0,4" />
+        <Button Content="Usage alerts…" Click="AlertsClicked" HorizontalAlignment="Left" Padding="12,4" AutomationProperties.Name="Open usage alerts" />
+
+        <TextBlock Text="Data" FontWeight="SemiBold" Margin="0,16,0,4" />
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Open data folder" Click="OpenDataFolderClicked" Padding="12,4" Margin="0,0,8,0" AutomationProperties.Name="Open data folder" />
+            <Button Content="Reset to defaults" Click="ResetClicked" Padding="12,4" AutomationProperties.Name="Reset to defaults" />
+        </StackPanel>
+        <TextBlock Opacity="0.6" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"
+                   Text="Reset restores the options on this page, and forgets the remembered window position and export folder. Whether updates are paused is not changed. Nothing changes until you press Apply or Save." />
+
+        <TextBlock x:Name="ErrorText" Foreground="#D13438" TextWrapping="Wrap" Margin="0,12,0,0" Visibility="Collapsed" AutomationProperties.Name="Settings problem" />
+        <TextBlock x:Name="StatusText" TextWrapping="Wrap" Margin="0,12,0,0" Visibility="Collapsed" AutomationProperties.Name="Settings status" />
+
+        <DockPanel Margin="0,16,0,0" LastChildFill="False">
+            <Button Content="Cancel" Click="CancelClicked" Padding="12,4" DockPanel.Dock="Right" IsCancel="True" AutomationProperties.Name="Cancel" />
+            <Button Content="Apply" Click="ApplyClicked" Padding="12,4" Margin="0,0,8,0" DockPanel.Dock="Right" AutomationProperties.Name="Apply settings" />
+            <Button Content="Save" Click="SaveClicked" Padding="12,4" Margin="0,0,8,0" DockPanel.Dock="Right" IsDefault="True" AutomationProperties.Name="Save settings" />
+        </DockPanel>
+    </StackPanel>
+</Window>

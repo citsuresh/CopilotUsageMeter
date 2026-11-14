@@ -44,11 +44,45 @@ public sealed class UsageDisplayTests
         Assert.InRange(display.UsedFraction!.Value, 0, 1);
     }
 
+    [Theory]
+    [InlineData(0, "0")]
+    [InlineData(999, "999")]
+    [InlineData(999.5, "999.5")]
+    [InlineData(1000, "1K")]
+    [InlineData(1049, "1K")]
+    [InlineData(1050, "1.1K")]
+    [InlineData(17840, "17.8K")]
+    [InlineData(100000, "100K")]
+    [InlineData(999949, "999.9K")]
+    [InlineData(999950, "1M")]
+    [InlineData(1234567, "1.2M")]
+    [InlineData(-17840, "-17.8K")]
+    public void CompactShortensLargeFigures(double value, string expected) =>
+        Assert.Equal(expected, UsageDisplay.Compact((decimal)value));
+
+    [Fact]
+    public void CompactHeadlineFallsBackToTheFullTextWithoutFigures()
+    {
+        var display = Create(Snapshot(consumed: 17840));
+        Assert.Equal("17,840 / 100K", display.GitHubCompactHeadline);
+        Assert.Equal("Not signed in", Create(new UsageSnapshot { Account = new AccountUsage { Status = "signed-out" } }).GitHubCompactHeadline);
+    }
+
+    [Fact]
+    public void CompactHeadlineKeepsUsageExactAndAbbreviatesOnlyTheAllowance()
+    {
+        var display = Create(Snapshot(consumed: 17930));
+        Assert.Equal("17,930 / 100K", display.GitHubCompactHeadline);
+        Assert.Equal("17,930 / 100,000", display.GitHubHeadline);
+        Assert.Equal("17,930 of 100,000 (17.9%)", display.GitHubSummary);
+    }
+
     [Fact]
     public void FormatsFiguresWithSeparatorsAndPlainWording()
     {
         var display = Create(Snapshot());
         Assert.Equal("6,339 / 100,000", display.GitHubHeadline);
+        Assert.Equal("6,339 / 100K", display.GitHubCompactHeadline);
         Assert.Equal("6,339 of 100,000 (6.3%)", display.GitHubSummary);
         Assert.Equal("GITHUB ACCOUNT · @octo · NOVEMBER", display.GitHubTitle);
         Assert.Equal("Resets 1 Dec 2026 · Synced 4:46 PM · Next 5:01 PM", display.ScheduleText);
@@ -371,7 +405,7 @@ public sealed class UsageDisplayTests
         var signedOut = Snapshot();
         signedOut.Account = new AccountUsage { Status = "signed-out" };
         Assert.Contains("Not signed in to GitHub", Tip(signedOut));
-        Assert.Contains("Status / Settings", Tip(signedOut));
+        Assert.Contains("Full details", Tip(signedOut));
 
         var paused = Snapshot();
         paused.IsPaused = true;

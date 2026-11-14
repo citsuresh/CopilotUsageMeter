@@ -164,9 +164,36 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             }
             if (arguments[0] == "usage-turns")
                 return count == 4 && IsValidSessionId(arguments[1]) && arguments[2] == "--limit" && arguments[3] == "20";
-            return count == 9 && arguments[0] == "usage-breakdown" && arguments[1] == "--from" && IsUtcBound(arguments[2])
-                && arguments[3] == "--to" && IsUtcBound(arguments[4]) && arguments[5] == "--group-by" && arguments[7] == "--limit"
-                && ((arguments[6] == "day" && arguments[8] == "100") || (arguments[6] == "repo" && arguments[8] == "500"));
+            return arguments[0] == "usage-breakdown" && ValidUsageBreakdown(arguments, count);
+        }
+
+        // Two fixed shapes: the monthly reads (no filters; day/100 or repo/500) and the details read (optional exact-form --repo and
+        // --model filters, any day/repo/model grouping, 500 rows). Each option may appear once, in this order.
+        private static bool ValidUsageBreakdown(IReadOnlyList<string> arguments, int count)
+        {
+            if (count < 9 || arguments[1] != "--from" || !IsUtcBound(arguments[2]) || arguments[3] != "--to" || !IsUtcBound(arguments[4])) return false;
+            var index = 5;
+            var repoFilter = false;
+            var modelFilter = false;
+            if (arguments[index] == "--repo")
+            {
+                if (index + 1 >= count || !Core.DetailsQuery.IsValidRepositoryFilter(arguments[index + 1])) return false;
+                index += 2; repoFilter = true;
+            }
+            if (index < count && arguments[index] == "--model")
+            {
+                if (index + 1 >= count || !Core.DetailsQuery.IsValidModelFilter(arguments[index + 1])) return false;
+                index += 2; modelFilter = true;
+            }
+            if (count != index + 4 || arguments[index] != "--group-by" || arguments[index + 2] != "--limit") return false;
+            var group = arguments[index + 1];
+            var limit = arguments[index + 3];
+            if (!repoFilter && !modelFilter && ((group == "day" && limit == "100") || (group == "repo" && limit == "500"))) return true;
+            if (!Core.DetailsQuery.IsValidGroupByArgument(group) || limit != "500") return false;
+
+            // A filter is only exact when its dimension is also grouped, which is the shape DetailsQuery produces.
+            var dimensions = group.Split(',');
+            return (!repoFilter || Array.IndexOf(dimensions, "repo") >= 0) && (!modelFilter || Array.IndexOf(dimensions, "model") >= 0);
         }
 
         private static bool IsUtcBound(string value) => DateTimeOffset.TryParseExact(value, "yyyy-MM-dd'T'HH:mm:ss.fff'Z'",

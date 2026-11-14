@@ -26,6 +26,9 @@
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\HealthAlertService.cs" Link="Tray\HealthAlertService.cs" />
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\StartWithWindows.cs" Link="Tray\StartWithWindows.cs" />
     <Compile Include="..\..\src\CopilotUsageMeter.Tray\WindowPlacement.cs" Link="Tray\WindowPlacement.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\DetailsFilterModel.cs" Link="Tray\DetailsFilterModel.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\DetailsExport.cs" Link="Tray\DetailsExport.cs" />
+    <Compile Include="..\..\src\CopilotUsageMeter.Tray\AppSettings.cs" Link="Tray\AppSettings.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,10 @@ namespace CopilotUsageMeter.Core
 {
     public sealed class AccountRefreshCoordinator : IDisposable
     {
+        // Interval after the last successful read while local chat activity was seen in that window, and otherwise.
+        public static readonly TimeSpan ActiveInterval = TimeSpan.FromMinutes(5);
+        public static readonly TimeSpan IdleInterval = TimeSpan.FromMinutes(15);
+
         private readonly object gate = new object();
         private readonly IAccountReader reader;
         private readonly IAccountClock clock;
@@ -144,9 +148,9 @@ namespace CopilotUsageMeter.Core
                         delay = paused || !next.HasValue ? TimeSpan.FromDays(1) : next.Value - clock.UtcNow;
                         if (delay < TimeSpan.FromMilliseconds(1)) delay = TimeSpan.FromMilliseconds(1);
                         // Re-evaluate the active window exactly when it expires, unless work is due.
-                        if (!paused && lastActivity.HasValue && lastActivity.Value.AddMinutes(5) > clock.UtcNow)
+                        if (!paused && lastActivity.HasValue && lastActivity.Value + ActiveInterval > clock.UtcNow)
                         {
-                            var expiry = lastActivity.Value.AddMinutes(5) - clock.UtcNow;
+                            var expiry = lastActivity.Value + ActiveInterval - clock.UtcNow;
                             if (expiry < delay) delay = expiry;
                         }
                     }
@@ -170,12 +174,12 @@ namespace CopilotUsageMeter.Core
             if (retryAt.HasValue) return retryAt;
             if (firstDue.HasValue) return firstDue;
             if (!lastSuccess.HasValue) return clock.UtcNow;
-            var activeDue = lastSuccess.Value.AddMinutes(5);
+            var activeDue = lastSuccess.Value + ActiveInterval;
             // Once due while active, do not slide the due time forward as activity ages out.
-            if (lastActivity.HasValue && lastActivity.Value.AddMinutes(5) >= activeDue && clock.UtcNow >= activeDue)
+            if (lastActivity.HasValue && lastActivity.Value + ActiveInterval >= activeDue && clock.UtcNow >= activeDue)
                 return activeDue;
-            var active = lastActivity.HasValue && clock.UtcNow - lastActivity.Value < TimeSpan.FromMinutes(5);
-            return lastSuccess.Value.AddMinutes(active ? 5 : 15);
+            var active = lastActivity.HasValue && clock.UtcNow - lastActivity.Value < ActiveInterval;
+            return lastSuccess.Value + (active ? ActiveInterval : IdleInterval);
         }
 
         private async Task ReadAndPublishAsync(int epoch, TaskCompletionSource<AccountReadResult> completion, CancellationToken token)

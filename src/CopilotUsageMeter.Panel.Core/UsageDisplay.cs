@@ -80,6 +80,9 @@ namespace CopilotUsageMeter.Panel.Core
         public double? PaceFraction { get; private set; }
         public string GitHubTitle { get; private set; } = "GITHUB ACCOUNT";
         public string GitHubHeadline { get; private set; } = "GitHub credits unavailable";
+        private string? compactFigures;
+        // Only the allowance is abbreviated in the compact row; usage, tooltips and popup figures stay exact.
+        public string GitHubCompactHeadline => compactFigures != null && AccountProblem == null ? compactFigures : GitHubHeadline;
         public string GitHubSummary { get; private set; } = "GitHub credits unavailable";
         public string PercentText { get; private set; } = "";
         public string PaceText { get; private set; } = "";
@@ -151,6 +154,22 @@ namespace CopilotUsageMeter.Panel.Core
         public static string Number(decimal? value, string unknown = "unavailable") =>
             value.HasValue ? value.Value.ToString("#,##0.###", CultureInfo.InvariantCulture) : unknown;
 
+        // Whole numbers below 1,000; otherwise one decimal of thousands or millions, dropping a trailing ".0" (17,840 -> 17.8K, 100,000 -> 100K).
+        public static string Compact(decimal value)
+        {
+            var magnitude = Math.Abs(value);
+            if (magnitude < 1000m) return value.ToString("#,##0.###", CultureInfo.InvariantCulture);
+            var scaled = Math.Round(magnitude / 1000m, 1, MidpointRounding.AwayFromZero);
+            var suffix = "K";
+            if (scaled >= 1000m)
+            {
+                scaled = Math.Round(magnitude / 1000000m, 1, MidpointRounding.AwayFromZero);
+                suffix = "M";
+            }
+            var text = scaled.ToString("0.#", CultureInfo.InvariantCulture);
+            return (value < 0 ? "-" : "") + text + suffix;
+        }
+
         public static string Credits(decimal? value, string unknown = "unavailable") =>
             value.HasValue ? value.Value.ToString("#,##0.#", CultureInfo.InvariantCulture) : unknown;
 
@@ -210,6 +229,7 @@ namespace CopilotUsageMeter.Panel.Core
                 Level = ratio >= 1m ? GitHubLevel.Over : ratio >= WarningFraction ? GitHubLevel.Warning : GitHubLevel.Normal;
                 PercentText = (ratio * 100m).ToString("0.#", CultureInfo.InvariantCulture) + "%";
                 GitHubHeadline = Number(account.Consumed) + " / " + Number(account.Allowance);
+                compactFigures = Number(account.Consumed) + " / " + Compact(account.Allowance!.Value);
                 GitHubSummary = Number(account.Consumed) + " of " + Number(account.Allowance) + " (" + PercentText + ")";
                 if (PaceFraction.HasValue)
                     PaceText = "Month " + Math.Round(PaceFraction.Value * 100, 0).ToString("0", CultureInfo.InvariantCulture) + "% elapsed";
@@ -320,9 +340,11 @@ namespace CopilotUsageMeter.Panel.Core
             return new DisplayProblem("GitHub", title, detail, code);
         }
 
-        private static DisplayProblem? LocalProblemFor(LocalUsage local)
+        private static DisplayProblem? LocalProblemFor(LocalUsage local) => LocalProblemForCode(local.ErrorCode);
+
+        // Shared with the details view so one local-history error code reads the same everywhere.
+        public static DisplayProblem? LocalProblemForCode(string? code)
         {
-            var code = local.ErrorCode;
             if (code == null || LocalHistoryErrorCodes.IsInformational(code)) return null;
             string title, detail;
             switch (code)
@@ -512,7 +534,7 @@ namespace CopilotUsageMeter.Panel.Core
                 case "signed-out":
                 case "skipped":
                     lines.Add(account.ErrorCode == "authorization-expired" ? "GitHub sign-in expired" : "Not signed in to GitHub");
-                    lines.Add("Open Status / Settings to sign in");
+                    lines.Add("Open Full details to sign in");
                     break;
                 case "rate-limited":
                     lines.Add("GitHub is limiting requests");

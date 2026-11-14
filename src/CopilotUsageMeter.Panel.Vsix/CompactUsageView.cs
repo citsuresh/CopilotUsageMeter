@@ -238,7 +238,7 @@ namespace CopilotUsageMeter.Panel.Vsix
         private string Signature(Tier tier, int barCount) => string.Join("|", new object?[]
         {
             tier, barCount, connected, mismatch, busy, display.Level, display.IsStale, display.IsPaused, display.HasChat, display.Severity, display.ProblemTooltip,
-            display.UsedFraction?.ToString("0.###"), display.PaceFraction?.ToString("0.###"), display.GitHubHeadline, display.PercentText,
+            display.UsedFraction?.ToString("0.###"), display.PaceFraction?.ToString("0.###"), display.GitHubHeadline, display.GitHubCompactHeadline, display.PercentText,
             display.PaceText, display.ScheduleText, display.StateNote, display.LocalTotalText, display.LocalNote, display.ChatText,
             display.BarsSummary, display.LastText, placementNote, confirmingLogOut, popup.IsOpen,
             string.Join(",", display.Segments.Select(s => s.Text)), string.Join(",", display.Bars.Select(b => b.Tooltip + b.Fraction.ToString("0.##")))
@@ -273,10 +273,30 @@ namespace CopilotUsageMeter.Panel.Vsix
                 content.Children.Add(RefreshButton(11, 3, new Thickness(0, 0, RowGap, 0)));
                 if (level == GitHubLevel.Over) content.Children.Add(Badge());
                 var hasFigures = display.UsedFraction.HasValue;
-                var headline = hasFigures && tier == Tier.Narrow ? display.GitHubHeadline.Split('/')[0].Trim() : display.GitHubHeadline;
-                var text = Label(headline, bold: true);
-                text.ToolTip = display.GitHubSummary + (display.StateNote.Length > 0 ? " · " + display.StateNote : "");
-                content.Children.Add(text);
+                var text = Label(display.GitHubCompactHeadline, bold: true);
+                FrameworkElement headline = text;
+                if (hasFigures && display.AccountProblem == null)
+                {
+                    var figures = display.GitHubCompactHeadline.Split('/');
+                    text.Inlines.Clear();
+                    text.Inlines.Add(new Run(figures[0].Trim()));
+                    text.Inlines.Add(new LineBreak());
+                    text.Inlines.Add(new Run(figures[1].Trim()) { FontWeight = FontWeights.Normal, FontSize = 10 });
+                    text.TextAlignment = TextAlignment.Center;
+                    text.LineHeight = 13;
+                    text.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+                    AutomationProperties.SetName(text, display.GitHubSummary);
+                    var fraction = new Grid { VerticalAlignment = VerticalAlignment.Center };
+                    fraction.Children.Add(text);
+                    fraction.Children.Add(new Border
+                    {
+                        Height = 1, Background = Grey, VerticalAlignment = VerticalAlignment.Center,
+                        SnapsToDevicePixels = true, IsHitTestVisible = false
+                    });
+                    headline = fraction;
+                }
+                headline.ToolTip = display.GitHubSummary + (display.StateNote.Length > 0 ? " · " + display.StateNote : "");
+                content.Children.Add(headline);
             }
             var rowSeverity = RowSeverity();
             var showPaused = connected && display.IsPaused;

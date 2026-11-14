@@ -49,6 +49,10 @@ internal sealed class TrayHost : IDisposable
     private Icon? currentIcon;
     private MainWindow? window;
     private AlertSettingsWindow? alertSettingsWindow;
+    private SettingsWindow? settingsWindow;
+    private bool placementForgotten;
+    private readonly AppSettingsStore settings;
+    private readonly string dataRoot;
     private AlertWindow? alertWindow;
     private readonly ThresholdAlertService alerts;
     private readonly HealthAlertService health;
@@ -69,6 +73,9 @@ internal sealed class TrayHost : IDisposable
         var uiDispatcher = Application.Current.Dispatcher;
         dispatcher = uiDispatcher;
         var dataRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CopilotUsageMeter");
+        this.dataRoot = dataRoot;
+        settings = new AppSettingsStore(Path.Combine(dataRoot, "settings.json"));
+        settings.Load();
         alerts = new ThresholdAlertService(new AlertSettingsStore(Path.Combine(dataRoot, "alerts.json")),
             new AlertStateStore(Path.Combine(dataRoot, "alert-state.json")), PresentAlert);
         try { alerts.Load(); }
@@ -94,9 +101,10 @@ internal sealed class TrayHost : IDisposable
         server.Faulted += message => { QueueFault(message); ReportHealth(health.OnFault); };
         server.Recovered += QueueFaultCleared;
         var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("Status / Settings...", null, (_, _) => ShowWindow());
+        menu.Items.Add("Full details...", null, (_, _) => ShowWindow());
         menu.Items.Add("Refresh now", null, (_, _) => RunCommand(new ProtocolMessage { Type = "Refresh" }));
         menu.Items.Add("Usage alerts...", null, (_, _) => ShowAlertSettings());
+        menu.Items.Add("Settings...", null, (_, _) => ShowSettings());
         pause = new Forms.ToolStripMenuItem("Pause updates", null,
             (_, _) => RunCommand(new ProtocolMessage { Type = "SetPaused", Paused = !state.GetSnapshot().IsPaused }));
         menu.Items.Add(pause);
@@ -120,6 +128,9 @@ internal sealed class TrayHost : IDisposable
 
     public void Start()
     {
+        // A remembered pause is applied before anything runs. Local figures still appear (the startup read is a manual refresh);
+        // GitHub account figures stay unrefreshed until the user resumes or refreshes.
+        if (settings.Current.PauseUpdates) ApplyPause(true, persist: false);
         server.Start();
         workers.Add(SuperviseAsync("publications", RunPublicationsAsync, restart: true));
         workers.Add(SuperviseAsync("countdown", RunCountdownAsync, restart: true));
@@ -151,8 +162,7 @@ internal sealed class TrayHost : IDisposable
         }
     }
 
-    // Position and size are kept only for this tray run; nothing is written to disk.
-    private WindowPlacement? detailsPlacement;
+    // Position and size are remembered in the settings file, so they survive a tray restart and a reset in Settings applies at once.
 
     private static WindowPlacement CapturePlacement(Window target)
     {
@@ -160,24 +170,64 @@ internal sealed class TrayHost : IDisposable
         return new WindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
     }
 
+    // On-demand read for the details window; it also ends when the tray exits.
+    private async Task<DetailsReport> ReadDetailsAsync(DetailsQuery query, CancellationToken cancellationToken)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token);
+        return await history.ReadDetailsAsync(query, linked.Token).ConfigureAwait(true);
+    }
+
     public void ShowWindow()
     {
         if (window == null)
         {
-            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token), ShowAlertSettings);
-            if (detailsPlacement is { IsUsable: true } placement)
+            placementForgotten = false;
+            window = new MainWindow(state.GetSnapshot, ProcessAsync, account.ListCliLogins, login => accountRemoval.RemoveAsync(login, lifetime.Token), ShowAlertSettings, ReadDetailsAsync, settings, ShowSettings);
+            if (settings.Current.DetailsPlacement is { IsUsable: true } placement)
             {
                 var area = SystemParameters.WorkArea;
                 var fitted = placement.Fit(area.Left, area.Top, area.Right, area.Bottom, window.MinWidth, window.MinHeight);
                 window.WindowStartupLocation = WindowStartupLocation.Manual;
                 (window.Left, window.Top, window.Width, window.Height) = (fitted.Left, fitted.Top, fitted.Width, fitted.Height);
             }
-            window.Closing += (_, _) => detailsPlacement = CapturePlacement(window);
+            window.Closing += (_, _) =>
+            {
+                // A reset in Settings while this window was open must not be undone by saving its position again.
+                if (placementForgotten) return;
+                var captured = CapturePlacement(window);
+                settings.Update(saved => saved.DetailsPlacement = captured);
+            };
             window.Closed += (_, _) => window = null;
         }
         window.Show();
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
         ForegroundWindow.Bring(window);
+    }
+
+    public void ShowSettings()
+    {
+        try
+        {
+            if (settingsWindow == null)
+            {
+                settingsWindow = new SettingsWindow(settings.Current, settings.Update, ShowAlertSettings, OpenDataFolder, () => placementForgotten = true);
+                settingsWindow.Closed += (_, _) => settingsWindow = null;
+            }
+            settingsWindow.Show();
+            if (settingsWindow.WindowState == WindowState.Minimized) settingsWindow.WindowState = WindowState.Normal;
+            ForegroundWindow.Bring(settingsWindow);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            Diagnostics.Error("tray.settings", "settings-window-failed", exception);
+            QueueFault("The settings could not be opened.");
+        }
+    }
+
+    private void OpenDataFolder()
+    {
+        Directory.CreateDirectory(dataRoot);
+        using var opened = Process.Start(new ProcessStartInfo { FileName = dataRoot, UseShellExecute = true });
     }
 
     public void ShowAlertSettings()
@@ -387,13 +437,7 @@ internal sealed class TrayHost : IDisposable
                 return new ProtocolMessage { Type = "Ack" };
             case "SetPaused":
                 if (!request.Paused.HasValue) return UsagePipeServer.Error(request, "invalid_pause", "An explicit paused boolean is required.");
-                lock (pauseGate)
-                {
-                    local.SetPaused(request.Paused.Value);
-                    accountRefresh.SetPaused(request.Paused.Value);
-                    state.SetPaused(request.Paused.Value);
-                    RequestPublication();
-                }
+                ApplyPause(request.Paused.Value, persist: true);
                 return new ProtocolMessage { Type = "Ack" };
             case "SignIn":
                 // Panel-initiated sign-in: connect the single secure gh login, start browser sign-in when there is none, otherwise let the user choose in Status.
@@ -435,6 +479,22 @@ internal sealed class TrayHost : IDisposable
     }
 
     private void RequestPublication() => publications.Writer.TryWrite(true);
+
+    // The pause is saved under the same lock so the file always matches the last command. A failed save does not undo the pause,
+    // but it is reported, because the next launch would otherwise start with the old state and no visible cause.
+    private void ApplyPause(bool paused, bool persist)
+    {
+        var saveFailed = false;
+        lock (pauseGate)
+        {
+            local.SetPaused(paused);
+            accountRefresh.SetPaused(paused);
+            state.SetPaused(paused);
+            if (persist) saveFailed = !settings.Update(saved => saved.PauseUpdates = paused);
+            RequestPublication();
+        }
+        if (saveFailed) QueueFault("Whether updates are paused could not be saved, so it will not be remembered after a restart.");
+    }
 
     private ProtocolMessage StartBrowserSignIn(ProtocolMessage request)
     {

@@ -9,6 +9,7 @@ using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
 using CopilotUsageMeter.Contracts;
+using CopilotUsageMeter.Core;
 using CopilotUsageMeter.Panel.Core;
 using CopilotUsageMeter.Presentation;
 
@@ -40,6 +41,11 @@ public partial class MainWindow : Window
     private readonly Func<IReadOnlyList<string>> listLogins;
     private readonly Func<string, Task<AccountRemoval>> removeAccount;
     private readonly Action openAlerts;
+    private readonly Action openSettings;
+    private readonly AppSettingsStore settings;
+    private readonly Func<DetailsQuery, CancellationToken, Task<DetailsReport>> readDetails;
+    private CancellationTokenSource? detailsRead;
+    private bool closed;
     private string? pendingRemoval;
     private bool removing;
     private bool? chooserOpenedSignedOut;
@@ -47,14 +53,18 @@ public partial class MainWindow : Window
     private UsageDisplay display = UsageDisplay.Create(null, true, DateTimeOffset.UtcNow);
     private string signature = "";
 
-    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins, Func<string, Task<AccountRemoval>> removeAccount, Action openAlerts)
+    internal MainWindow(Func<UsageSnapshot> getSnapshot, Func<ProtocolMessage, CancellationToken, Task<ProtocolMessage>> send, Func<IReadOnlyList<string>> listLogins, Func<string, Task<AccountRemoval>> removeAccount, Action openAlerts, Func<DetailsQuery, CancellationToken, Task<DetailsReport>> readDetails, AppSettingsStore settings, Action openSettings)
     {
         this.openAlerts = openAlerts;
+        this.openSettings = openSettings;
+        this.settings = settings;
+        this.readDetails = readDetails;
         this.getSnapshot = getSnapshot;
         this.send = send;
         this.listLogins = listLogins;
         this.removeAccount = removeAccount;
         InitializeComponent();
+        ApplyDetailsDefaults(settings.Current);
         VersionText.Text = "v" + ProductVersion.Of(typeof(MainWindow).Assembly);
         // Keep the window, including its button row, above the taskbar on short screens.
         var area = SystemParameters.WorkArea;
@@ -62,7 +72,7 @@ public partial class MainWindow : Window
         Height = Math.Min(Height, area.Height - 40);
         Loaded += (_, _) => { if (Top + ActualHeight > area.Bottom) Top = Math.Max(area.Top, area.Bottom - ActualHeight); };
         Loaded += (_, _) => SystemParameters.StaticPropertyChanged += ThemeChanged;
-        Closed += (_, _) => SystemParameters.StaticPropertyChanged -= ThemeChanged;
+        Closed += (_, _) => { closed = true; detailsRead?.Cancel(); SystemParameters.StaticPropertyChanged -= ThemeChanged; };
         RefreshSnapshot(getSnapshot());
     }
 
@@ -461,6 +471,8 @@ public partial class MainWindow : Window
 
     private async void RefreshClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "Refresh" });
     private void AlertsClicked(object sender, RoutedEventArgs e) => openAlerts();
+
+    private void SettingsClicked(object sender, RoutedEventArgs e) => openSettings();
     private async void PauseClicked(object sender, RoutedEventArgs e) => await ExecuteAsync(new ProtocolMessage { Type = "SetPaused", Paused = !getSnapshot().IsPaused });
     // Signed out: import an existing secure gh login first (as the panel does) and open the browser sign-in only when there is none. Signed in: list saved accounts plus "Add a new account".
     private async void SignInClicked(object sender, RoutedEventArgs e) => await SwitchOrSignInAsync();
@@ -517,8 +529,8 @@ public partial class MainWindow : Window
     private int pendingCommands;
     private bool trayRefreshing;
 
-    // The bar shows while a command from this window is pending or while the tray is reading account/local data.
-    private void UpdateBusyBar() => BusyBar.Visibility = pendingCommands > 0 || trayRefreshing ? Visibility.Visible : Visibility.Collapsed;
+    // The bar shows while a command from this window is pending, while the tray is reading account/local data, or while a usage breakdown read is in flight.
+    private void UpdateBusyBar() => BusyBar.Visibility = pendingCommands > 0 || trayRefreshing || detailsRead != null ? Visibility.Visible : Visibility.Collapsed;
 
     // The notice is replaced by each command and clears itself so a stale result is never left on screen.
     private CancellationTokenSource? noticeClear;

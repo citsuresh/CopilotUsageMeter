@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace CopilotUsageMeter.Readers.ChatHistoryCli
 {
-    public sealed class ChatHistoryReader : IHistoryReader
+    public sealed class ChatHistoryReader : IHistoryReader, IDetailsReader
     {
         private readonly string? executable;
         private readonly string? root;
@@ -70,6 +70,36 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             result.CurrentChatTotal = current.Total;
             result.CurrentChatErrorCode = current.ErrorCode;
             return result;
+        }
+
+        public async Task<DetailsReport> ReadDetailsAsync(DetailsQuery query, CancellationToken cancellationToken)
+        {
+            if (query == null) throw new ArgumentNullException(nameof(query));
+            cancellationToken.ThrowIfCancellationRequested();
+            var report = new DetailsReport { Query = query };
+            if (invalidConfiguration || executable == null)
+            {
+                report.ErrorCode = invalidConfiguration ? "history_invalid_configuration" : "history_tool_missing";
+                return report;
+            }
+
+            var arguments = new List<string> { "usage-breakdown", "--from", Iso(query.FromUtc), "--to", Iso(query.ToUtc) };
+            if (query.RepositoryFilter != null) { arguments.Add("--repo"); arguments.Add(query.RepositoryFilter); }
+            if (query.ModelFilter != null) { arguments.Add("--model"); arguments.Add(query.ModelFilter); }
+            arguments.Add("--group-by"); arguments.Add(query.GroupByArgument);
+            arguments.Add("--limit"); arguments.Add(DetailsQuery.MaximumRows.ToString(CultureInfo.InvariantCulture));
+
+            var invocation = await InvokeAsync(arguments, cancellationToken).ConfigureAwait(false);
+            report.ErrorCode = invocation.ErrorCode;
+            if (invocation.Envelope == null) return report;
+            try { ReadDetails(invocation.Envelope, query, report); }
+            catch (Exception error) when (error is FormatException || error is OverflowException || error is ArgumentException)
+            {
+                Diagnostics.Warning("history.reader", "history_invalid_data", error);
+                report = new DetailsReport { Query = query, ErrorCode = "history_invalid_data" };
+            }
+            if (report.Status == "available") report.AsOfUtc = clock.UtcNow.ToUniversalTime();
+            return report;
         }
 
         public async Task<LocalCurrentChatReadResult> ReadCurrentChatAsync(string? activeSessionId, CancellationToken cancellationToken)
@@ -188,6 +218,137 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             result.Days = days.OrderBy(day => day.DayUtc).ToArray();
             result.DaysCapped = envelope.Truncated == true || envelope.Rows.Length >= 100;
             SetMonthlyAvailable(result, total);
+        }
+
+        private static void ReadDetails(Envelope envelope, DetailsQuery query, DetailsReport report)
+        {
+            if (envelope.Recorded != true) { report.ErrorCode = "history_not_recorded"; return; }
+            var limit = DetailsQuery.MaximumRows;
+            if (envelope.Limit != limit || envelope.Rows == null || envelope.Count != envelope.Rows.Length || envelope.Rows.Length > limit
+                || envelope.GroupBy == null || envelope.GroupBy.Length != BitCount(query.Grouping)
+                || !SameDimensions(envelope.GroupBy, query.Grouping)) throw new FormatException();
+            var tool = DetailTotals(envelope.Total);
+
+            var byDay = (query.Grouping & DetailsGrouping.Day) != 0;
+            var byRepository = (query.Grouping & DetailsGrouping.Repository) != 0;
+            var byModel = (query.Grouping & DetailsGrouping.Model) != 0;
+            var rows = new List<DetailsRow>();
+            var merged = new Dictionary<string, DetailsRow>(StringComparer.Ordinal);
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var dropped = false;
+            foreach (var row in envelope.Rows)
+            {
+                if (row == null) throw new FormatException();
+                DateTimeOffset? day = null;
+                if (byDay)
+                {
+                    if (!DateTimeOffset.TryParseExact(row.Day, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
+                        || parsed < query.FromUtc || parsed >= query.ToUtc) throw new FormatException();
+                    day = parsed;
+                }
+                else if (row.Day != null) throw new FormatException();
+                var repository = byRepository ? Dimension(row.Repo, 400) : Absent(row.Repo);
+                var model = byModel ? Dimension(row.Model, 200) : Absent(row.Model);
+                var totals = DetailTotals(row);
+                var dayKey = day.HasValue ? day.Value.UtcTicks.ToString(CultureInfo.InvariantCulture) : "";
+                if (!seen.Add(dayKey + "\u0001" + repository + "\u0001" + model)) throw new FormatException();
+                if (repository != null) repository = SafeRepository(repository);
+
+                // The tool matches filters as text, so keep only exact matches.
+                if ((query.RepositoryFilter != null && !string.Equals(repository, query.RepositoryFilter, StringComparison.OrdinalIgnoreCase))
+                    || (query.ModelFilter != null && !string.Equals(model, query.ModelFilter, StringComparison.OrdinalIgnoreCase)))
+                { dropped = true; continue; }
+
+                // Different unsupported origins share one label, so their rows are combined.
+                var key = dayKey + "\u0001" + repository + "\u0001" + model;
+                if (merged.TryGetValue(key, out var existing)) existing.Totals = Combine(existing.Totals, totals);
+                else
+                {
+                    var added = new DetailsRow { DayUtc = day, Repository = repository, Model = model, Totals = totals };
+                    merged.Add(key, added);
+                    rows.Add(added);
+                }
+            }
+
+            report.Rows = rows
+                .OrderBy(row => row.DayUtc ?? DateTimeOffset.MinValue)
+                .ThenBy(row => row.Repository, StringComparer.Ordinal)
+                .ThenBy(row => row.Model, StringComparer.Ordinal)
+                .ToArray();
+            // With a filter, the tool's text matching and its row cap cannot be reconciled with exact matching, so a truncated
+            // filtered read has no trustworthy total.
+            var filtered = query.RepositoryFilter != null || query.ModelFilter != null;
+            report.Total = filtered && envelope.Truncated == true ? null : dropped ? SumRows(report.Rows) : tool;
+            report.RowsCapped = envelope.Truncated == true || envelope.Rows.Length >= limit;
+            report.Status = "available";
+            report.ErrorCode = null;
+        }
+
+        private static int BitCount(DetailsGrouping grouping)
+        {
+            var count = 0;
+            foreach (DetailsGrouping flag in new[] { DetailsGrouping.Day, DetailsGrouping.Repository, DetailsGrouping.Model })
+                if ((grouping & flag) != 0) count++;
+            return count;
+        }
+
+        private static bool SameDimensions(string[] reported, DetailsGrouping grouping)
+        {
+            var expected = new HashSet<string>(StringComparer.Ordinal);
+            if ((grouping & DetailsGrouping.Day) != 0) expected.Add("day");
+            if ((grouping & DetailsGrouping.Repository) != 0) expected.Add("repo");
+            if ((grouping & DetailsGrouping.Model) != 0) expected.Add("model");
+            return reported.All(value => value != null && expected.Remove(value)) && expected.Count == 0;
+        }
+
+        private static string? Absent(string? value) => value == null ? null : throw new FormatException();
+
+        // Only owner/repo (or the tool's own "unknown") is shown; any other recorded origin could be a path or a URL with credentials.
+        private static string SafeRepository(string value) =>
+            value == "unknown" || DetailsQuery.IsValidRepositoryFilter(value) ? value : DetailsQuery.UnsupportedOrigin;
+
+        private static DetailsTotals Combine(DetailsTotals first, DetailsTotals second) => checked(new DetailsTotals
+        {
+            Requests = first.Requests + second.Requests,
+            InputTokens = first.InputTokens + second.InputTokens,
+            OutputTokens = first.OutputTokens + second.OutputTokens,
+            Credits = first.Credits.HasValue && second.Credits.HasValue ? first.Credits + second.Credits : null,
+            Chats = null
+        });
+
+        private static string Dimension(string? value, int maximumLength)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value!.Length > maximumLength || value.Any(char.IsControl)) throw new FormatException();
+            return value;
+        }
+
+        private static DetailsTotals DetailTotals(TotalFields? value)
+        {
+            if (value == null || value.Requests == null || value.InputTokens == null || value.OutputTokens == null || value.Chats == null
+                || value.Requests < 0 || value.Credits < 0 || value.InputTokens < 0 || value.OutputTokens < 0 || value.Chats < 0) throw new FormatException();
+            return new DetailsTotals
+            {
+                Requests = value.Requests.Value, Credits = value.Credits, InputTokens = value.InputTokens.Value,
+                OutputTokens = value.OutputTokens.Value, Chats = value.Chats
+            };
+        }
+
+        // Used only when exact filtering removed rows from the tool's total. Chats can then be stated only for a single group.
+        private static DetailsTotals SumRows(DetailsRow[] rows)
+        {
+            var total = new DetailsTotals { Credits = 0m };
+            checked
+            {
+                foreach (var row in rows)
+                {
+                    total.Requests += row.Totals.Requests;
+                    total.InputTokens += row.Totals.InputTokens;
+                    total.OutputTokens += row.Totals.OutputTokens;
+                    total.Credits = total.Credits.HasValue && row.Totals.Credits.HasValue ? total.Credits + row.Totals.Credits : null;
+                }
+            }
+            total.Chats = rows.Length == 0 ? 0L : rows.Length == 1 ? rows[0].Totals.Chats : null;
+            return total;
         }
 
         private static void SetMonthlyAvailable(LocalReadResult result, LocalUsageTotals total)
@@ -327,6 +488,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
             [JsonProperty("cache_read_tokens")] public long? CacheReadTokens { get; set; }
             [JsonProperty("cache_write_tokens")] public long? CacheWriteTokens { get; set; }
             [JsonProperty("reasoning_tokens")] public long? ReasoningTokens { get; set; }
+            [JsonProperty("chats")] public long? Chats { get; set; }
         }
 
         [JsonObject(MemberSerialization.OptIn)]
@@ -334,6 +496,7 @@ namespace CopilotUsageMeter.Readers.ChatHistoryCli
         {
             [JsonProperty("day")] public string? Day { get; set; }
             [JsonProperty("repo")] public string? Repo { get; set; }
+            [JsonProperty("model")] public string? Model { get; set; }
         }
 
         [JsonObject(MemberSerialization.OptIn)]
