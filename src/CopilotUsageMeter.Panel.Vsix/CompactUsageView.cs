@@ -51,8 +51,8 @@ namespace CopilotUsageMeter.Panel.Vsix
         private static readonly FontFamily IconFont = new FontFamily("Segoe MDL2 Assets");
         private const double RowGap = 8, ChevronSize = 9;
         private const int TooltipDelayMs = 150;
-        // Estimated widths of the fixed row parts, including chevron and menu; the bar strip gets whatever remains.
-        private const double WideFixedWidth = 594, MediumFixedWidth = 365;
+        // Horizontal margins around the bar strip (RowGap * 2 before, 6 after) and a small slack so the strip never touches the next element.
+        private const double StripMargins = RowGap * 2 + 6, StripSlack = 6;
 
         private enum Tier { Wide, Medium, Narrow }
 
@@ -76,6 +76,9 @@ namespace CopilotUsageMeter.Panel.Vsix
         private string? placementNote;
         private bool confirmingLogOut;
         private string signature = "";
+        // Natural width of the row without bars (and of the trailing label), re-measured only when the row's content changes, not on every resize.
+        private string naturalKey = "";
+        private double naturalWidth, trailingWidth;
         private DateTime closedAt = DateTime.MinValue;
         private Button? cancelButton;
         private bool busy;
@@ -208,6 +211,7 @@ namespace CopilotUsageMeter.Panel.Vsix
         private void Rebuild(bool force)
         {
             var tier = CurrentTier();
+            MeasureNatural(tier);
             var barCount = BarCountForTier(tier);
             var next = Signature(tier, barCount) + "|" + BarSlot(tier, barCount);
             if (!force && next == signature) return;
@@ -250,10 +254,31 @@ namespace CopilotUsageMeter.Panel.Vsix
             return UsageDisplay.BarCountFor(BarSpace(tier), display.Bars.Length);
         }
 
-        private double BarSpace(Tier tier) => ActualWidth - 8 - (tier == Tier.Wide ? WideFixedWidth : MediumFixedWidth);
+        // Measures the row as it would look without bars, so the strip gets exactly the room left over rather than an estimate.
+        private void MeasureNatural(Tier tier)
+        {
+            var key = Signature(tier, 0);
+            if (key == naturalKey) return;
+            BuildRow(tier, 0);
+            content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            naturalWidth = content.DesiredSize.Width;
+            var trailing = Label(display.LastText, muted: true);
+            trailing.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            trailingWidth = trailing.DesiredSize.Width;
+            naturalKey = key;
+        }
 
-        // The small margin keeps the wider bars from crowding the trailing label or the menu button.
-        private double BarSlot(Tier tier, int barCount) => barCount == 0 ? UsageDisplay.BarSlotWidth : UsageDisplay.BarSlotFor(BarSpace(tier) - 12, barCount);
+        // The content column is the star column between the chevron and the menu button; the fallback only applies before the first layout.
+        private double ContentWidth()
+        {
+            var width = root.ColumnDefinitions[1].ActualWidth;
+            return width > 0 ? width : Math.Max(0, ActualWidth - 100);
+        }
+
+        private double BarSpace(Tier tier) =>
+            ContentWidth() - naturalWidth - StripMargins - StripSlack - (tier == Tier.Wide ? trailingWidth : 0);
+
+        private double BarSlot(Tier tier, int barCount) => barCount == 0 ? UsageDisplay.BarSlotWidth : UsageDisplay.BarSlotFor(BarSpace(tier), barCount);
 
         private void BuildRow(Tier tier, int barCount)
         {
